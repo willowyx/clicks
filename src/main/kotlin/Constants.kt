@@ -1,116 +1,42 @@
 package dev.willowyx
 
-class Constants {
-    private var ticksPerSecond = 1                  // calculations are run every tick period
-    private var uncertaintyScale: Double = 2.0      // range that "neutral" variance can affect generation
-    private var bonusStatScale: Double = 1.1        // upper limit for positive stats bonus (before prestige)
-    private var currentClicks = 0                   // unspent
-    private var currentPacks = 0                    // number of packages completed
-    private var packBonusAmount = 0                 // progress towards next bonus
-    private var clicksPerPack = 350                 // clicks required per package
-    private var packRewardAmount = 20               // base reward per package delivered
-    private var bonusPayInterval = 50               // bonus given per bonusPayInterval packages
-    private var bonusPayScale: Double = 1.1         // bonus = packRewardAmount * bonusPayScale
-    private var clicksPerTick = 10                  // clicks generated per tick period
-    private var currentMoney = 0
-    private var currentPrestige = 0
-    private var combinedClicks = 0
-    private var fuzzySelectRange = 10               // acceptable range to allow packaging
+data class Constants(
+    var ticksPerSecond: Int = 1,                    // calculations are run every tick period
+    // can be increased
+    var uncertaintyFloor: Double = 0.1,             // smallest uncertainty value
+    // can be increased
+    var uncertaintyLimit: Double = 3.0,             // largest uncertainty variance (not for money except bonuses)
+    // can be increased or decreased
+    var currentClicks: Int = 0,                     // unpackaged clicks
+    // game state variable
+    var currentPacks: Int = 0,                      // number of packages completed
+    // game state variable
+    var packBonusAmount: Int = 0,                   // progress towards next bonus
+    //
+    var clicksPerPack: Int = 250,                   // clicks required per package
 
+    var packRewardAmount: Int = 50,                 // base reward per package delivered
 
-    // GETTERS
+    var bonusPayInterval: Int = 20,                 // bonus given per bonus interval or perfect package
 
-    fun getTicksPerSecond(): Int {
-        return ticksPerSecond
-    }
-    fun getUncertaintyScale(): Double {
-        return uncertaintyScale
-    }
-    fun getBonusStatScale(): Double {
-        return bonusStatScale
-    }
-    fun getCurrentClicks(): Int {
-        return currentClicks
-    }
-    fun getCurrentPacks(): Int {
-        return currentPacks
-    }
-    fun getPackBonusAmount(): Int {
-        return packBonusAmount
-    }
-    fun getClicksPerPack(): Int {
-        return clicksPerPack
-    }
-    fun getPackRewardAmount(): Int {
-        return packRewardAmount
-    }
-    fun getBonusPayInterval(): Int {
-        return bonusPayInterval
-    }
-    fun getBonusPayScale(): Double {
-        return bonusPayScale
-    }
-    fun getClicksPerTick(): Int {
-        return clicksPerTick
-    }
-    fun getCurrentMoney(): Int {
-        return currentMoney
-    }
-    fun getCurrentPrestige(): Int {
-        return currentPrestige
-    }
-    fun getCombinedClicks(): Int {
-        return combinedClicks
-    }
-    fun getFuzzySelectRange(): Int {
-        return fuzzySelectRange
-    }
+    var bonusPayScale: Double = 1.1,                // bonus = packRewardAmount * bonusPayScale
 
-    // SETTERS
+    var clicksPerTick: Int = 5,                     // clicks generated per tick period
 
-    fun setTicksPerSecond(value: Int) {
-        ticksPerSecond = value
-    }
-    fun setUncertaintyScale(value: Double) {
-        uncertaintyScale = value
-    }
-    fun setBonusStatScale(value: Double) {
-        bonusStatScale = value
-    }
-    fun setCurrentClicks(value: Int) {
-        currentClicks = value
-    }
-    fun setCurrentPacks(value: Int) {
-        currentPacks = value
-    }
-    fun setPackBonusAmount(value: Int) {
-        packBonusAmount = value
-    }
-    fun setClicksPerPack(value: Int) {
-        clicksPerPack = value
-    }
-    fun setPackRewardAmount(value: Int) {
-        packRewardAmount = value
-    }
-    fun setBonusPayInterval(value: Int) {
-        bonusPayInterval = value
-    }
-    fun setBonusPayScale(value: Double) {
-        bonusPayScale = value
-    }
-    fun setClicksPerTick(value: Int) {
-        clicksPerTick = value
-    }
-    fun setCurrentMoney(value: Int) {
-        currentMoney = value
-    }
-    fun setCurrentPrestige(value: Int) {
-        currentPrestige = value
-    }
-    fun setCombinedClicks(value: Int) {
-        combinedClicks = value
-    }
-    fun setFuzzySelectRange(value: Int) {
-        fuzzySelectRange = value
-    }
-}
+    var currentMoney: Int = 0,                      // accumulated unspent money
+
+    var currentPrestige: Int = 0,                   // prestige-linked multipliers are always positive
+
+    var combinedClicks: Int = 0,                    // total clicks statistic
+
+    var totalTicks: Int = 0,                        // total ticks statistic
+
+    var fuzzySelectRange: Int = 10,                 // allow packaging of clicks within this range
+
+    var fuzzySelectPenaltyUnit: Int = 1,            // penalty for inaccurate packs (per n clicks from target)
+    // can be increased
+    var maxPenalty: Double = 0.9,                   // max penalty for inaccurate packs (as % of base reward)
+    // can be decreased
+    var minReward: Int = 10,                        // consolation prize for unpackable clicks (if way too high)
+    // can be increased
+)
