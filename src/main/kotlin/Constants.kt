@@ -1,5 +1,3 @@
-package dev.willowyx
-
 data class Constants(
     var ticksPerSecond: Int = 1,                    // calculations are run every tick period
     // can be increased

@@ -13,22 +13,37 @@ import org.lwjgl.system.MemoryUtil.NULL
 object Main {
     private var imGuiGl3: ImGuiImplGl3? = null
     private var imGuiGlfw: ImGuiImplGlfw? = null
-
+    private var glslVersion: String = "#version 130"
 
     @JvmStatic
     fun main(args: Array<String>) {
-        // create error callback
         GLFWErrorCallback.createPrint(System.err).set()
         if (!glfwInit()) error("Unable to initialize GLFW")
 
+        fun decideGlGlslVersions() {
+            if (System.getProperty("os.name").lowercase().contains("mac")) {
+                glslVersion = "#version 150"
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2)
+                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
+                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
+            } else {
+                glslVersion = "#version 130"
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
+                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0)
+            }
+        }
+
         glfwDefaultWindowHints()
+        decideGlGlslVersions()
+
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE)
 
-        val window = glfwCreateWindow(800, 600, "imgui::clicks v", NULL, NULL)
+        val window = glfwCreateWindow(800, 600, "clicks", NULL, NULL)
         if (window == NULL) error("Failed to create window")
         glfwMakeContextCurrent(window)
-        glfwSwapInterval(1) // V-sync
+        glfwSwapInterval(1) // vsync
         glfwShowWindow(window)
 
         GL.createCapabilities()
@@ -37,16 +52,12 @@ object Main {
         imGuiGlfw = ImGuiImplGlfw()
         imGuiGlfw!!.init(window, true)
 
-        imGuiGl3 = ImGuiImplGl3()
-        imGuiGl3!!.init("#version 330")
-
         val io: ImGuiIO = ImGui.getIO()
         io.iniFilename = null
         io.addConfigFlags(ImGuiConfigFlags.DockingEnable)
 
-        imGuiGl3 = ImGuiImplGl3().apply { init("#version 330") }
+        imGuiGl3 = ImGuiImplGl3().apply { init(glslVersion) }
 
-        // Main loop
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents()
 

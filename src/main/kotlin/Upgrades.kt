@@ -1,5 +1,3 @@
-package dev.willowyx
-
 data class Upgrades(
     // ideas
     // soft click req: [earn 50% (-10% per level) less cash clicks per click you're off by]

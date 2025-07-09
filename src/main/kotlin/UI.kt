@@ -1,12 +1,11 @@
 import imgui.ImGui
 import imgui.type.ImBoolean
-import imgui.type.ImFloat
 import imgui.type.ImString
 import java.util.Properties
 
 object UI {
 
-    val gl = dev.willowyx.GameLogic()
+    val gl = GameLogic()
 
     fun getAppVersion(): String {
         val props = Properties()
@@ -24,7 +23,7 @@ object UI {
     private val volume = floatArrayOf(0.5f)
 
     fun render() {
-        ImGui.begin("Main Panel")
+        ImGui.begin("Game control")
 
         ImGui.text("clicks")
 
@@ -33,7 +32,7 @@ object UI {
         }
 
         ImGui.sameLine()
-        ImGui.text("← Button label")
+        ImGui.text("start a new game")
 
         ImGui.inputText("Name", nameInput)
         ImGui.checkbox("Enable Feature", isEnabled)

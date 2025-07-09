@@ -1,5 +1,3 @@
-package dev.willowyx
-
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -7,8 +5,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.text.compareTo
 
 class GameLogic {
     private val job = Job()
@@ -33,7 +29,7 @@ class GameLogic {
         val maxSelect = constants.clicksPerPack + (constants.fuzzySelectRange + 1)
         val specificity = abs(constants.clicksPerPack - constants.currentClicks)
         val maxPenaltyInt = (constants.maxPenalty * constants.packRewardAmount).toInt()
-        val calculatedPenaltyInt = (specificity * constants.fuzzySelectPenaltyUnit).toInt()
+        val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
 
         if (constants.currentClicks < minSelect) {
             println("${constants.currentClicks}/${constants.clicksPerPack} clicks")
@@ -52,8 +48,10 @@ class GameLogic {
                 println("perfect package, applied full reward plus bonus")
             }
             constants.currentClicks in minSelect..maxSelect -> {
-                val penalty = calculatedPenaltyInt.coerceAtMost(maxPenaltyInt)
-                constants.currentMoney += calcPackageReward() - penalty
+                val prewarddef = calcPackageReward()                    // define package reward amount
+                val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
+                val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
+                constants.currentMoney += prewarddef - penalty
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
@@ -99,7 +97,7 @@ class GameLogic {
     }
 
     fun calcUncertainty(): Double {     // random uncertainty scaler from floor to limit
-        var uncertaintyrtn = constants.uncertaintyFloor + Math.random() * (constants.uncertaintyLimit - constants.uncertaintyFloor)
+        val uncertaintyrtn = constants.uncertaintyFloor + Math.random() * (constants.uncertaintyLimit - constants.uncertaintyFloor)
 //        println("uncertainty: $uncertaintyrtn")
         return uncertaintyrtn
     }
