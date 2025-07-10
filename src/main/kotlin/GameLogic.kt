@@ -15,10 +15,15 @@ class GameLogic {
     fun genStart() {
         scope.launch {
             while (true) {
-                val tickrtn: Int = runTick()
-                constants.currentClicks += tickrtn                                          // update clicks
-                tryPackage()                                                                // check if packageable
-                constants.currentMoney += calcPrestige()                                    // apply bonuses
+                for( i in 1..constants.ticksPerSecond) {                                // run for each tick
+                    println("subtick $i/${constants.ticksPerSecond}")
+                    val tickrtn: Int = runTick()
+                    constants.currentClicks += tickrtn                                        // update clicks
+                    tryPackage()                                                              // check if packageable
+                    constants.currentMoney += calcPrestige()                                  // apply bonuses
+//                    println(statDump())
+//                    println("current money ${constants.currentMoney}")
+                }
                 delay(1000L)
             }
         }
@@ -36,16 +41,17 @@ class GameLogic {
             return
         }
 
-        awaitInput("Press Enter to package...")
+        awaitInput("Press Enter to package ${constants.currentClicks} clicks...")
 
         when {
             constants.currentClicks == constants.clicksPerPack -> {
-                constants.currentMoney += calcPackageReward()
+                val prewarddef = calcPackageReward()
+                constants.currentMoney += prewarddef
                 constants.currentMoney += calcPackBonus()
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
-                println("perfect package, applied full reward plus bonus")
+//                println("perfect package, applied full reward of $prewarddef; new total: ${constants.currentMoney}")
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = calcPackageReward()                    // define package reward amount
@@ -55,19 +61,20 @@ class GameLogic {
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
-                println("over/undershot but within range; applied penalty of $penalty")
+//                println("over/undershot but within range; applied penalty of $penalty; new total: ${constants.currentMoney}")
             }
             else -> {
                 constants.currentMoney += calcPackageReward() - maxPenaltyInt
                 constants.currentClicks = 0
-                println("overshot by more than max of ${constants.fuzzySelectRange}, consolation prize applied")
+//                println("overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied; new total: ${constants.currentMoney}")
             }
         }
 
         if (constants.packBonusAmount % constants.bonusPayInterval == 0) {
+            val packbonusrtn = calcPackBonus()
             constants.packBonusAmount = 0
-            constants.currentMoney += calcPackBonus()
-            println("bonus interval applied & reset")
+            constants.currentMoney += packbonusrtn
+//            println("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
         }
     }
 
@@ -83,16 +90,16 @@ class GameLogic {
 
     fun calcClicks(): Int {             // calculate clicks + uncertainty
         val clickrtn = (constants.clicksPerTick * calcUncertainty()).toInt()
-        println("clicks: $clickrtn")
+//        println("clicks: $clickrtn")
         return clickrtn
     }
 
-    fun calcPackageReward(): Int {      // calculate reward for a single package
-        var moneyrtn: Int = constants.packRewardAmount
-        if(constants.currentPacks % constants.bonusPayInterval == 0) {              // check if eligible for bonus
-            moneyrtn = (calcUncertainty() * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
+    fun calcPackageReward(): Long {      // calculate reward for a single package
+        var moneyrtn = constants.packRewardAmount
+        if(constants.currentPacks % constants.bonusPayInterval == 0.toLong()) {              // check if eligible for bonus
+            moneyrtn += (calcUncertainty() * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
         }
-        println("package reward: $moneyrtn, total: ${constants.currentMoney + moneyrtn}")
+//        println("package reward: $moneyrtn")
         return moneyrtn
     }
 
@@ -102,11 +109,16 @@ class GameLogic {
         return uncertaintyrtn
     }
 
-    fun calcPrestige(): Int {           // calculate prestige bonus to add (includes stat scaler)
-        val prestigeScale: Double = 1 + (constants.currentPrestige * 0.3)
-        var prestigertn = constants.currentMoney * (1 + calcUncertainty())          // apply additional bonus scaler
-        prestigertn = (prestigertn * prestigeScale)                                 // apply prestige scaler
-        return prestigertn.toInt()
+    fun calcPrestige(): Int {
+        if (constants.currentPrestige == 0) return 0
+
+        val base = constants.currentPacks + (constants.totalTicks / 10)
+        val uncertainty = calcUncertainty().coerceAtMost(1.0 + (.1 * constants.uncertaintyLimit))
+        val prestigeScale = 1 + (constants.currentPrestige * 0.3)
+        val prestigeBonus = base * uncertainty * prestigeScale
+
+        println("Prestige bonus applied: ${prestigeBonus.toInt()}")
+        return prestigeBonus.toInt()
     }
 
     suspend fun awaitInput(message: String) {
@@ -114,6 +126,30 @@ class GameLogic {
         withContext(Dispatchers.IO) {
             readLine()
         }
+    }
+
+    fun statDump(): String {
+        return """
+    === CURRENT ===
+    clicks............${constants.currentClicks}
+    money.............${constants.currentMoney}
+    prestige..........${constants.currentPrestige}
+    === VARIABLES ===
+    baseClickAmt......${constants.clicksPerTick}
+    subticks..........${constants.ticksPerSecond}
+    baseReward........${constants.packRewardAmount}
+    scaleBonus........${constants.packBonusAmount}
+    uncertMin.........${constants.uncertaintyFloor}
+    uncertMax.........${constants.uncertaintyLimit}
+    fuzzyRange........${constants.fuzzySelectRange}
+    fuzzyPenaltyIntv..${constants.fuzzySelectPenaltyUnit}
+    maxPenalty........${constants.maxPenalty}
+    minReward.........${constants.minReward}
+    === STATS ===
+    clicks............${constants.combinedClicks}
+    packaged..........${constants.currentPacks}
+    ticks.............${constants.totalTicks}
+    """.trimIndent()
     }
 
     fun stop() {

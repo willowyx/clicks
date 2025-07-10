@@ -30,11 +30,20 @@ object UI {
         if (ImGui.button("New game")) {
             gl.genStart()
         }
-
         ImGui.sameLine()
-        ImGui.text("start a new game")
+        ImGui.text("start fresh")
 
         ImGui.inputText("Name", nameInput)
+        if (ImGui.button("Save game")) {
+            gl.stop()
+
+            println("would save game state as ${nameInput.get()}")
+        }
+
+        if (ImGui.button("Load game")) {
+            println("would load a saved game state")
+        }
+
         ImGui.checkbox("Enable Feature", isEnabled)
         ImGui.sliderFloat("Volume", volume, 0F, 1F)
 
