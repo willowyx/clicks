@@ -25,10 +25,10 @@ object Main {
                 glslVersion = "#version 150"
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2)
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
                 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
+                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
             } else {
-                glslVersion = "#version 130"
+                glslVersion = "#version 330"
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0)
             }
@@ -70,7 +70,7 @@ object Main {
             io.displaySize.y = fbHeight[0].toFloat()
 
             if (fbWidth[0] > 0 && fbHeight[0] > 0) {
-                // checking frame start requirements
+                // check frame start requirements
                 imGuiGlfw!!.newFrame()
                 imGuiGl3!!.newFrame()
                 ImGui.newFrame()
@@ -83,14 +83,14 @@ object Main {
                 glClear(GL_COLOR_BUFFER_BIT)
                 imGuiGl3!!.renderDrawData(ImGui.getDrawData())
             } else {
-                // Skip ImGui frame if display size is invalid
+                // skip imgui frame if invalid display size
                 glClearColor(0.1f, 0.1f, 0.1f, 1f)
                 glClear(GL_COLOR_BUFFER_BIT)
             }
             glfwSwapBuffers(window)
         }
 
-        // Cleanup
+        // cleanup
         imGuiGl3?.shutdown()
         ImGui.destroyContext()
         glfwFreeCallbacks(window)

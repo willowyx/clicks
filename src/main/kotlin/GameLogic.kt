@@ -6,17 +6,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
-class GameLogic {
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.Default + job)
+class GameLogic(private val logger: GameLogger) {
+    private var job = Job()
+    private var scope = CoroutineScope(Dispatchers.Default + job)
 
-    private var constants: Constants = Constants()
+    private var constants = Constants()
+    private var upgrades = Upgrades()
+
+    private fun resetScope() {
+        job = Job()
+        scope = CoroutineScope(Dispatchers.Default + job)
+    }
 
     fun genStart() {
+        resetScope()
         scope.launch {
             while (true) {
                 for( i in 1..constants.ticksPerSecond) {                                // run for each tick
-                    println("subtick $i/${constants.ticksPerSecond}")
+                    logger.log("subtick $i/${constants.ticksPerSecond}")
                     val tickrtn: Int = runTick()
                     constants.currentClicks += tickrtn                                        // update clicks
                     tryPackage()                                                              // check if packageable
@@ -37,11 +44,13 @@ class GameLogic {
         val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
 
         if (constants.currentClicks < minSelect) {
-            println("${constants.currentClicks}/${constants.clicksPerPack} clicks")
+            logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks")
             return
         }
 
-        awaitInput("Press Enter to package ${constants.currentClicks} clicks...")
+        if(!upgrades.autoPack) {
+            awaitInput("Press Enter to package ${constants.currentClicks} clicks...")
+        }
 
         when {
             constants.currentClicks == constants.clicksPerPack -> {
@@ -51,7 +60,7 @@ class GameLogic {
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
-//                println("perfect package, applied full reward of $prewarddef; new total: ${constants.currentMoney}")
+//                logger.log("perfect package, applied full reward of $prewarddef; new total: ${constants.currentMoney}")
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = calcPackageReward()                    // define package reward amount
@@ -61,12 +70,12 @@ class GameLogic {
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
-//                println("over/undershot but within range; applied penalty of $penalty; new total: ${constants.currentMoney}")
+//                logger.log("over/undershot but within range; applied penalty of $penalty; new total: ${constants.currentMoney}")
             }
             else -> {
                 constants.currentMoney += calcPackageReward() - maxPenaltyInt
                 constants.currentClicks = 0
-//                println("overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied; new total: ${constants.currentMoney}")
+//                logger.log("overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied; new total: ${constants.currentMoney}")
             }
         }
 
@@ -74,7 +83,7 @@ class GameLogic {
             val packbonusrtn = calcPackBonus()
             constants.packBonusAmount = 0
             constants.currentMoney += packbonusrtn
-//            println("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
+//            logger.log("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
         }
     }
 
@@ -90,7 +99,7 @@ class GameLogic {
 
     fun calcClicks(): Int {             // calculate clicks + uncertainty
         val clickrtn = (constants.clicksPerTick * calcUncertainty()).toInt()
-//        println("clicks: $clickrtn")
+//        logger.log("clicks: $clickrtn")
         return clickrtn
     }
 
@@ -99,13 +108,13 @@ class GameLogic {
         if(constants.currentPacks % constants.bonusPayInterval == 0.toLong()) {              // check if eligible for bonus
             moneyrtn += (calcUncertainty() * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
         }
-//        println("package reward: $moneyrtn")
+//        logger.log("package reward: $moneyrtn")
         return moneyrtn
     }
 
     fun calcUncertainty(): Double {     // random uncertainty scaler from floor to limit
         val uncertaintyrtn = constants.uncertaintyFloor + Math.random() * (constants.uncertaintyLimit - constants.uncertaintyFloor)
-//        println("uncertainty: $uncertaintyrtn")
+//        logger.log("uncertainty: $uncertaintyrtn")
         return uncertaintyrtn
     }
 
@@ -117,12 +126,12 @@ class GameLogic {
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)
         val prestigeBonus = base * uncertainty * prestigeScale
 
-        println("Prestige bonus applied: ${prestigeBonus.toInt()}")
+        logger.log("Prestige bonus applied: ${prestigeBonus.toInt()}")
         return prestigeBonus.toInt()
     }
 
     suspend fun awaitInput(message: String) {
-        println(message)
+        logger.log(message)
         withContext(Dispatchers.IO) {
             readLine()
         }
@@ -158,10 +167,4 @@ class GameLogic {
     }
 }
 
-fun main() {
-    val gl = GameLogic()
-    gl.genStart()
-    println("Press Enter to quit...")
-    readLine()
-    gl.stop()
-}
+// removed main as game interface should be handled by ui
