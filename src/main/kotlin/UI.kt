@@ -34,13 +34,8 @@ object UI : GameLogger {
         }
     }
 
-    private val nameInput = ImString(128)
-    private val isEnabled = ImBoolean(true)
-    private val volume = floatArrayOf(0.5f)
-
     fun render() {
-        ImGui.begin("Game control")
-
+        ImGui.begin("Controls")
         ImGui.text("clicks")
 
         if (ImGui.button("New game")) {
@@ -49,26 +44,29 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("start fresh")
 
-        ImGui.inputText("Name", nameInput)
         if (ImGui.button("Save game")) {
             gl.stop()
 
-            log("[INFO] would save game state as ${nameInput.get()}")
+            log("[INFO] would save game state")
         }
 
-        if (ImGui.button("Load game")) {
+        if (ImGui.button("Load game...")) {
             log("[INFO] would load a saved game state")
         }
 
-        ImGui.checkbox("Enable Feature", isEnabled)
-        ImGui.sliderFloat("Volume", volume, 0F, 1F)
+        ImGui.separator()
+        ImGui.text("Game actions")
 
-        ImGui.text("clicks v${getAppVersion()} by willow")
-        ImGui.text("willowyx.dev/projects/clicks")
+        if (gl.isAwaitingInput()) {
+            if (ImGui.button("Package!")) {
+                gl.confirmInput()
+            }
+        }
+
         ImGui.end()
 
         // Render game logs window
-        ImGui.begin("Game Logs")
+        ImGui.begin("Event Log")
 
         ImGui.inputText("Filter", logFilter)
 
@@ -87,8 +85,8 @@ object UI : GameLogger {
                 if (logFilter.get().isBlank() || line.contains(logFilter.get(), ignoreCase = true)) {
                     when {
                         line.contains("[ERROR]") -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.4f, 0.4f, 1f)   // Red
-                        line.contains("[WARN]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.8f, 0.3f, 1f)   // Orange
                         line.contains("[INFO]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.7f, 0.8f, 1f, 1f)   // Light blue
+                        line.contains("[READY]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.4f, 1f, 0.4f, 1f) // Green
                         else                     -> ImGui.pushStyleColor(ImGuiCol.Text, 0.9f, 0.9f, 0.9f, 1f) // Default gray
                     }
 
@@ -102,6 +100,36 @@ object UI : GameLogger {
             }
         }
         ImGui.endChild()
+        ImGui.end()
+
+        // Render game stats window
+        ImGui.begin("Stats")
+        ImGui.text("Game statistics")
+        ImGui.beginChild("StatsRegion", 0f, 0f, true)
+        ImGui.text(gl.statDump())
+        ImGui.endChild()
+        ImGui.end()
+
+        ImGui.begin("About")
+
+        ImGui.text("clicks v${getAppVersion()} by willow")
+        ImGui.text("willowyx.dev/projects/clicks")
+
+        ImGui.separator()
+        ImGui.text("Additional credits")
+        ImGui.beginChild("AboutCredits", 0f, 0f, true)
+        ImGui.textWrapped("""
+            This project was made possible by the following software and libraries:
+
+            imgui-java by SpaiR
+            Kotlin Coroutines
+            LWJGL 3
+            
+            NSIS (for Windows installer)
+            Packages by Stéphane Sudre (for macOS installer)
+        """.trimIndent())
+        ImGui.endChild()
+
         ImGui.end()
     }
 }

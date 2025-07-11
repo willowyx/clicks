@@ -3,7 +3,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 import kotlin.math.abs
 
 class GameLogic(private val logger: GameLogger) {
@@ -12,6 +14,10 @@ class GameLogic(private val logger: GameLogger) {
 
     private var constants = Constants()
     private var upgrades = Upgrades()
+
+    private var awaitingInput = false
+    fun isAwaitingInput(): Boolean = awaitingInput
+    private var inputContinuation: (Continuation<Unit>)? = null
 
     private fun resetScope() {
         job = Job()
@@ -49,7 +55,7 @@ class GameLogic(private val logger: GameLogger) {
         }
 
         if(!upgrades.autoPack) {
-            awaitInput("Press Enter to package ${constants.currentClicks} clicks...")
+            awaitInput("[READY] Ready to package ${constants.currentClicks} clicks")
         }
 
         when {
@@ -66,7 +72,7 @@ class GameLogic(private val logger: GameLogger) {
                 val prewarddef = calcPackageReward()                    // define package reward amount
                 val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
                 val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
-                constants.currentMoney += prewarddef - penalty
+                constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusAmount += 1
@@ -132,9 +138,16 @@ class GameLogic(private val logger: GameLogger) {
 
     suspend fun awaitInput(message: String) {
         logger.log(message)
-        withContext(Dispatchers.IO) {
-            readLine()
+        return suspendCancellableCoroutine { cont ->
+            awaitingInput = true
+            inputContinuation = cont
         }
+    }
+
+    fun confirmInput() {
+        inputContinuation?.resume(Unit)
+        inputContinuation = null
+        awaitingInput = false
     }
 
     fun statDump(): String {

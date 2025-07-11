@@ -35,6 +35,6 @@ data class Constants(
     // can be increased; capped at 1 000 000
     var maxPenalty: Double = 0.9,                   // max penalty for inaccurate packs (as % of base reward)
     // can be decreased; lower limit: 0.1
-    var minReward: Int = 10,                        // consolation prize for unpackable clicks (if way too high)
+    var minReward: Long = 10,                        // consolation prize for unpackable clicks (if way too high)
     // can be increased; capped at 1 000 000 (tentative)
 )
