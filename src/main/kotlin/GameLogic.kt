@@ -7,13 +7,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.math.abs
+import Constants as constants
+import Upgrades as upgrades
 
 class GameLogic(private val logger: GameLogger) {
     private var job = Job()
     private var scope = CoroutineScope(Dispatchers.Default + job)
-
-    private var constants = Constants()
-    private var upgrades = Upgrades()
 
     private var awaitingInput = false
     fun isAwaitingInput(): Boolean = awaitingInput
@@ -32,6 +31,7 @@ class GameLogic(private val logger: GameLogger) {
                     logger.log("subtick $i/${constants.ticksPerSecond}")
                     val tickrtn: Int = runTick()
                     constants.currentClicks += tickrtn                                        // update clicks
+                    constants.combinedClicks += tickrtn                                       // update total clicks
                     tryPackage()                                                              // check if packageable
                     constants.currentMoney += calcPrestige()                                  // apply bonuses
 //                    println(statDump())
@@ -61,11 +61,12 @@ class GameLogic(private val logger: GameLogger) {
         when {
             constants.currentClicks == constants.clicksPerPack -> {
                 val prewarddef = calcPackageReward()
-                constants.currentMoney += prewarddef
-                constants.currentMoney += calcPackBonus()
+                val pcalcbonusdef = calcPackBonus()                // define package reward amount
+                constants.currentMoney += prewarddef + pcalcbonusdef
+                constants.totalMoney += prewarddef + pcalcbonusdef
                 constants.currentPacks += 1
                 constants.currentClicks = 0
-                constants.packBonusAmount += 1
+                constants.packBonusProgress += 1
 //                logger.log("perfect package, applied full reward of $prewarddef; new total: ${constants.currentMoney}")
             }
             constants.currentClicks in minSelect..maxSelect -> {
@@ -75,7 +76,7 @@ class GameLogic(private val logger: GameLogger) {
                 constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
                 constants.currentPacks += 1
                 constants.currentClicks = 0
-                constants.packBonusAmount += 1
+                constants.packBonusProgress += 1
 //                logger.log("over/undershot but within range; applied penalty of $penalty; new total: ${constants.currentMoney}")
             }
             else -> {
@@ -85,11 +86,13 @@ class GameLogic(private val logger: GameLogger) {
             }
         }
 
-        if (constants.packBonusAmount % constants.bonusPayInterval == 0) {
+        if (constants.packBonusProgress % constants.bonusPayInterval == 0 && constants.packBonusProgress != 0) {
             val packbonusrtn = calcPackBonus()
-            constants.packBonusAmount = 0
+            constants.packBonusProgress = 0
             constants.currentMoney += packbonusrtn
 //            logger.log("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
+        } else {
+            constants.packBonusProgress++
         }
     }
 
@@ -100,7 +103,7 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun calcPackBonus(): Int {
-        return ((constants.packBonusAmount * constants.bonusPayScale) * calcUncertainty()).toInt() // calc pack bonus
+        return ((constants.packBonusProgress * constants.bonusPayScale) * calcUncertainty()).toInt() // calc pack bonus
     }
 
     fun calcClicks(): Int {             // calculate clicks + uncertainty
@@ -156,11 +159,12 @@ class GameLogic(private val logger: GameLogger) {
     clicks............${constants.currentClicks}
     money.............${constants.currentMoney}
     prestige..........${constants.currentPrestige}
+    bonusPayIntv......${constants.bonusPayInterval}
     === VARIABLES ===
     baseClickAmt......${constants.clicksPerTick}
     subticks..........${constants.ticksPerSecond}
     baseReward........${constants.packRewardAmount}
-    scaleBonus........${constants.packBonusAmount}
+    scaleBonus........${constants.packBonusProgress}
     uncertMin.........${constants.uncertaintyFloor}
     uncertMax.........${constants.uncertaintyLimit}
     fuzzyRange........${constants.fuzzySelectRange}
@@ -168,9 +172,10 @@ class GameLogic(private val logger: GameLogger) {
     maxPenalty........${constants.maxPenalty}
     minReward.........${constants.minReward}
     === STATS ===
-    clicks............${constants.combinedClicks}
+    clicksTotal.......${constants.combinedClicks}
+    moneyTotal........${constants.totalMoney}
     packaged..........${constants.currentPacks}
-    ticks.............${constants.totalTicks}
+    ticksElapsed......${constants.totalTicks}
     """.trimIndent()
     }
 

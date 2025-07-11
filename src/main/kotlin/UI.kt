@@ -3,6 +3,8 @@ import imgui.flag.ImGuiCol
 import imgui.type.ImBoolean
 import imgui.type.ImString
 import java.util.Properties
+import Constants as constants
+import Upgrades as upgrades
 
 object UI : GameLogger {
 
@@ -35,6 +37,7 @@ object UI : GameLogger {
     }
 
     fun render() {
+        upgrades.logger = this
         ImGui.begin("Controls")
         ImGui.text("clicks")
 
@@ -55,13 +58,23 @@ object UI : GameLogger {
         }
 
         ImGui.separator()
-        ImGui.text("Game actions")
-
+        ImGui.textWrapped("Game actions")
         if (gl.isAwaitingInput()) {
             if (ImGui.button("Package!")) {
                 gl.confirmInput()
             }
         }
+
+        ImGui.separator()
+        ImGui.textWrapped("Upgrades")
+        if (ImGui.button("Autopack")) {
+            upgrades.autoPackToggle()
+        }
+        ImGui.sameLine()
+        ImGui.text("(${if (upgrades.autoPack) "ON" else "$${upgrades.autoPackSp}"})")
+
+        ImGui.separator()
+        ImGui.textWrapped("Mods")
 
         ImGui.end()
 
