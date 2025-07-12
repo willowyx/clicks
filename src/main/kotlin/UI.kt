@@ -1,5 +1,6 @@
 import imgui.ImGui
 import imgui.flag.ImGuiCol
+import imgui.flag.ImGuiCond
 import imgui.type.ImBoolean
 import imgui.type.ImString
 import java.util.Properties
@@ -38,6 +39,19 @@ object UI : GameLogger {
 
     fun render() {
         upgrades.logger = this
+        constants.logger = this
+
+        val io = ImGui.getIO()
+        val displayWidth = io.displaySize.x
+        val displayHeight = io.displaySize.y
+        val controlsWidth = displayWidth * 0.30f
+        val middleWidth = displayWidth * 0.40f
+        val rightWidth = displayWidth * 0.30f
+        val topHeight = displayHeight * 0.6f
+        val bottomHeight = displayHeight * 0.4f
+
+        ImGui.setNextWindowPos(0f, 0f, ImGuiCond.Once)
+        ImGui.setNextWindowSize(controlsWidth, displayHeight, ImGuiCond.Once)
         ImGui.begin("Controls")
         ImGui.text("clicks")
 
@@ -58,6 +72,7 @@ object UI : GameLogger {
         }
 
         ImGui.separator()
+        // START ACTIONS
         ImGui.textWrapped("Game actions")
         if (gl.isAwaitingInput()) {
             if (ImGui.button("Package!")) {
@@ -66,19 +81,84 @@ object UI : GameLogger {
         }
 
         ImGui.separator()
+        // START UPGRADES
         ImGui.textWrapped("Upgrades")
+
+        ImGui.text("ticks/sec")
+        ImGui.sameLine()
+        if (ImGui.button("+###ticksPerSecond")) {
+            log(constants.ticksPerSecondAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.ticksPerSecondPrice()})")
+
+        ImGui.text("pack reward")
+        ImGui.sameLine()
+        if (ImGui.button("+###packRewardAmount")) {
+            log(constants.packRewardAmountAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.packRewardAmountPrice()})")
+
+        ImGui.text("bonus interval")
+        ImGui.sameLine()
+        if (ImGui.button("+###bonusPayInterval")) {
+            log(constants.bonusPayIntervalAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.bonusPayIntervalPrice()})")
+
+        ImGui.text("bonus pay multiplier")
+        ImGui.sameLine()
+        if (ImGui.button("+###bonusPayScale")) {
+            log(constants.bonusPayScaleAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.bonusPayScalePrice()})")
+
+        ImGui.text("base clicks/tick")
+        ImGui.sameLine()
+        if (ImGui.button("+###clicksPerTick")) {
+            log(constants.clicksPerTickAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.clicksPerTickPrice()})")
+
+        ImGui.text("pack penalty interval")
+        ImGui.sameLine()
+        if (ImGui.button("+###fuzzySelectPenaltyUnit")) {
+            log(constants.fuzzySelectPenaltyUnitAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.fuzzySelectPenaltyUnitPrice()})")
+
+        ImGui.separator()
+
+        // START MODS
+        ImGui.textWrapped("Mods")
+
         if (ImGui.button("Autopack")) {
             upgrades.autoPackToggle()
         }
         ImGui.sameLine()
         ImGui.text("(${if (upgrades.autoPack) "ON" else "$${upgrades.autoPackSp}"})")
 
-        ImGui.separator()
-        ImGui.textWrapped("Mods")
+        if (ImGui.button("Hedge fund")) {
+            upgrades.startHedgeFund()
+        }
+        ImGui.sameLine()
+        ImGui.text("(${if (upgrades.hedgeFund) "suited up" else "$${upgrades.hedgeFundSp}"})")
+        if (ImGui.button("BUY BUY BUY")) {
+            upgrades.buybuybuy()
+        }
+        ImGui.sameLine()
+        ImGui.text("invest ($2000+)")
 
         ImGui.end()
 
         // Render game logs window
+        ImGui.setNextWindowPos(controlsWidth, 0f, ImGuiCond.Once)
+        ImGui.setNextWindowSize(middleWidth, displayHeight, ImGuiCond.Once)
         ImGui.begin("Event Log")
 
         ImGui.inputText("Filter", logFilter)
@@ -98,8 +178,9 @@ object UI : GameLogger {
                 if (logFilter.get().isBlank() || line.contains(logFilter.get(), ignoreCase = true)) {
                     when {
                         line.contains("[ERROR]") -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.4f, 0.4f, 1f)   // Red
+                        line.contains("[WARN]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.8f, 0.4f, 1f)   // Yellow
                         line.contains("[INFO]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.7f, 0.8f, 1f, 1f)   // Light blue
-                        line.contains("[READY]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.4f, 1f, 0.4f, 1f) // Green
+                        line.contains("[READY]") || line.contains("[OK]") -> ImGui.pushStyleColor(ImGuiCol.Text, 0.4f, 1f, 0.4f, 1f) // Green
                         else                     -> ImGui.pushStyleColor(ImGuiCol.Text, 0.9f, 0.9f, 0.9f, 1f) // Default gray
                     }
 
@@ -116,6 +197,8 @@ object UI : GameLogger {
         ImGui.end()
 
         // Render game stats window
+        ImGui.setNextWindowPos(controlsWidth + middleWidth, 0f, ImGuiCond.Once)
+        ImGui.setNextWindowSize(rightWidth, topHeight, ImGuiCond.Once)
         ImGui.begin("Stats")
         ImGui.text("Game statistics")
         ImGui.beginChild("StatsRegion", 0f, 0f, true)
@@ -123,8 +206,10 @@ object UI : GameLogger {
         ImGui.endChild()
         ImGui.end()
 
+        // Render about window
+        ImGui.setNextWindowPos(controlsWidth + middleWidth, topHeight, ImGuiCond.Once)
+        ImGui.setNextWindowSize(rightWidth, bottomHeight, ImGuiCond.Once)
         ImGui.begin("About")
-
         ImGui.text("clicks v${getAppVersion()} by willow")
         ImGui.text("willowyx.dev/projects/clicks")
 
@@ -134,8 +219,8 @@ object UI : GameLogger {
         ImGui.textWrapped("""
             This project was made possible by the following software and libraries:
 
+            Dear ImGui by ocornut
             imgui-java by SpaiR
-            Kotlin Coroutines
             LWJGL 3
             
             NSIS (for Windows installer)
