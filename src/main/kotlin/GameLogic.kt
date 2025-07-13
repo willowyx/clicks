@@ -17,6 +17,7 @@ class GameLogic(private val logger: GameLogger) {
     private var awaitingInput = false
     fun isAwaitingInput(): Boolean = awaitingInput
     private var inputContinuation: (Continuation<Unit>)? = null
+    private var jobIsRunning: Boolean = false
 
     private fun resetScope() {
         job = Job()
@@ -25,6 +26,12 @@ class GameLogic(private val logger: GameLogger) {
 
     fun genStart() {
         resetScope()
+        if(jobIsRunning) {
+            logger.log("[ERROR] Game process is already running. Please stop it first.")
+            return
+        } else {
+            jobIsRunning = true
+        }
         scope.launch {
             while (true) {
                 for( i in 1..constants.ticksPerSecond) {                                // run for each tick
@@ -75,6 +82,7 @@ class GameLogic(private val logger: GameLogger) {
                 val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
                 val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
                 constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
+                constants.totalMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusProgress += 1
@@ -168,7 +176,8 @@ class GameLogic(private val logger: GameLogger) {
     baseClickAmt......${constants.clicksPerTick}
     subticks..........${constants.ticksPerSecond}
     baseReward........${constants.packRewardAmount}
-    scaleBonus........${constants.packBonusProgress}
+    bonusRewardIntv...${constants.bonusPayInterval}
+    bonusScaleAmt.....${constants.bonusPayScale}
     uncertMin.........${constants.uncertaintyFloor}
     uncertMax.........${constants.uncertaintyLimit}
     fuzzyRange........${constants.fuzzySelectRange}
@@ -186,6 +195,7 @@ class GameLogic(private val logger: GameLogger) {
     fun stop() {
         // need to implement save state when stopping
         job.cancel()
+        jobIsRunning = false
     }
 }
 

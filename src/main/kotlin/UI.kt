@@ -10,7 +10,7 @@ import Upgrades as upgrades
 object UI : GameLogger {
 
     private val logBuffer = mutableListOf<String>()
-    private val maxLogLines = 500
+    private val maxLogLines = 300
 
     private val autoScroll = ImBoolean(true)
     private val logFilter = ImString()
@@ -31,9 +31,9 @@ object UI : GameLogger {
         val stream = Main::class.java.classLoader.getResourceAsStream("version.properties")
         return if (stream != null) {
             props.load(stream)
-            props.getProperty("version") ?: "unknown"
+            props.getProperty("version") ?: "[unknown]"
         } else {
-            "unknown"
+            "[unknown]"
         }
     }
 
@@ -63,7 +63,6 @@ object UI : GameLogger {
 
         if (ImGui.button("Save game")) {
             gl.stop()
-
             log("[INFO] would save game state")
         }
 
@@ -71,20 +70,40 @@ object UI : GameLogger {
             log("[INFO] would load a saved game state")
         }
 
+        ImGui.newLine()
+        if (ImGui.button("How to play")) {
+            log("[INFO] would open game guide file")
+        }
+
         ImGui.separator()
         // START ACTIONS
-        ImGui.textWrapped("Game actions")
+        ImGui.text("Game actions")
         if (gl.isAwaitingInput()) {
             if (ImGui.button("Package!")) {
                 gl.confirmInput()
             }
+        }
+        if (upgrades.hedgeFund) {
+            if (ImGui.button("BUY BUY BUY")) {
+                upgrades.buybuybuy()
+            }
+            ImGui.sameLine()
+            ImGui.text("invest ($${(constants.currentMoney * 0.5).toInt().coerceAtLeast(2000)})")
         }
 
         ImGui.separator()
         // START UPGRADES
         ImGui.textWrapped("Upgrades")
 
-        ImGui.text("ticks/sec")
+        ImGui.text("base clicks/tick")
+        ImGui.sameLine()
+        if (ImGui.button("+###clicksPerTick")) {
+            log(constants.clicksPerTickAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.clicksPerTickPrice()})")
+
+        ImGui.text("subticks/tick")
         ImGui.sameLine()
         if (ImGui.button("+###ticksPerSecond")) {
             log(constants.ticksPerSecondAdd())
@@ -116,14 +135,6 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayScalePrice()})")
 
-        ImGui.text("base clicks/tick")
-        ImGui.sameLine()
-        if (ImGui.button("+###clicksPerTick")) {
-            log(constants.clicksPerTickAdd())
-        }
-        ImGui.sameLine()
-        ImGui.text("($${constants.clicksPerTickPrice()})")
-
         ImGui.text("pack penalty interval")
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectPenaltyUnit")) {
@@ -148,11 +159,6 @@ object UI : GameLogger {
         }
         ImGui.sameLine()
         ImGui.text("(${if (upgrades.hedgeFund) "suited up" else "$${upgrades.hedgeFundSp}"})")
-        if (ImGui.button("BUY BUY BUY")) {
-            upgrades.buybuybuy()
-        }
-        ImGui.sameLine()
-        ImGui.text("invest ($2000+)")
 
         ImGui.end()
 
@@ -214,17 +220,18 @@ object UI : GameLogger {
         ImGui.text("willowyx.dev/projects/clicks")
 
         ImGui.separator()
-        ImGui.text("Additional credits")
+        ImGui.textWrapped("Additional credits")
         ImGui.beginChild("AboutCredits", 0f, 0f, true)
         ImGui.textWrapped("""
-            This project was made possible by the following software and libraries:
+            This project was made possible by the following libraries and software:
 
-            Dear ImGui by ocornut
-            imgui-java by SpaiR
-            LWJGL 3
-            
-            NSIS (for Windows installer)
-            Packages by Stéphane Sudre (for macOS installer)
+            -Dear ImGui by ocornut
+            -imgui-java by SpaiR
+            -Kotlin Coroutines by JetBrains
+            -LWJGL3
+            -GLFW
+            -NSIS (for Windows installer)
+            -Packages by Stéphane Sudre (for macOS installer)
         """.trimIndent())
         ImGui.endChild()
 

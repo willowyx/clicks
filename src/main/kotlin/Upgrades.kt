@@ -39,7 +39,7 @@ object Upgrades {
     }
     fun buybuybuy() {
         if (hedgeFund && constants.currentMoney >= hedgeFundSp) {
-            val investment = constants.currentMoney * 0.5
+            val investment = (constants.currentMoney * 0.5).coerceAtLeast(hedgeFundSp.toDouble())
             val profit: Long = (investment * Random.nextDouble(hedgeRisk, hedgeGain))
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
             constants.currentMoney += profit

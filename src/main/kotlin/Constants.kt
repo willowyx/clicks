@@ -152,11 +152,11 @@ object Constants {
 
     var fuzzySelectPenaltyUnit: Int = 1             // inaccuracy penalty is applied per n clicks from target
     var fuzzySelectPenaltyUnitLv: Int = 1
-    var fuzzySelectPenaltyUnitSp: Int = 125
-    var fuzzySelectPenaltyUnitIntv: Int = 25
-    var fuzzySelectPenaltyUnitMax: Int = 100_000_000
+    var fuzzySelectPenaltyUnitSp: Int = 325
+    var fuzzySelectPenaltyUnitIntv: Int = 9
+    var fuzzySelectPenaltyUnitMax: Int = 1_000_000
     fun fuzzySelectPenaltyUnitPrice(): Int {
-        return (fuzzySelectPenaltyUnitSp * 1.8.pow((fuzzySelectPenaltyUnitLv - 1).toDouble())).toInt()
+        return (fuzzySelectPenaltyUnitSp * 1.5.pow((fuzzySelectPenaltyUnitLv - 1).toDouble())).toInt()
     }
     fun fuzzySelectPenaltyUnitAdd(): String {
         if(fuzzySelectPenaltyUnit >= fuzzySelectPenaltyUnitMax) {
