@@ -3,13 +3,23 @@ import kotlin.math.pow
 object Constants {
     lateinit var logger: GameLogger
 
+    fun Long.prettyFormat(): String {
+        val absValue = kotlin.math.abs(this)
+        return when {
+            absValue >= 1_000_000_000 -> String.format("%.2fB", this / 1_000_000_000.0)
+            absValue >= 1_000_000     -> String.format("%.2fM", this / 1_000_000.0)
+            absValue >= 1_000         -> String.format("%.2fk", this / 1_000.0)
+            else                      -> this.toString()
+        }
+    }
+
     var ticksPerSecond: Int = 1                     // calculations are run every tick period
     var ticksPerSecondLv: Int = 1                   // attribute level
     var ticksPerSecondSp: Int = 175                 // base upgrade price
     var ticksPerSecondIntv: Int = 1                 // interval by which the attribute is increased
     var ticksPerSecondMax: Int = 250                // soft cap (can be exceeded by no more than 1 additional interval)
-    fun ticksPerSecondPrice(): Int {
-        return (ticksPerSecondSp * 1.7.pow((ticksPerSecondLv - 1).toDouble())).toInt()
+    fun ticksPerSecondPrice(): Long {
+        return (ticksPerSecondSp * 1.25.pow((ticksPerSecondLv - 1).toDouble())).toLong()
     }
     fun ticksPerSecondAdd(): String {
         if(ticksPerSecond >= ticksPerSecondMax) {
@@ -46,8 +56,8 @@ object Constants {
     var clicksPerPackSp: Int = 425
     var clicksPerPackIntv: Int = 250
     var clicksPerPackMax: Int = 10_000_000
-    fun clicksPerPackPrice(): Int {
-        return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toInt()
+    fun clicksPerPackPrice(): Long {
+        return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toLong()
     }
     fun clicksPerPackAdd(): String {
         if(clicksPerPack >= clicksPerPackMax) {
@@ -68,7 +78,7 @@ object Constants {
         }
         val bpchance = Math.random()
         if(bpchance <= 0.01) {
-            val clickIncreaseAmt = (clicksPerPack * 0.01).toInt()
+            val clickIncreaseAmt = (clicksPerPack * 0.1).toInt()
             clicksPerPack += clickIncreaseAmt
         }
     }
@@ -79,8 +89,8 @@ object Constants {
     var packRewardAmountSp: Int = 250
     var packRewardAmountIntv: Int = 100
     var packRewardAmountMax: Int = 100_000_000 // CHECK THIS
-    fun packRewardAmountPrice(): Int {
-        return (packRewardAmountSp * 1.7.pow((packRewardAmountLv - 1).toDouble())).toInt()
+    fun packRewardAmountPrice(): Long {
+        return (packRewardAmountSp * 1.7.pow((packRewardAmountLv - 1).toDouble())).toLong()
     }
     fun packRewardAmountAdd(): String {
         if(packRewardAmount >= packRewardAmountMax) {
@@ -102,8 +112,8 @@ object Constants {
     var bonusPayIntervalSp: Int = 50
     var bonusPayIntervalIntv: Int = 1
     var bonusPayIntervalMin: Int = 1
-    fun bonusPayIntervalPrice(): Int {
-        return (bonusPayIntervalSp * 1.9.pow((bonusPayIntervalLv - 1).toDouble())).toInt()
+    fun bonusPayIntervalPrice(): Long {
+        return (bonusPayIntervalSp * 1.9.pow((bonusPayIntervalLv - 1).toDouble())).toLong()
     }
     fun bonusPayIntervalAdd(): String {
         if(bonusPayInterval <= bonusPayIntervalMin) {
@@ -126,8 +136,8 @@ object Constants {
     var bonusPayScaleSp: Int = 50
     var bonusPayScaleIntv: Double = 0.3
     var bonusPayScaleMax: Double = 100.0
-    fun bonusPayScalePrice(): Int {
-        return (bonusPayScaleSp * 1.25.pow((bonusPayScaleLv - 1).toDouble())).toInt()
+    fun bonusPayScalePrice(): Long {
+        return (bonusPayScaleSp * 1.25.pow((bonusPayScaleLv - 1).toDouble())).toLong()
     }
     fun bonusPayScaleAdd(): String {
         if(bonusPayScale >= bonusPayScaleMax) {
@@ -149,14 +159,17 @@ object Constants {
     var clicksPerTickSp: Int = 350
     var clicksPerTickIntv: Int = 75
     var clicksPerTickMax: Int = 250_000
-    fun clicksPerTickPrice(): Int {
-        return (clicksPerTickSp * 1.15.pow((clicksPerTickLv - 1).toDouble())).toInt()
+    fun clicksPerTickPrice(): Long {
+        return (clicksPerTickSp * 1.15.pow((clicksPerTickLv - 1).toDouble())).toLong()
     }
     fun clicksPerTickAdd(): String {
         if(clicksPerTick >= clicksPerTickMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= clicksPerTickPrice()) {
+            if(clicksPerTick * 6 > clicksPerPack) {
+                clicksPerPack = (clicksPerTick * 6) // ensure clicks/pack is always at least 4x clicks/tick
+            }
             currentMoney -= clicksPerTickPrice()
             clicksPerTickLv ++      // increase level
             clicksPerTick += clicksPerTickIntv        // increase attribute
@@ -181,8 +194,8 @@ object Constants {
     var fuzzySelectPenaltyUnitSp: Int = 325
     var fuzzySelectPenaltyUnitIntv: Int = 9
     var fuzzySelectPenaltyUnitMax: Int = 1_000_000
-    fun fuzzySelectPenaltyUnitPrice(): Int {
-        return (fuzzySelectPenaltyUnitSp * 1.5.pow((fuzzySelectPenaltyUnitLv - 1).toDouble())).toInt()
+    fun fuzzySelectPenaltyUnitPrice(): Long {
+        return (fuzzySelectPenaltyUnitSp * 1.5.pow((fuzzySelectPenaltyUnitLv - 1).toDouble())).toLong()
     }
     fun fuzzySelectPenaltyUnitAdd(): String {
         if(fuzzySelectPenaltyUnit >= fuzzySelectPenaltyUnitMax) {
@@ -204,8 +217,8 @@ object Constants {
     var maxPenaltySp: Int = 150
     var maxPenaltyIntv: Double = 0.1
     var maxPenaltyMin: Double = 0.1
-    fun maxPenaltyPrice(): Int {
-        return (maxPenaltySp * 1.5.pow((maxPenalty - 1).toDouble())).toInt()
+    fun maxPenaltyPrice(): Long {
+        return (maxPenaltySp * 1.5.pow((maxPenaltyLv - 1).toDouble())).toLong()
     }
     fun maxPenaltyAdd(): String {
         if(maxPenalty <= maxPenaltyMin) {
@@ -228,8 +241,8 @@ object Constants {
     var minRewardSp: Int = 50
     var minRewardIntv: Int = 25
     var minRewardMax: Int = 1_000_000
-    fun minRewardPrice(): Int {
-        return (minRewardSp * 1.35.pow((minReward - 1).toDouble())).toInt()
+    fun minRewardPrice(): Long {
+        return (minRewardSp * 1.35.pow((minRewardLv - 1).toDouble())).toLong()
     }
     fun minRewardAdd(): String {
         if(minReward >= minRewardMax) {
@@ -237,8 +250,8 @@ object Constants {
         }
         if(currentMoney >= minRewardPrice()) {
             currentMoney -= minRewardPrice()
-            minReward ++      // increase level
-            minReward += minReward        // increase attribute
+            minRewardLv ++      // increase level
+            minReward += minRewardIntv        // increase attribute
             return "[OK] minReward increased to $minReward"
         } else {
             return "[WARN] insufficient funds"

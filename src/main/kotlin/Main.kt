@@ -13,7 +13,8 @@ import org.lwjgl.system.MemoryUtil.NULL
 object Main {
     private var imGuiGl3: ImGuiImplGl3? = null
     private var imGuiGlfw: ImGuiImplGlfw? = null
-    private var glslVersion: String = "#version 130"
+    private var glslVersion: String = "#version 150"
+    private var wShouldQuit: Boolean = false
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -22,7 +23,7 @@ object Main {
 
         fun decideGlGlslVersions() {
             if (System.getProperty("os.name").lowercase().contains("mac")) {
-                glslVersion = "#version 150"
+//                glslVersion = "#version 150"
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2)
                 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
@@ -58,7 +59,7 @@ object Main {
 
         imGuiGl3 = ImGuiImplGl3().apply { init(glslVersion) }
 
-        while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(window) && !wShouldQuit) {
             glfwPollEvents()
 
             val fbWidth = IntArray(1)

@@ -1,3 +1,4 @@
+import Constants.prettyFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -93,7 +94,7 @@ class GameLogic(private val logger: GameLogger) {
                 constants.currentMoney += prewarddef - maxPenaltyInt
                 constants.totalMoney += prewarddef - maxPenaltyInt
                 constants.currentClicks = 0
-                logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied")
+                logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange} clicks")
             }
         }
 
@@ -167,8 +168,8 @@ class GameLogic(private val logger: GameLogger) {
     fun statDump(): String {
         return """
     === CURRENT ===
-    clicks............${constants.currentClicks}
-    money.............${constants.currentMoney}
+    clicks............${constants.currentClicks.toLong().prettyFormat()}
+    money.............${constants.currentMoney.prettyFormat()}
     prestige..........${constants.currentPrestige}
     bonusIntvProg.....${constants.packBonusProgress}
     === VARIABLES ===

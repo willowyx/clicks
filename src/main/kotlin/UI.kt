@@ -1,3 +1,4 @@
+import Constants.prettyFormat
 import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
@@ -72,7 +73,7 @@ object UI : GameLogger {
 
         ImGui.newLine()
         if (ImGui.button("How to play")) {
-            log("[INFO] would open game guide file")
+            log("[INFO] would open game guide")
         }
 
         ImGui.separator()
@@ -88,7 +89,7 @@ object UI : GameLogger {
                 upgrades.buybuybuy()
             }
             ImGui.sameLine()
-            ImGui.text("invest ($${(constants.currentMoney * 0.5).toInt().coerceAtLeast(2000)})")
+            ImGui.text("invest ($${(constants.currentMoney * 0.5).toLong().coerceAtLeast(2000).prettyFormat()})")
         }
 
         ImGui.separator()
@@ -98,10 +99,10 @@ object UI : GameLogger {
         ImGui.text("base clicks/pack")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerPack")) {
-            log(constants.clicksPerTickAdd())
+            log(constants.clicksPerPackAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.clicksPerPackPrice()})")
+        ImGui.text("($${constants.clicksPerPackPrice().prettyFormat()})")
 
         ImGui.text("base clicks/tick")
         ImGui.sameLine()
@@ -109,7 +110,7 @@ object UI : GameLogger {
             log(constants.clicksPerTickAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.clicksPerTickPrice()})")
+        ImGui.text("($${constants.clicksPerTickPrice().prettyFormat()})")
 
         ImGui.text("subticks/tick")
         ImGui.sameLine()
@@ -117,7 +118,7 @@ object UI : GameLogger {
             log(constants.ticksPerSecondAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.ticksPerSecondPrice()})")
+        ImGui.text("($${constants.ticksPerSecondPrice().prettyFormat()})")
 
         ImGui.text("pack reward")
         ImGui.sameLine()
@@ -125,7 +126,7 @@ object UI : GameLogger {
             log(constants.packRewardAmountAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.packRewardAmountPrice()})")
+        ImGui.text("($${constants.packRewardAmountPrice().prettyFormat()})")
 
         ImGui.text("bonus interval")
         ImGui.sameLine()
@@ -133,7 +134,7 @@ object UI : GameLogger {
             log(constants.bonusPayIntervalAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.bonusPayIntervalPrice()})")
+        ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
 
         ImGui.text("bonus pay multiplier")
         ImGui.sameLine()
@@ -141,7 +142,7 @@ object UI : GameLogger {
             log(constants.bonusPayScaleAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.bonusPayScalePrice()})")
+        ImGui.text("($${constants.bonusPayScalePrice().prettyFormat()})")
 
         ImGui.text("pack penalty interval")
         ImGui.sameLine()
@@ -149,7 +150,7 @@ object UI : GameLogger {
             log(constants.fuzzySelectPenaltyUnitAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.fuzzySelectPenaltyUnitPrice()})")
+        ImGui.text("($${constants.fuzzySelectPenaltyUnitPrice().prettyFormat()})")
 
         ImGui.text("max penalty")
         ImGui.sameLine()
@@ -157,7 +158,7 @@ object UI : GameLogger {
             log(constants.maxPenaltyAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.maxPenaltyPrice()})")
+        ImGui.text("($${constants.maxPenaltyPrice().prettyFormat()})")
 
         ImGui.text("min reward")
         ImGui.sameLine()
@@ -165,7 +166,7 @@ object UI : GameLogger {
             log(constants.minRewardAdd())
         }
         ImGui.sameLine()
-        ImGui.text("($${constants.minRewardPrice()})")
+        ImGui.text("($${constants.minRewardPrice().prettyFormat()})")
 
         ImGui.separator()
 
@@ -182,7 +183,11 @@ object UI : GameLogger {
             upgrades.startHedgeFund()
         }
         ImGui.sameLine()
-        ImGui.text("(${if (upgrades.hedgeFund) "give up?" else "$${upgrades.hedgeFundSp}"})")
+        ImGui.text("(${if (upgrades.hedgeFund) "give up?" else "$${upgrades.hedgeFundSp.toLong().prettyFormat()}"})")
+
+        if (ImGui.button("QA MONEY")) {
+            constants.currentMoney += 1000
+        }
 
         ImGui.end()
 
