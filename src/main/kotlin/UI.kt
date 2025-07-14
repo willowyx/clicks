@@ -95,6 +95,14 @@ object UI : GameLogger {
         // START UPGRADES
         ImGui.textWrapped("Upgrades")
 
+        ImGui.text("base clicks/pack")
+        ImGui.sameLine()
+        if (ImGui.button("+###clicksPerPack")) {
+            log(constants.clicksPerTickAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.clicksPerPackPrice()})")
+
         ImGui.text("base clicks/tick")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerTick")) {
@@ -143,6 +151,22 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.fuzzySelectPenaltyUnitPrice()})")
 
+        ImGui.text("max penalty")
+        ImGui.sameLine()
+        if (ImGui.button("+###maxPenalty")) {
+            log(constants.maxPenaltyAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.maxPenaltyPrice()})")
+
+        ImGui.text("min reward")
+        ImGui.sameLine()
+        if (ImGui.button("+###minReward")) {
+            log(constants.minRewardAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.minRewardPrice()})")
+
         ImGui.separator()
 
         // START MODS
@@ -158,7 +182,7 @@ object UI : GameLogger {
             upgrades.startHedgeFund()
         }
         ImGui.sameLine()
-        ImGui.text("(${if (upgrades.hedgeFund) "suited up" else "$${upgrades.hedgeFundSp}"})")
+        ImGui.text("(${if (upgrades.hedgeFund) "give up?" else "$${upgrades.hedgeFundSp}"})")
 
         ImGui.end()
 

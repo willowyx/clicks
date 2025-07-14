@@ -74,8 +74,8 @@ class GameLogic(private val logger: GameLogger) {
                 constants.totalMoney += prewarddef + pcalcbonusdef
                 constants.currentPacks += 1
                 constants.currentClicks = 0
-                constants.packBonusProgress += 1
-//                logger.log("perfect package, applied full reward of $prewarddef; new total: ${constants.currentMoney}")
+                constants.packBonusProgress ++
+                logger.log("perfect package, applied full reward of $prewarddef")
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = calcPackageReward()                    // define package reward amount
@@ -85,15 +85,15 @@ class GameLogic(private val logger: GameLogger) {
                 constants.totalMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
                 constants.currentPacks += 1
                 constants.currentClicks = 0
-                constants.packBonusProgress += 1
-//                logger.log("over/undershot but within range; applied penalty of $penalty; new total: ${constants.currentMoney}")
+                constants.packBonusProgress ++
+                logger.log("[INFO] over/undershot but within range; applied penalty of $penalty")
             }
             else -> {
                 val prewarddef = calcPackageReward()                    // define package reward amount
                 constants.currentMoney += prewarddef - maxPenaltyInt
                 constants.totalMoney += prewarddef - maxPenaltyInt
                 constants.currentClicks = 0
-//                logger.log("overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied; new total: ${constants.currentMoney}")
+                logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange}. ${constants.minReward} applied")
             }
         }
 
@@ -103,14 +103,13 @@ class GameLogic(private val logger: GameLogger) {
             constants.currentMoney += packbonusrtn
             constants.totalMoney += packbonusrtn
 //            logger.log("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
-        } else {
-            constants.packBonusProgress ++
         }
     }
 
     fun runTick(): Int {                // run tick, return clicks generated without updating stats
         val tickrtn = calcClicks()
-        constants.totalTicks++                                                             // increment total ticks
+        constants.totalTicks++                                              // increment total ticks
+        constants.clicksPerPackNatAdd()                                     // 1% chance to increment clicks per pack
         return tickrtn
     }
 

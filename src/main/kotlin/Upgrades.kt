@@ -40,6 +40,7 @@ object Upgrades {
     fun buybuybuy() {
         if (hedgeFund && constants.currentMoney >= hedgeFundSp) {
             val investment = (constants.currentMoney * 0.5).coerceAtLeast(hedgeFundSp.toDouble())
+            // 2000 minimum investment; above 4000 invests 50% current money
             val profit: Long = (investment * Random.nextDouble(hedgeRisk, hedgeGain))
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
             constants.currentMoney += profit
@@ -52,10 +53,8 @@ object Upgrades {
                 }
                 logger.log("[WARN] Hedge fund loss: $profit. Ouch.")
             }
-        } else if (!hedgeFund) {
-            logger.log("[WARN] Start a hedge fund first")
         } else {
-            logger.log("[WARN] insufficient funds to invest")
+            logger.log("[WARN] insufficient total funds to invest")
         }
     }
 

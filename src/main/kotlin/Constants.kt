@@ -43,9 +43,35 @@ object Constants {
 
     var clicksPerPack: Int = 250                    // clicks required per package
     var clicksPerPackLv: Int = 1
-    var clicksPerPackSp: Int = 750
-    var clicksPerPackIntv: Int = 1_000
+    var clicksPerPackSp: Int = 425
+    var clicksPerPackIntv: Int = 250
     var clicksPerPackMax: Int = 10_000_000
+    fun clicksPerPackPrice(): Int {
+        return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toInt()
+    }
+    fun clicksPerPackAdd(): String {
+        if(clicksPerPack >= clicksPerPackMax) {
+            return "[WARN] max level reached"
+        }
+        if(currentMoney >= clicksPerPackPrice()) {
+            currentMoney -= clicksPerPackPrice()
+            clicksPerPackLv ++      // increase level
+            clicksPerPack += clicksPerPackIntv        // increase attribute
+            return "[OK] clicksPerPack increased to $clicksPerPack"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
+    fun clicksPerPackNatAdd() {
+        if(clicksPerPack >= clicksPerPackMax) {
+            return                                    // upper limit reached
+        }
+        val bpchance = Math.random()
+        if(bpchance <= 0.01) {
+            val clickIncreaseAmt = (clicksPerPack * 0.01).toInt()
+            clicksPerPack += clickIncreaseAmt
+        }
+    }
     // can be increased or decreased; capped at 10 000 000
 
     var packRewardAmount: Long = 50                  // base reward per package delivered
@@ -69,8 +95,8 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-
     // can be increased
+
     var bonusPayInterval: Int = 20                  // bonus given per bonus interval or perfect package
     var bonusPayIntervalLv: Int = 1
     var bonusPayIntervalSp: Int = 50
@@ -101,7 +127,7 @@ object Constants {
     var bonusPayScaleIntv: Double = 0.3
     var bonusPayScaleMax: Double = 100.0
     fun bonusPayScalePrice(): Int {
-        return (bonusPayScaleSp * 1.4.pow((bonusPayScaleLv - 1).toDouble())).toInt()
+        return (bonusPayScaleSp * 1.25.pow((bonusPayScaleLv - 1).toDouble())).toInt()
     }
     fun bonusPayScaleAdd(): String {
         if(bonusPayScale >= bonusPayScaleMax) {
@@ -120,11 +146,11 @@ object Constants {
 
     var clicksPerTick: Int = 5                      // clicks generated per tick period
     var clicksPerTickLv: Int = 1
-    var clicksPerTickSp: Int = 500
+    var clicksPerTickSp: Int = 350
     var clicksPerTickIntv: Int = 75
     var clicksPerTickMax: Int = 250_000
     fun clicksPerTickPrice(): Int {
-        return (clicksPerTickSp * 1.4.pow((clicksPerTickLv - 1).toDouble())).toInt()
+        return (clicksPerTickSp * 1.15.pow((clicksPerTickLv - 1).toDouble())).toInt()
     }
     fun clicksPerTickAdd(): String {
         if(clicksPerTick >= clicksPerTickMax) {
@@ -178,6 +204,22 @@ object Constants {
     var maxPenaltySp: Int = 150
     var maxPenaltyIntv: Double = 0.1
     var maxPenaltyMin: Double = 0.1
+    fun maxPenaltyPrice(): Int {
+        return (maxPenaltySp * 1.5.pow((maxPenalty - 1).toDouble())).toInt()
+    }
+    fun maxPenaltyAdd(): String {
+        if(maxPenalty <= maxPenaltyMin) {
+            return "[WARN] max level reached"
+        }
+        if(currentMoney >= maxPenaltyPrice()) {
+            currentMoney -= maxPenaltyPrice()
+            maxPenaltyLv ++      // increase level
+            maxPenalty -= maxPenaltyIntv        // decrease attribute
+            return "[OK] maxPenalty decreased to $maxPenalty"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
     // can be decreased; lower limit: 0.1
 
 
@@ -186,6 +228,22 @@ object Constants {
     var minRewardSp: Int = 50
     var minRewardIntv: Int = 25
     var minRewardMax: Int = 1_000_000
+    fun minRewardPrice(): Int {
+        return (minRewardSp * 1.35.pow((minReward - 1).toDouble())).toInt()
+    }
+    fun minRewardAdd(): String {
+        if(minReward >= minRewardMax) {
+            return "[WARN] max level reached"
+        }
+        if(currentMoney >= minRewardPrice()) {
+            currentMoney -= minRewardPrice()
+            minReward ++      // increase level
+            minReward += minReward        // increase attribute
+            return "[OK] minReward increased to $minReward"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
     // can be increased; capped at 1 000 000 (tentative)
 
 
