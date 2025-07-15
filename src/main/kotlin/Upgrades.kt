@@ -59,5 +59,18 @@ object Upgrades {
         }
     }
 
+    var prevClickTime: Long = 0L
 
+    fun modResetClick() {
+        val now = System.currentTimeMillis()
+        if (now - prevClickTime <= 1000) {
+            constants.resetAll()
+            hedgeFund = false
+            prevClickTime = 0L
+            logger.log("[OK] All mods except auto-pack have been reset.")
+        } else {
+            prevClickTime = now
+            logger.log("[WARN] Click twice in a row to activate. All attributes will be reset!")
+        }
+    }
 }

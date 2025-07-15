@@ -144,6 +144,38 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayScalePrice().prettyFormat()})")
 
+        ImGui.text("WIP: uncertainty floor")
+        ImGui.sameLine()
+        if (ImGui.button("+###uncertaintyFloor")) {
+            log(constants.uncertaintyFloorAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.uncertaintyFloorPrice().prettyFormat()})")
+
+        if (ImGui.button("-###uncertaintyLimitSub")) {
+            log(constants.uncertaintyLimitSub())
+        }
+        ImGui.sameLine()
+        ImGui.text("WIP: uncertainty limit")
+        ImGui.sameLine()
+        if (ImGui.button("+###uncertaintyLimitAdd")) {
+            log(constants.uncertaintyLimitAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.uncertaintyLimitPrice().prettyFormat()})")
+
+        if (ImGui.button("-###fuzzySelectRangeSub")) {
+            log(constants.fuzzySelectRangeSub())
+        }
+        ImGui.sameLine()
+        ImGui.text("WIP: pack penalty range")
+        ImGui.sameLine()
+        if (ImGui.button("+###fuzzySelectRangeAdd")) {
+            log(constants.fuzzySelectRangeAdd())
+        }
+        ImGui.sameLine()
+        ImGui.text("($${constants.fuzzySelectRangePrice().prettyFormat()})")
+
         ImGui.text("pack penalty interval")
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectPenaltyUnit")) {
@@ -184,6 +216,16 @@ object UI : GameLogger {
         }
         ImGui.sameLine()
         ImGui.text("(${if (upgrades.hedgeFund) "give up?" else "$${upgrades.hedgeFundSp.toLong().prettyFormat()}"})")
+
+        if (ImGui.button("sell everything")) {
+            if (constants.getRefundEligibility()) {
+                upgrades.modResetClick()
+            } else {
+                log("[WARN] You must upgrade every attribute at least once to use this mod.")
+            }
+        }
+        ImGui.sameLine()
+        ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
         if (ImGui.button("QA MONEY")) {
             constants.currentMoney += 1000

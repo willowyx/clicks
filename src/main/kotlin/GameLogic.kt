@@ -174,15 +174,16 @@ class GameLogic(private val logger: GameLogger) {
     bonusIntvProg.....${constants.packBonusProgress}
     === VARIABLES ===
     baseClickAmt......${constants.clicksPerTick}
+    clicksPerPack.....${constants.clicksPerPack}
     subticks..........${constants.ticksPerSecond}
     baseReward........${constants.packRewardAmount}
     bonusRewardIntv...${constants.bonusPayInterval}
-    bonusScaleAmt.....${constants.bonusPayScale}
-    uncertMin.........${constants.uncertaintyFloor}
-    uncertMax.........${constants.uncertaintyLimit}
+    bonusScaleAmt.....${"%.2f".format(constants.bonusPayScale)}
+    uncertMin.........${"%.2f".format(constants.uncertaintyFloor)}
+    uncertMax.........${"%.2f".format(constants.uncertaintyLimit)}
     fuzzyRange........${constants.fuzzySelectRange}
     fuzzyPenaltyIntv..${constants.fuzzySelectPenaltyUnit}
-    maxPenalty........${constants.maxPenalty}
+    maxPenalty........${"%.2f".format(constants.maxPenalty)}
     minReward.........${constants.minReward}
     === STATS ===
     clicksTotal.......${constants.combinedClicks}
