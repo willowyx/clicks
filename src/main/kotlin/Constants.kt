@@ -7,10 +7,11 @@ object Constants {
     fun Long.prettyFormat(): String {
         val absValue = abs(this)
         return when {
-            absValue >= 1_000_000_000 -> String.format("%.2fB", this / 1_000_000_000.0)
-            absValue >= 1_000_000     -> String.format("%.2fM", this / 1_000_000.0)
-            absValue >= 1_000         -> String.format("%.2fk", this / 1_000.0)
-            else                      -> this.toString()
+            absValue >= 1_000_000_000_000   -> this.toString()
+            absValue >= 1_000_000_000       -> String.format("%.2fB", this / 1_000_000_000.0)
+            absValue >= 1_000_000           -> String.format("%.2fM", this / 1_000_000.0)
+            absValue >= 1_000               -> String.format("%.2fk", this / 1_000.0)
+            else                            -> this.toString()
         }
     }
 
