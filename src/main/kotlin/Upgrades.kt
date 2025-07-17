@@ -1,3 +1,4 @@
+import Constants.prettyFormat
 import kotlin.random.Random
 import Constants as constants
 
@@ -23,8 +24,8 @@ object Upgrades {
 
     var hedgeFund: Boolean = false
     var hedgeFundSp: Int = 2000
-    var hedgeRisk: Double = 0.2
-    var hedgeGain: Double = 2.5
+    var hedgeRisk: Double = 0.15
+    var hedgeGain: Double = 1.85
     fun startHedgeFund() {
         if (constants.currentMoney >= hedgeFundSp && !hedgeFund) {
             constants.currentMoney -= hedgeFundSp
@@ -38,6 +39,10 @@ object Upgrades {
         }
     }
     fun buybuybuy() {
+        if (constants.currentMoney >= 0.2 * constants.totalMoneyMax) {
+            logger.log("[WARN] that much money would collapse the market.")
+            return
+        }
         if (hedgeFund && constants.currentMoney >= hedgeFundSp) {
             val investment = (constants.currentMoney * 0.5).coerceAtLeast(hedgeFundSp.toDouble())
             // 2000 minimum investment; above 4000 invests 50% current money
@@ -45,17 +50,17 @@ object Upgrades {
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
             constants.currentMoney += profit
             if(profit >= 0) {
-                logger.log("[OK] Hedge fund profit: $profit")
+                logger.log("[OK] Hedge fund profit: ${profit.prettyFormat()}")
             } else {
                 if(hedgeRisk < 0.35) {
                     hedgeRisk += 0.01
-                    logger.log("[WARN] Hedge fund loss: ${-profit}. Can't end on a loss...?")
+                    logger.log("[WARN] Hedge fund loss: ${profit.prettyFormat()}. Can't end on a loss...?")
                     return
                 }
-                logger.log("[WARN] Hedge fund loss: $profit. Ouch.")
+                logger.log("[WARN] Hedge fund loss: ${profit.prettyFormat()}. Ouch.")
             }
         } else {
-            logger.log("[WARN] insufficient total funds to invest")
+            logger.log("[WARN] insufficient funds to invest")
         }
     }
 
@@ -70,7 +75,7 @@ object Upgrades {
             logger.log("[OK] All mods except auto-pack have been reset.")
         } else {
             prevClickTime = now
-            logger.log("[WARN] Click twice in a row to activate. All attributes will be reset!")
+            logger.log("[WARN] Double-click to activate. All attributes will be reset!")
         }
     }
 }

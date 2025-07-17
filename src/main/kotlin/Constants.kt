@@ -7,11 +7,12 @@ object Constants {
     fun Long.prettyFormat(): String {
         val absValue = abs(this)
         return when {
-            absValue >= 1_000_000_000_000   -> this.toString()
-            absValue >= 1_000_000_000       -> String.format("%.2fB", this / 1_000_000_000.0)
-            absValue >= 1_000_000           -> String.format("%.2fM", this / 1_000_000.0)
-            absValue >= 1_000               -> String.format("%.2fk", this / 1_000.0)
-            else                            -> this.toString()
+            absValue >= 1_000_000_000_000_000   -> this.toString()
+            absValue >= 1_000_000_000_000       -> String.format("%.2fT", this / 1_000_000_000_000.0)
+            absValue >= 1_000_000_000           -> String.format("%.2fB", this / 1_000_000_000.0)
+            absValue >= 1_000_000               -> String.format("%.2fM", this / 1_000_000.0)
+            absValue >= 1_000                   -> String.format("%.2fk", this / 1_000.0)
+            else                                -> this.toString()
         }
     }
 
@@ -22,19 +23,23 @@ object Constants {
             fuzzySelectPenaltyUnitLv > 1 && abs(maxPenaltyLv) > 1 && minRewardLv > 1)
     }
     fun getRefundPrice(): Long {
-        return if(getRefundEligibility()) {
-            (clicksPerTickPrice() + clicksPerPackPrice() +
+        if(getRefundEligibility()) {
+            return (clicksPerTickPrice() + clicksPerPackPrice() +
                     ticksPerSecondPrice() + packRewardAmountPrice() +
                     bonusPayIntervalPrice() + bonusPayScalePrice() +
                     uncertaintyFloorPrice() + uncertaintyLimitPrice() +
                     fuzzySelectRangePrice() + fuzzySelectPenaltyUnitPrice() +
                     maxPenaltyPrice() + minRewardPrice())
         } else {
-            0L
+            return 0L
         }
     }
     fun resetAll() {
-        currentMoney += getRefundPrice()            // refund all upgrades
+        if (getRefundPrice() + currentMoney > totalMoneyMax) {
+            currentMoney += (totalMoneyMax - currentMoney)
+        } else {
+            currentMoney += getRefundPrice()
+        }
         clicksPerTickLv = 1
         clicksPerPackLv = 1
         ticksPerSecond = 1
@@ -47,7 +52,6 @@ object Constants {
         fuzzySelectPenaltyUnitLv = 1
         maxPenaltyLv = 1
         minRewardLv = 1
-        logger.log("[WARN] All game constants reset to default values.")
     }
 
     var ticksPerSecond: Int = 1                     // calculations are run every tick period
@@ -79,7 +83,7 @@ object Constants {
     var uncertaintyFloorIntv: Double = 0.1
     var uncertaintyFloorMax: Double = 10.0
     fun uncertaintyFloorPrice(): Long {
-        return (uncertaintyFloorSp * 1.0.pow((uncertaintyFloorLv - 1).toDouble())).toLong()
+        return (uncertaintyFloorSp * 1.15.pow((uncertaintyFloorLv - 1).toDouble())).toLong()
     }
     fun uncertaintyFloorAdd(): String {
         if(uncertaintyFloor >= uncertaintyFloorMax) {
@@ -103,7 +107,7 @@ object Constants {
     var uncertaintyLimitMin: Double = 1.0.coerceAtLeast(0.1 + uncertaintyFloor) // CHECK THIS
     var uncertaintyLimitMax: Double = 10.0
     fun uncertaintyLimitPrice(): Long {
-        return (uncertaintyLimitSp * 1.0.pow(abs((abs(uncertaintyLimitLv) - 1)).toDouble())).toLong()
+        return (uncertaintyLimitSp * 1.5.pow(abs((abs(uncertaintyLimitLv) - 1)).toDouble())).toLong()
     }
     fun uncertaintyLimitAdd(): String {
         if(uncertaintyLimit >= uncertaintyLimitMax) {
@@ -159,8 +163,8 @@ object Constants {
             return                                    // upper limit reached
         }
         val bpchance = Math.random()
-        if(bpchance <= 0.01) {
-            val clickIncreaseAmt = (clicksPerPack * 0.1).toInt()
+        if(bpchance <= 0.05) {
+            val clickIncreaseAmt = (clicksPerPack * 0.01).toInt()
             clicksPerPack += clickIncreaseAmt
         }
     }
@@ -168,11 +172,11 @@ object Constants {
 
     var packRewardAmount: Long = 50                  // base reward per package delivered
     var packRewardAmountLv: Int = 1
-    var packRewardAmountSp: Int = 250
+    var packRewardAmountSp: Int = 200
     var packRewardAmountIntv: Int = 100
     var packRewardAmountMax: Int = 100_000_000 // CHECK THIS
     fun packRewardAmountPrice(): Long {
-        return (packRewardAmountSp * 1.7.pow((packRewardAmountLv - 1).toDouble())).toLong()
+        return (packRewardAmountSp * 1.25.pow((packRewardAmountLv - 1).toDouble())).toLong()
     }
     fun packRewardAmountAdd(): String {
         if(packRewardAmount >= packRewardAmountMax) {
@@ -216,7 +220,7 @@ object Constants {
     var bonusPayScale: Double = 1.1                 // bonus = packRewardAmount * bonusPayScale
     var bonusPayScaleLv: Int = 1
     var bonusPayScaleSp: Int = 50
-    var bonusPayScaleIntv: Double = 0.3
+    var bonusPayScaleIntv: Double = 0.7
     var bonusPayScaleMax: Double = 100.0
     fun bonusPayScalePrice(): Long {
         return (bonusPayScaleSp * 1.25.pow((bonusPayScaleLv - 1).toDouble())).toLong()
@@ -225,8 +229,8 @@ object Constants {
         if(bonusPayScale >= bonusPayScaleMax) {
             return "[WARN] max level reached"
         }
-        if(currentMoney >= bonusPayIntervalPrice()) {
-            currentMoney -= bonusPayIntervalPrice()
+        if(currentMoney >= bonusPayScalePrice()) {
+            currentMoney -= bonusPayScalePrice()
             bonusPayScaleLv ++      // increase level
             bonusPayScale += bonusPayScaleIntv        // increase attribute
             return "[OK] bonusPayScale increased to %.2f".format(bonusPayScale)
@@ -252,7 +256,7 @@ object Constants {
             currentMoney -= clicksPerTickPrice()
             clicksPerTickLv ++                          // increase level
             clicksPerTick += clicksPerTickIntv          // increase attribute
-            if(clicksPerTick * 6 > clicksPerPack) {     // calculate balancing adjustment after increase
+            if(clicksPerTick * 2 * ticksPerSecond > clicksPerPack) {     // calculate balancing adjustment after increase
                 clicksPerPack = (clicksPerTick * 6)     // ensure clicks/pack is always at least 6x clicks/tick
                 logger.log("[INFO] clicksPerPack increased to $clicksPerPack to maintain balance")
             }
@@ -267,11 +271,11 @@ object Constants {
     var fuzzySelectRange: Int = 10                  // allow packaging of clicks within this range
     var fuzzySelectRangeLv: Int = 1
     var fuzzySelectRangeSp: Int = 250
-    var fuzzySelectRangeIntv: Int = 1
+    var fuzzySelectRangeIntv: Int = 2
     var fuzzySelectRangeMin: Int = 1
     var fuzzySelectRangeMax: Int = 1_000_000
     fun fuzzySelectRangePrice(): Long {
-        return (fuzzySelectRangeSp * 1.0.pow((fuzzySelectRangeLv - 1).toDouble())).toLong()
+        return (fuzzySelectRangeSp * 1.05.pow((fuzzySelectRangeLv - 1).toDouble())).toLong()
     }
     fun fuzzySelectRangeAdd(): String {
         if(fuzzySelectRange >= fuzzySelectRangeMax) {
@@ -389,6 +393,6 @@ object Constants {
     var totalTicks: Long = 0                         // total ticks statistic
     // game state variable
     var totalMoney: Long = 0                         // total money statistic
-    var totalMoneyMax: Long = 1_000_000_000
-    // game state variable; upper limit: 1 000 000 000
+    var totalMoneyMax: Long = 1_000_000_000_000
+    // game state variable; upper limit: 1Q
 }

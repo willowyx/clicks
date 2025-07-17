@@ -96,7 +96,7 @@ object UI : GameLogger {
         // START UPGRADES
         ImGui.textWrapped("Upgrades")
 
-        ImGui.text("base clicks/pack")
+        ImGui.text("clicks required per pack")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerPack")) {
             log(constants.clicksPerPackAdd())
@@ -104,7 +104,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.clicksPerPackPrice().prettyFormat()})")
 
-        ImGui.text("base clicks/tick")
+        ImGui.text("base clicks per tick")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerTick")) {
             log(constants.clicksPerTickAdd())
@@ -112,7 +112,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.clicksPerTickPrice().prettyFormat()})")
 
-        ImGui.text("subticks/tick")
+        ImGui.text("subticks per tick")
         ImGui.sameLine()
         if (ImGui.button("+###ticksPerSecond")) {
             log(constants.ticksPerSecondAdd())
@@ -120,7 +120,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.ticksPerSecondPrice().prettyFormat()})")
 
-        ImGui.text("pack reward")
+        ImGui.text("base pack reward")
         ImGui.sameLine()
         if (ImGui.button("+###packRewardAmount")) {
             log(constants.packRewardAmountAdd())
