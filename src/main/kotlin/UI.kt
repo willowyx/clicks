@@ -96,7 +96,7 @@ object UI : GameLogger {
         // START UPGRADES
         ImGui.textWrapped("Upgrades")
 
-        ImGui.text("clicks required per pack")
+        ImGui.text("clicks per pack")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerPack")) {
             log(constants.clicksPerPackAdd())
@@ -228,7 +228,7 @@ object UI : GameLogger {
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
         if (ImGui.button("QA MONEY")) {
-            constants.currentMoney += 1000
+            constants.currentMoney += 100000
         }
 
         ImGui.end()
@@ -291,7 +291,7 @@ object UI : GameLogger {
         ImGui.text("willowyx.dev/projects/clicks")
 
         ImGui.separator()
-        ImGui.textWrapped("Additional credits")
+        ImGui.textWrapped("special thanks to gab for testing and moral support ^-^")
         ImGui.beginChild("AboutCredits", 0f, 0f, true)
         ImGui.textWrapped("""
             This project was made possible by the following libraries and software:
