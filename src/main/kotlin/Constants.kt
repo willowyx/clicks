@@ -36,14 +36,14 @@ object Constants {
         }
     }
     fun resetAll() {
-        if (getRefundPrice() + currentMoney > totalMoneyMax) {
-            currentMoney += (totalMoneyMax - currentMoney)
+        if (getRefundPrice() + currentMoney >= totalMoneyMax) {
+            currentMoney = totalMoneyMax
         } else {
             currentMoney += getRefundPrice()
         }
         clicksPerTickLv = 1
         clicksPerPackLv = 1
-        ticksPerSecond = 1
+        ticksPerSecondLv = 1
         packRewardAmountLv = 1
         bonusPayIntervalLv = 1
         bonusPayScaleLv = 1
@@ -53,13 +53,26 @@ object Constants {
         fuzzySelectPenaltyUnitLv = 1
         maxPenaltyLv = 1
         minRewardLv = 1
+
+        clicksPerTick = 5
+        clicksPerPack = 250
+        ticksPerSecond = 1
+        packRewardAmount = 50
+        bonusPayInterval = 20
+        bonusPayScale = 1.1
+        uncertaintyFloor = 0.1
+        uncertaintyLimit = 3.0
+        fuzzySelectRange = 10
+        fuzzySelectPenaltyUnit = 1
+        maxPenalty = 0.9
+        minReward = 10
     }
 
     var ticksPerSecond: Int = 1                     // calculations are run every tick period
     var ticksPerSecondLv: Int = 1                   // attribute level
     var ticksPerSecondSp: Int = 175                 // base upgrade price
     var ticksPerSecondIntv: Int = 1                 // interval by which the attribute is increased
-    var ticksPerSecondMax: Int = 250                // soft cap (can be exceeded by no more than 1 additional interval)
+    var ticksPerSecondMax: Int = 500                // soft cap (can be exceeded by no more than 1 additional interval)
     fun ticksPerSecondPrice(): Long {
         return (ticksPerSecondSp * 1.25.pow((ticksPerSecondLv - 1).toDouble())).toLong()
     }
@@ -76,7 +89,7 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be increased; capped at 250
+    // can be increased; capped at 500
 
     var uncertaintyFloor: Double = 0.1              // smallest uncertainty value
     var uncertaintyFloorLv: Int = 1

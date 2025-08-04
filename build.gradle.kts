@@ -14,7 +14,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 group = "dev.willowyx"
-version = "0.13.0"
+version = "0.14.0"
 
 repositories {
     mavenCentral()

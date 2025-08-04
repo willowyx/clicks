@@ -20,7 +20,8 @@ Check out the [playing guide](guide.md) included locally! The guide version corr
 These features **will** be implemented by the 1.0 release:
 
 * save/load system
-* a number of new mods
+* connect interface actions
+* new mods
 * prestige system
 * game & visual polish
 

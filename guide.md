@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.13.x
+###### for version 0.14.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -109,7 +109,7 @@ Mods can be purchased with the `money` currency and, unlike Upgrades, affect or 
   * This Mod can be refunded by clicking it again.
 * `Hedge fund` enables the `BUY BUY BUY` Action.
   * This Mod can be returned, but not refunded, by clicking it again.
-* `Sell everything` resets all purchased Upgrades and returns you a sum of money in exchange.
+* `Sell everything` resets all purchased Upgrades in exchange for a partial refund.
   * This Mod can only be activated after purchasing every upgrade at least once.
   * The amount of `money` refunded is capped such that it can never cause your total money to exceed the global maximum.
   * This action cannot be reverted. Double-click the Mod to activate it.

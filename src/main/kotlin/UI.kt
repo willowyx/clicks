@@ -144,7 +144,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayScalePrice().prettyFormat()})")
 
-        ImGui.text("WIP: uncertainty floor")
+        ImGui.text("uncertainty floor")
         ImGui.sameLine()
         if (ImGui.button("+###uncertaintyFloor")) {
             log(constants.uncertaintyFloorAdd())
@@ -156,7 +156,7 @@ object UI : GameLogger {
             log(constants.uncertaintyLimitSub())
         }
         ImGui.sameLine()
-        ImGui.text("WIP: uncertainty limit")
+        ImGui.text("uncertainty limit")
         ImGui.sameLine()
         if (ImGui.button("+###uncertaintyLimitAdd")) {
             log(constants.uncertaintyLimitAdd())
@@ -168,7 +168,7 @@ object UI : GameLogger {
             log(constants.fuzzySelectRangeSub())
         }
         ImGui.sameLine()
-        ImGui.text("WIP: pack penalty range")
+        ImGui.text("pack penalty range")
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectRangeAdd")) {
             log(constants.fuzzySelectRangeAdd())
