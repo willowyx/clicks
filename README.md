@@ -7,8 +7,8 @@ Clicks is a semi-passive game made in Kotlin. The twist is that you get granular
 ## when will development be finished?
 Honestly difficult to say; I work on it such that I don't get bored, plus life obligations. So..... eventually!
 
-## is there a story?
-No, I'm not planning on adding a story.
+## is there lore?
+No, and I'm not really planning on adding a story.
 
 ## how long is the game?
 The most "efficient" way to play is probably to run it in the background and interact once in a while. As for the play time, technically speaking you could play for a very, very long time with the prestige system.
@@ -24,6 +24,7 @@ These features **will** be implemented by the 1.0 release:
 * new mods
 * prestige system
 * game & visual polish
+* some sort of onboarding?
 
 As I think of other things I will add them to this "roadmap" but the current list will not get smaller.
 

@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.14.x
+###### for version 0.15.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 

@@ -108,6 +108,7 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun runTick(): Int {                // run tick, return clicks generated without updating stats
+        constants.refreshConstValues()
         val tickrtn = calcClicks()
         constants.totalTicks++                                              // increment total ticks
         constants.clicksPerPackNatAdd()                                     // 1% chance to increment clicks per pack

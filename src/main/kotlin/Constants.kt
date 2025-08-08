@@ -84,6 +84,7 @@ object Constants {
             currentMoney -= ticksPerSecondPrice()
             ticksPerSecondLv ++      // increase level
             ticksPerSecond += ticksPerSecondIntv        // increase attribute
+            tickPackBalance()
             return "[OK] ticksPerSecond increased to $ticksPerSecondLv"
         } else {
             return "[WARN] insufficient funds"
@@ -120,9 +121,9 @@ object Constants {
     var uncertaintyLimit: Double = 3.0              // largest uncertainty variance (not for money except bonuses)
     var uncertaintyLimitLv: Int = 1
     var uncertaintyLimitSp: Int = 750
-    var uncertaintyLimitIntv: Double = 0.1
-    var uncertaintyLimitMin: Double = 1.0.coerceAtLeast(0.1 + uncertaintyFloor) // CHECK THIS
-    var uncertaintyLimitMax: Double = 10.0
+    var uncertaintyLimitIntv: Double = 0.2
+    var uncertaintyLimitMin: Double = 1.0
+    var uncertaintyLimitMax: Double = 50.0
     fun uncertaintyLimitPrice(): Long {
         return (uncertaintyLimitSp * 1.5.pow(abs((abs(uncertaintyLimitLv) - 1)).toDouble())).toLong()
     }
@@ -155,7 +156,7 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be increased or decreased; lower limit: uncertFloor + 0.1; upper limit: 10.0
+    // can be increased or decreased; lower limit: uncertFloor + 0.1; upper limit: 50.0
 
     var clicksPerPack: Int = 250                    // clicks required per package
     var clicksPerPackLv: Int = 1
@@ -276,11 +277,7 @@ object Constants {
             currentMoney -= clicksPerTickPrice()
             clicksPerTickLv ++                          // increase level
             clicksPerTick += clicksPerTickIntv          // increase attribute
-            if(clicksPerTick * 4 > clicksPerPack) {     // calculate balancing adjustment after increase
-                clicksPerPack = (clicksPerTick * 4 * ticksPerSecond)     // ensure clicks/pack is always at least 6x clicks/tick
-                logger.log("[INFO] clicksPerPack increased to $clicksPerPack to maintain balance")
-            }
-
+            tickPackBalance()
             return "[OK] clicksPerTick increased to $clicksPerTick"
         } else {
             return "[WARN] insufficient funds"
@@ -377,7 +374,7 @@ object Constants {
     var minRewardLv: Int = 1
     var minRewardSp: Int = 50
     var minRewardIntv: Int = 25
-    var minRewardMax: Int = 1_000_000
+    var minRewardMax: Int = 10_000_000
     fun minRewardPrice(): Long {
         return (minRewardSp * 1.35.pow((minRewardLv - 1).toDouble())).toLong()
     }
@@ -394,7 +391,7 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be increased; capped at 1 000 000 (tentative)
+    // can be increased; capped at 10 000 000 (tentative)
 
 
     // game state variables (cannot be directly upgraded)
@@ -415,4 +412,17 @@ object Constants {
     var totalMoney: Long = 0                         // total money statistic
     var totalMoneyMax: Long = 1_000_000_000_000
     // game state variable; upper limit: 1Q
+
+    fun tickPackBalance() {
+        if(clicksPerTick * ticksPerSecond * 4 > clicksPerPack) {     // calculate balancing adjustment after increase
+            clicksPerPack = (clicksPerTick * ticksPerSecond * 6)     // ensure clicks/pack is always at least 6x clicks/tick
+            logger.log("[INFO] clicksPerPack increased to $clicksPerPack to maintain balance")
+        }
+    }
+    fun refreshConstValues() {
+        uncertaintyFloorMax = uncertaintyLimit - 0.1
+        uncertaintyLimitMin = uncertaintyFloor + 0.1
+        clicksPerTickMax = ((clicksPerPack * uncertaintyLimit) / 5).toInt()
+        fuzzySelectRangeMax = clicksPerPack / 10
+    }
 }
