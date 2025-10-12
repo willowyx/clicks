@@ -1,20 +1,15 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.20"
     application
+    id("com.gradleup.shadow") version "9.2.2"
 }
 
 kotlin {
     jvmToolchain(21)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
-}
-
 group = "dev.willowyx"
-version = "0.15.0"
+version = "0.15.1"
 
 repositories {
     mavenCentral()
@@ -35,10 +30,9 @@ fun lwjglNatives(os: org.gradle.internal.os.OperatingSystem): String = when {
     else -> error("Unsupported OS")
 }
 
-
 dependencies {
-    implementation("com.github.SpaiR.imgui-java:imgui-java-app:v1.89.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("com.github.SpaiR.imgui-java:imgui-java-app:v1.90.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
     implementation("org.lwjgl:lwjgl:$lwjglVersion")
     implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
@@ -53,18 +47,12 @@ dependencies {
 
 application {
     mainClass.set("Main")
-}
+    val osName = System.getProperty("os.name").lowercase()
 
-if (System.getProperty("os.name").lowercase().contains("mac")) {
-    afterEvaluate {
-        tasks.named<JavaExec>("run") {
-            jvmArgs = listOf("-XstartOnFirstThread", "--enable-native-access=ALL-UNNAMED")
-        }
+    // should be inherited by tasks
+    if ("mac" in osName) {
+        applicationDefaultJvmArgs = listOf("-XstartOnFirstThread", "--enable-native-access=ALL-UNNAMED")
     }
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 tasks.register("generateVersionProperties") {
@@ -74,10 +62,14 @@ tasks.register("generateVersionProperties") {
     doLast {
         val versionFile = outputDir.get().file("version.properties").asFile
         versionFile.parentFile.mkdirs()
-        versionFile.writeText("version=${project.version}\n")               // update api for deprecation
+        versionFile.writeText("version=${project.version}\n")
     }
 }
 
 sourceSets.main {
     resources.srcDir(tasks.named("generateVersionProperties"))
+}
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    mergeServiceFiles()
 }
