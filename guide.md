@@ -21,7 +21,7 @@
 
 ###### These mechanics will be described in more detail or elaborated on as necessary throughout the rest of guide.
 
-### b. An Overview
+### b. Overview
 Clicks is a game in which the currency `clicks` are passively generated.
 These `clicks` are `packaged` into `packs` when they reach a certain amount in exchange  for `money`, which in turn can be used to purchase `upgrades`
 and `mods` affecting nearly every aspect of the game, including the speed of generating `clicks`, the amount of `money` rewarded for `packs`, and the
@@ -69,8 +69,8 @@ These variables can be directly modified as upgrades or mods
     * Exceeding `fuzzyRange` and receiving the `minReward` value does not count as a successful package
   * This value is directly modified by the "pack penalty range" upgrade
 * `fuzzyPenaltyIntv` is the interval in which the packaging penalty is applied for inaccurate packaging of clicks (-10% non-compounding base reward penalty per _n_ clicks from `clicksPerPack`)
-  * For example, if `fuzzyPenaltyIntv` was set to 3 and the amount of clicks generated was 5 away from the target amount (`clicksPerPack`)
-    * Only a 10% penalty would be applied in this scenario, since the penalty is incremented every 3 clicks you're off by
+  * For example, consider if `fuzzyPenaltyIntv` was set to 3 and the amount of clicks generated was 5 away from the target amount (`clicksPerPack`):
+    * Only a 10% penalty would be applied in this scenario, since the penalty is incremented by one for every 3 clicks the target is missed by
   * This value is directly modified by the "pack penalty interval" upgrade
 * `maxPenalty` is the maximum penalty that can be applied as a result of packaging inaccuracy, calculated as a percentage of the base packaging reward.
   * The maximum penalty only applies when within range of `clicksPerPack`, as no penalty is applied to the consolation reward (`minReward`)

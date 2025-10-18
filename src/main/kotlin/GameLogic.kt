@@ -76,7 +76,7 @@ class GameLogic(private val logger: GameLogger) {
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusProgress ++
-                logger.log("perfect package, applied full reward of $prewarddef")
+                logger.log("perfect package, applied full reward plus bonus")
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = calcPackageReward()                    // define package reward amount
@@ -90,9 +90,8 @@ class GameLogic(private val logger: GameLogger) {
                 logger.log("[INFO] over/undershot but within range; applied penalty of $penalty")
             }
             else -> {
-                val prewarddef = calcPackageReward()                    // define package reward amount
-                constants.currentMoney += prewarddef - maxPenaltyInt
-                constants.totalMoney += prewarddef - maxPenaltyInt
+                constants.currentMoney += constants.minReward           // give minReward
+                constants.totalMoney += constants.minReward
                 constants.currentClicks = 0
                 logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange} clicks")
             }

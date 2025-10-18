@@ -298,10 +298,11 @@ object UI : GameLogger {
 
             -Dear ImGui by ocornut
             -imgui-java by SpaiR
-            -Kotlin Coroutines by JetBrains
+            -Kotlin Coroutines
+            -Shadow (for jar creation)
             -LWJGL3
-            -GLFW
-            -NSIS (for Windows installer)
+            -GLFW3
+            -Launch4j (for Windows executable)
             -Packages by Stéphane Sudre (for macOS installer)
         """.trimIndent())
         ImGui.endChild()
