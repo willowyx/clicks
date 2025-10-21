@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.15.x
+###### for version 0.16.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -35,6 +35,7 @@ These variables track the game state and cannot be directly modified by the play
   * `moneyTotal` measures the total amount of money you have earned during the run, including money you have spent.
 * `prestige` measures the number of times you have reset your game progress in exchange for a permanent stat bonus.
 * `bonusIntvProg` measures your progress towards the next bonus reward, which is rewarded every `bonusIntv` packs packaged (20 by default).
+* `clicksMin` and `clicksMax` display the minimum and maximum number of clicks that can be generated each tick, respectively.
 * `packaged` measures the number of times you have packaged a set of clicks.
 * `ticksElapsed` measures the number of ticks that have passed since the game began.
 
@@ -52,12 +53,12 @@ These variables can be directly modified as upgrades or mods
 * `baseReward` is the amount of money rewarded for a perfect package (one with exactly as many clicks as `clicksPerPack`).
   * This value can be affected by the packaging penalty, `uncertainty` (positive), and `prestige` (positive)
   * This value is directly modified by the "base pack reward" upgrade
-* `bonusRewardInterval` is the number of successful packages elapsed before the bonus multiplier is applied to the next pack's base reward.
+* `bonusRewardInterval` is the number of successful packages elapsed before the bonus multiplier `bonusScaleAmt` is applied to the next pack's base reward.
   * This value is directly modified by the "bonus interval" upgrade
 * `bonusScaleAmt` is the multiplier applied to `baseReward` for each bonus package
   * This value is directly modified by the "bonus pay multiplier" upgrade
 * `uncertMin` is the lower limit of the game-wide `uncertainty` value, which affects various aspects of generation, including bonus calculation and click generation.
-  * For certain calculations like bonuses and rewards, `uncertMin` may be increased so that the resulting value is always greater than the initial value
+  * For bonus and reward calculations, `uncertMin` may be interpreted as `1` if it would otherwise be less than `1` in order for the resulting value to act as a bonus multiplier
   * The value of `uncertainty` is recalculated within the set generation parameters before every use
   * This value is directly modified by the "uncertainty floor" upgrade
 * `uncertMax` is the upper limit of the game-wide `uncertainty` value
@@ -78,6 +79,13 @@ These variables can be directly modified as upgrades or mods
 * `minReward` is the consolation reward applied when exceeding the maximum packaging range.
   * Receiving this reward does not count toward packaging bonuses
   * This value is directly modified by the "min reward" upgrade
+
+### e. Passive mechanics
+* Each tick, there is a 5% chance for the `clicksPerPack` parameter to increase by 1% of its current value
+  * This mechanic will not apply if the current ratio of `clicksPerPack` to `clicksPerTick` exceeds 10:1
+  * The calculation's parameters remain constant over time, and cannot be modified by the player
+* Upgrading `ticksPerSecond` (subticks) or `clicksPerPack` will automatically increase the value of `clicksPerTick` if needed, to avoid stacking click overflow
+  * This does not completely prevent balancing issues, but does help to avoid unplayable game states
 
 ## II. Controls window
 The Controls window (labeled `Controls`) has multiple subsections, all of which contain various actions you can perform.

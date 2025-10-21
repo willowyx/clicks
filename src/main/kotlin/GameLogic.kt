@@ -111,12 +111,12 @@ class GameLogic(private val logger: GameLogger) {
         constants.refreshConstValues()
         val tickrtn = calcClicks()
         constants.totalTicks++                                              // increment total ticks
-        constants.clicksPerPackNatAdd()                                     // 1% chance to increment clicks per pack
+        constants.clicksPerPackNatAdd()                                     // 5% chance to increase clicks/pack by 1%
         return tickrtn
     }
 
     fun calcPackBonus(): Int {
-        return ((constants.packBonusProgress * constants.bonusPayScale) * calcUncertainty()).toInt() // calc pack bonus
+        return ((constants.packRewardAmount * constants.bonusPayScale) * calcUncertainty()).toInt() // calc pack bonus
     }
 
     fun calcClicks(): Int {             // calculate clicks + uncertainty
@@ -171,8 +171,12 @@ class GameLogic(private val logger: GameLogger) {
     === CURRENT ===
     clicks............${constants.currentClicks.toLong().prettyFormat()}
     money.............${constants.currentMoney.prettyFormat()}
-    prestige..........${constants.currentPrestige}
     bonusIntvProg.....${constants.packBonusProgress}
+    
+    === ACTUAL ===
+    clicksMin.........${constants.realTickRange_min}
+    clicksMax.........${constants.realTickRange_max}
+    
     === VARIABLES ===
     baseClickAmt......${constants.clicksPerTick}
     clicksPerPack.....${constants.clicksPerPack}
@@ -186,7 +190,9 @@ class GameLogic(private val logger: GameLogger) {
     fuzzyPenaltyIntv..${constants.fuzzySelectPenaltyUnit}
     maxPenalty........${"%.2f".format(constants.maxPenalty)}
     minReward.........${constants.minReward}
+    
     === STATS ===
+    prestige..........${constants.currentPrestige}
     clicksTotal.......${constants.combinedClicks}
     moneyTotal........${constants.totalMoney}
     packaged..........${constants.currentPacks}

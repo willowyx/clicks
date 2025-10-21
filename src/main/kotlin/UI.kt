@@ -128,11 +128,11 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.packRewardAmountPrice().prettyFormat()})")
 
-        ImGui.text("bonus interval")
-        ImGui.sameLine()
-        if (ImGui.button("+###bonusPayInterval")) {
+        if (ImGui.button("-###bonusPayInterval")) {
             log(constants.bonusPayIntervalAdd())
         }
+        ImGui.sameLine()
+        ImGui.text("bonus interval")
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
 
@@ -184,11 +184,11 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.fuzzySelectPenaltyUnitPrice().prettyFormat()})")
 
-        ImGui.text("max penalty")
-        ImGui.sameLine()
-        if (ImGui.button("+###maxPenalty")) {
+        if (ImGui.button("-###maxPenalty")) {
             log(constants.maxPenaltyAdd())
         }
+        ImGui.sameLine()
+        ImGui.text("max penalty")
         ImGui.sameLine()
         ImGui.text("($${constants.maxPenaltyPrice().prettyFormat()})")
 

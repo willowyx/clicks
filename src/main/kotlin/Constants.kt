@@ -55,7 +55,7 @@ object Constants {
         minRewardLv = 1
 
         clicksPerTick = 5
-        clicksPerPack = 250
+        clicksPerPack = 200
         ticksPerSecond = 1
         packRewardAmount = 50
         bonusPayInterval = 20
@@ -68,7 +68,7 @@ object Constants {
         minReward = 10
     }
 
-    var ticksPerSecond: Int = 1                     // calculations are run every tick period
+    var ticksPerSecond: Int = 1                     // calculations are run every tick period [+change RESET]
     var ticksPerSecondLv: Int = 1                   // attribute level
     var ticksPerSecondSp: Int = 175                 // base upgrade price
     var ticksPerSecondIntv: Int = 1                 // interval by which the attribute is increased
@@ -92,7 +92,7 @@ object Constants {
     }
     // can be increased; capped at 500
 
-    var uncertaintyFloor: Double = 0.1              // smallest uncertainty value
+    var uncertaintyFloor: Double = 0.1              // smallest uncertainty value [+change RESET]
     var uncertaintyFloorLv: Int = 1
     var uncertaintyFloorSp: Int = 500
     var uncertaintyFloorIntv: Double = 0.1
@@ -119,6 +119,7 @@ object Constants {
     // can be increased; upper limit: uncertLimit - 0.1
 
     var uncertaintyLimit: Double = 3.0              // largest uncertainty variance (not for money except bonuses)
+                                                    //      [+change RESET]
     var uncertaintyLimitLv: Int = 1
     var uncertaintyLimitSp: Int = 750
     var uncertaintyLimitIntv: Double = 0.2
@@ -158,10 +159,10 @@ object Constants {
     }
     // can be increased or decreased; lower limit: uncertFloor + 0.1; upper limit: 50.0
 
-    var clicksPerPack: Int = 250                    // clicks required per package
+    var clicksPerPack: Int = 200                    // clicks required per package [+change RESET]
     var clicksPerPackLv: Int = 1
     var clicksPerPackSp: Int = 425
-    var clicksPerPackIntv: Int = 250
+    var clicksPerPackIntv: Int = 200
     var clicksPerPackMax: Int = 10_000_000
     fun clicksPerPackPrice(): Long {
         return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toLong()
@@ -184,14 +185,14 @@ object Constants {
             return                                    // upper limit reached
         }
         val bpchance = Math.random()
-        if(bpchance <= 0.05) {
+        if(bpchance <= 0.05 && (clicksPerPack / clicksPerTick < 10)) {
             val clickIncreaseAmt = (clicksPerPack * 0.01).toInt()
             clicksPerPack += clickIncreaseAmt
         }
     }
     // can be increased or decreased; capped at 10 000 000
 
-    var packRewardAmount: Long = 50                  // base reward per package delivered
+    var packRewardAmount: Long = 50                  // base reward per package delivered [+change RESET]
     var packRewardAmountLv: Int = 1
     var packRewardAmountSp: Int = 200
     var packRewardAmountIntv: Int = 100
@@ -214,7 +215,7 @@ object Constants {
     }
     // can be increased
 
-    var bonusPayInterval: Int = 20                  // bonus given per bonus interval or perfect package
+    var bonusPayInterval: Int = 20                  // bonus given per bonus interval or perfect package [+change RESET]
     var bonusPayIntervalLv: Int = 1
     var bonusPayIntervalSp: Int = 50
     var bonusPayIntervalIntv: Int = 1
@@ -238,7 +239,7 @@ object Constants {
     // can be decreased; lower limit: 1
 
 
-    var bonusPayScale: Double = 1.1                 // bonus = packRewardAmount * bonusPayScale
+    var bonusPayScale: Double = 1.1                 // bonus = packRewardAmount * bonusPayScale [+change RESET]
     var bonusPayScaleLv: Int = 1
     var bonusPayScaleSp: Int = 50
     var bonusPayScaleIntv: Double = 0.7
@@ -261,13 +262,13 @@ object Constants {
     }
     // can be increased; capped at 100.0
 
-    var clicksPerTick: Int = 5                      // clicks generated per tick period
+    var clicksPerTick: Int = 5                      // clicks generated per tick period [+change RESET]
     var clicksPerTickLv: Int = 1
-    var clicksPerTickSp: Int = 350
-    var clicksPerTickIntv: Int = 75
+    var clicksPerTickSp: Int = 50
+    var clicksPerTickIntv: Int = 15
     var clicksPerTickMax: Int = 250_000
     fun clicksPerTickPrice(): Long {
-        return (clicksPerTickSp * 1.15.pow((clicksPerTickLv - 1).toDouble())).toLong()
+        return (clicksPerTickSp * 1.01.pow((clicksPerTickLv - 1).toDouble())).toLong()
     }
     fun clicksPerTickAdd(): String {
         if(clicksPerTick + clicksPerTickIntv >= clicksPerTickMax) {
@@ -285,7 +286,7 @@ object Constants {
     }
     // can be increased; capped at 250 000 [cannot exceed 1/5 of clicksPerPack * uncertaintyLimit]
 
-    var fuzzySelectRange: Int = 10                  // allow packaging of clicks within this range
+    var fuzzySelectRange: Int = 10                  // allow packaging of clicks within this range [+change RESET]
     var fuzzySelectRangeLv: Int = 1
     var fuzzySelectRangeSp: Int = 250
     var fuzzySelectRangeIntv: Int = 2
@@ -313,7 +314,7 @@ object Constants {
         }
         if(currentMoney >= fuzzySelectRangePrice()) {
             currentMoney -= fuzzySelectRangePrice()
-            fuzzySelectRangeLv --      // decrease level
+            fuzzySelectRangeLv --                           // decrease level
             fuzzySelectRange -= fuzzySelectRangeIntv        // decrease attribute
             return "[OK] fuzzySelectRange decreased to $fuzzySelectRange"
         } else {
@@ -324,6 +325,7 @@ object Constants {
     // upper limit: 1 000 000 [1/10 of clicksPerPack]
 
     var fuzzySelectPenaltyUnit: Int = 1             // inaccuracy penalty is applied per n clicks from target
+                                                    //      [+change RESET]
     var fuzzySelectPenaltyUnitLv: Int = 1
     var fuzzySelectPenaltyUnitSp: Int = 325
     var fuzzySelectPenaltyUnitIntv: Int = 9
@@ -337,7 +339,7 @@ object Constants {
         }
         if(currentMoney >= fuzzySelectPenaltyUnitPrice()) {
             currentMoney -= fuzzySelectPenaltyUnitPrice()
-            fuzzySelectPenaltyUnitLv ++      // increase level
+            fuzzySelectPenaltyUnitLv ++                                 // increase level
             fuzzySelectPenaltyUnit += fuzzySelectPenaltyUnitIntv        // increase attribute
             return "[OK] fuzzySelectPenaltyUnit increased to $fuzzySelectPenaltyUnit"
         } else {
@@ -347,9 +349,10 @@ object Constants {
     // can be increased; capped at 1 000 000
 
     var maxPenalty: Double = 0.9                    // max penalty for inaccurate packs (as % of base reward)
+                                                    //      [+change RESET]
     var maxPenaltyLv: Int = 1
     var maxPenaltySp: Int = 150
-    var maxPenaltyIntv: Double = 0.1
+    var maxPenaltyIntv: Double = 0.05
     var maxPenaltyMin: Double = 0.1
     fun maxPenaltyPrice(): Long {
         return (maxPenaltySp * 2.0.pow((maxPenaltyLv - 1).toDouble())).toLong()
@@ -360,7 +363,7 @@ object Constants {
         }
         if(currentMoney >= maxPenaltyPrice()) {
             currentMoney -= maxPenaltyPrice()
-            maxPenaltyLv ++      // increase level
+            maxPenaltyLv ++                     // increase level
             maxPenalty -= maxPenaltyIntv        // decrease attribute
             return "[OK] maxPenalty decreased to %.2f".format(maxPenalty)
         } else {
@@ -371,6 +374,7 @@ object Constants {
 
 
     var minReward: Long = 10                         // consolation prize for unpackable clicks (if way too high)
+                                                    //      [+change RESET]
     var minRewardLv: Int = 1
     var minRewardSp: Int = 50
     var minRewardIntv: Int = 25
@@ -384,8 +388,8 @@ object Constants {
         }
         if(currentMoney >= minRewardPrice()) {
             currentMoney -= minRewardPrice()
-            minRewardLv ++      // increase level
-            minReward += minRewardIntv        // increase attribute
+            minRewardLv ++                      // increase level
+            minReward += minRewardIntv          // increase attribute
             return "[OK] minReward increased to $minReward"
         } else {
             return "[WARN] insufficient funds"
@@ -395,23 +399,28 @@ object Constants {
 
 
     // game state variables (cannot be directly upgraded)
-    var currentClicks: Int = 0                      // unpackaged clicks
+    var currentClicks: Int = 0                          // unpackaged clicks
     // game state variable
-    var currentPacks: Long = 0                       // number of packages completed
+    var currentPacks: Long = 0                          // number of packages completed
     // game state variable
-    var packBonusProgress: Int = 0                    // progress towards next bonus
+    var packBonusProgress: Int = 0                      // progress towards next bonus
     // game state variable
-    var currentMoney: Long = 0                       // accumulated unspent money
+    var currentMoney: Long = 0                          // accumulated unspent money
     // game state variable
-    var currentPrestige: Int = 0                    // prestige-linked multipliers are always positive
+    var currentPrestige: Int = 0                        // prestige-linked multipliers are always positive
     // game state variable
-    var combinedClicks: Long = 0                     // total clicks statistic
+    var combinedClicks: Long = 0                        // total clicks statistic
     // game state variable
-    var totalTicks: Long = 0                         // total ticks statistic
+    var totalTicks: Long = 0                            // total ticks statistic
     // game state variable
-    var totalMoney: Long = 0                         // total money statistic
+    var totalMoney: Long = 0                            // total money statistic
+    // game state variable
     var totalMoneyMax: Long = 1_000_000_000_000
     // game state variable; upper limit: 1Q
+    var realTickRange_min: Int = (clicksPerTick * ticksPerSecond * uncertaintyFloor).toInt()
+    // game state variable
+    var realTickRange_max: Int = (clicksPerTick * ticksPerSecond * uncertaintyLimit).toInt()
+    // game state variable
 
     fun tickPackBalance() {
         if(clicksPerTick * ticksPerSecond * 4 > clicksPerPack) {     // calculate balancing adjustment after increase
@@ -423,6 +432,9 @@ object Constants {
         uncertaintyFloorMax = uncertaintyLimit - 0.1
         uncertaintyLimitMin = uncertaintyFloor + 0.1
         clicksPerTickMax = ((clicksPerPack * uncertaintyLimit) / 5).toInt()
-        fuzzySelectRangeMax = clicksPerPack / 10
+        fuzzySelectRangeMax = clicksPerPack / 2
+        realTickRange_min = (clicksPerTick * ticksPerSecond * uncertaintyFloor).toInt()
+        realTickRange_max = (clicksPerTick * ticksPerSecond * uncertaintyLimit).toInt()
+
     }
 }
