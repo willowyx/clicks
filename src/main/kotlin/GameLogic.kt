@@ -126,17 +126,23 @@ class GameLogic(private val logger: GameLogger) {
 
     fun calcPackageReward(): Long {      // calculate reward for a single package
         var moneyrtn = constants.packRewardAmount
+        val packRwdUncert = calcUncertainty("boostMin")
+//        logger.log("reward uncertainty: $packRwdUncert")
         if(constants.currentPacks % constants.bonusPayInterval == 0.toLong()) {              // check if eligible for bonus
-            moneyrtn += (calcUncertainty() * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
+            moneyrtn += (packRwdUncert * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
         }
 //        logger.log("package reward: $moneyrtn")
         return moneyrtn
     }
 
-    fun calcUncertainty(): Double {     // random uncertainty scaler from floor to limit
-        val uncertaintyrtn = constants.uncertaintyFloor + Math.random() * (constants.uncertaintyLimit - constants.uncertaintyFloor)
+    fun calcUncertainty(adj: String = ""): Double {     // random uncertainty scaler from floor to limit
+        return if(adj == "boostMin") {
+            val effUncertFloor = constants.uncertaintyFloor.coerceAtLeast(1.0)
+            effUncertFloor + Math.random() * (constants.uncertaintyLimit - effUncertFloor)
+        } else {
+            constants.uncertaintyFloor + Math.random() * (constants.uncertaintyLimit - constants.uncertaintyFloor)
+        }
 //        logger.log("uncertainty: $uncertaintyrtn")
-        return uncertaintyrtn
     }
 
     fun calcPrestige(): Int {
