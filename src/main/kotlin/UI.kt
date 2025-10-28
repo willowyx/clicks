@@ -1,4 +1,5 @@
 import Constants.prettyFormat
+import Constants.toRoman
 import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
@@ -29,28 +30,14 @@ object UI : GameLogger {
 
     fun getAppVersion(): String {
         val props = Properties()
-        val stream = Main::class.java.classLoader.getResourceAsStream("version.properties")
-        return if (stream != null) {
+        Main::class.java.classLoader.getResourceAsStream("version.properties")?.use { stream ->
             props.load(stream)
-            props.getProperty("version") ?: "[unknown]"
-        } else {
-            "[unknown]"
+            return props.getProperty("version") ?: "[unknown]"
         }
+        return "[unknown]"
     }
 
-    fun render() {
-        upgrades.logger = this
-        constants.logger = this
-
-        val io = ImGui.getIO()
-        val displayWidth = io.displaySize.x
-        val displayHeight = io.displaySize.y
-        val controlsWidth = displayWidth * 0.30f
-        val middleWidth = displayWidth * 0.40f
-        val rightWidth = displayWidth * 0.30f
-        val topHeight = displayHeight * 0.6f
-        val bottomHeight = displayHeight * 0.4f
-
+    private fun renderControlsWindow(controlsWidth: Float, displayHeight: Float) {
         ImGui.setNextWindowPos(0f, 0f, ImGuiCond.Once)
         ImGui.setNextWindowSize(controlsWidth, displayHeight, ImGuiCond.Once)
         ImGui.begin("Controls")
@@ -232,18 +219,49 @@ object UI : GameLogger {
         }
 
         ImGui.end()
+    }
 
-        // Render game logs window
-        ImGui.setNextWindowPos(controlsWidth, 0f, ImGuiCond.Once)
-        ImGui.setNextWindowSize(middleWidth, displayHeight, ImGuiCond.Once)
+    private fun clearLogBuffer() {
+        synchronized(logBuffer) {
+            logBuffer.clear()
+        }
+    }
+
+    private fun renderPrestigeWindow(x: Float, y: Float, width: Float, height: Float) {
+        ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
+        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+
+        if (Constants.currentPrestige < 100) {
+            ImGui.begin("Prestige available")
+            ImGui.textWrapped(
+                "Ready to prestige? This will increase your Eminence to "
+                        + (Constants.currentPrestige + 1).toString() + " and reset all other attributes."
+            )
+            ImGui.newLine()
+            if (ImGui.button("Square yourself")) {
+                gl.stop()
+                clearLogBuffer()
+                Upgrades.prestigeResetAuto()
+                log("A wave of calm washes over you.")
+                log("Eminence " + Constants.currentPrestige.toRoman() + " achieved.")
+            }
+        } else {
+            ImGui.begin("Eminence C")
+            ImGui.text("Mastery achieved.")
+        }
+
+        ImGui.end()
+    }
+
+    private fun renderEventLogWindow(x: Float, width: Float, height: Float) {
+        ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
+        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
         ImGui.begin("Event Log")
 
         ImGui.inputText("Filter", logFilter)
 
         if (ImGui.button("Clear")) {
-            synchronized(logBuffer) {
-                logBuffer.clear()
-            }
+            clearLogBuffer()
         }
         ImGui.sameLine()
         ImGui.checkbox("Auto-scroll", autoScroll)
@@ -258,6 +276,7 @@ object UI : GameLogger {
                         line.contains("[WARN]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.8f, 0.4f, 1f)   // Yellow
                         line.contains("[INFO]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.7f, 0.8f, 1f, 1f)   // Light blue
                         line.contains("[READY]") || line.contains("[OK]") -> ImGui.pushStyleColor(ImGuiCol.Text, 0.4f, 1f, 0.4f, 1f) // Green
+                        line.contains("Eminence") || line.contains("Prestige") -> ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.84f, 0.0f, 1f) // Gold
                         else                     -> ImGui.pushStyleColor(ImGuiCol.Text, 0.9f, 0.9f, 0.9f, 1f) // Default gray
                     }
 
@@ -272,41 +291,72 @@ object UI : GameLogger {
         }
         ImGui.endChild()
         ImGui.end()
+    }
 
-        // Render game stats window
-        ImGui.setNextWindowPos(controlsWidth + middleWidth, 0f, ImGuiCond.Once)
-        ImGui.setNextWindowSize(rightWidth, topHeight, ImGuiCond.Once)
-        ImGui.begin("Stats")
-        ImGui.text("Game statistics")
-        ImGui.beginChild("StatsRegion", 0f, 0f, true)
-        ImGui.text(gl.statDump())
-        ImGui.endChild()
+    private fun renderInfoWindow(x: Float, width: Float, height: Float) {
+        ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
+        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+        ImGui.begin("Info")
+        if (ImGui.beginTabBar("InfoTabs")) {
+            if (ImGui.beginTabItem("Stats")) {
+                ImGui.text("Game statistics")
+                ImGui.beginChild("StatsRegion", 0f, 0f, true)
+                ImGui.text(gl.statDump())
+                ImGui.endChild()
+                ImGui.endTabItem()
+            }
+            if (ImGui.beginTabItem("About")) {
+                ImGui.text("clicks v${getAppVersion()} by willow")
+                ImGui.text("willowyx.dev/projects/clicks")
+                ImGui.separator()
+                ImGui.textWrapped("special thanks to gab for testing and moral support ^-^")
+                ImGui.beginChild("AboutCredits", 0f, 0f, true)
+                ImGui.textWrapped("""
+                    This project was made possible by the following libraries and software:
+        
+                    -Dear ImGui by ocornut
+                    -imgui-java by SpaiR
+                    -Kotlin Coroutines
+                    -Shadow (for jar creation)
+                    -LWJGL3
+                    -GLFW3
+                    -Launch4j (for Windows executable)
+                    -Packages by Stéphane Sudre (for macOS installer)
+                """.trimIndent())
+                ImGui.endChild()
+                ImGui.endTabItem()
+            }
+            ImGui.endTabBar()
+        }
         ImGui.end()
+    }
 
-        // Render about window
-        ImGui.setNextWindowPos(controlsWidth + middleWidth, topHeight, ImGuiCond.Once)
-        ImGui.setNextWindowSize(rightWidth, bottomHeight, ImGuiCond.Once)
-        ImGui.begin("About")
-        ImGui.text("clicks v${getAppVersion()} by willow")
-        ImGui.text("willowyx.dev/projects/clicks")
+    fun render() {
+        upgrades.logger = this
+        constants.logger = this
 
-        ImGui.separator()
-        ImGui.textWrapped("special thanks to gab for testing and moral support ^-^")
-        ImGui.beginChild("AboutCredits", 0f, 0f, true)
-        ImGui.textWrapped("""
-            This project was made possible by the following libraries and software:
+        val io = ImGui.getIO()
+        val displayWidth = io.displaySize.x
+        val displayHeight = io.displaySize.y
 
-            -Dear ImGui by ocornut
-            -imgui-java by SpaiR
-            -Kotlin Coroutines
-            -Shadow (for jar creation)
-            -LWJGL3
-            -GLFW3
-            -Launch4j (for Windows executable)
-            -Packages by Stéphane Sudre (for macOS installer)
-        """.trimIndent())
-        ImGui.endChild()
+        // Column widths
+        val controlsWidth = displayWidth * 0.30f
+        val middleWidth = displayWidth * 0.40f
+        val rightWidth = displayWidth * 0.30f
 
-        ImGui.end()
+        // Window heights for right column
+        val topHeight = displayHeight * 0.6f
+        val bottomHeight = displayHeight * 0.4f
+
+        renderControlsWindow(controlsWidth, displayHeight)
+        renderEventLogWindow(controlsWidth, middleWidth, displayHeight)
+
+        val rightColumnX = controlsWidth + middleWidth
+        if (Constants.canPrestigeCheck()) {
+            renderInfoWindow(rightColumnX, rightWidth, topHeight)
+            renderPrestigeWindow(rightColumnX, topHeight, rightWidth, bottomHeight)
+        } else {
+            renderInfoWindow(rightColumnX, rightWidth, displayHeight)
+        }
     }
 }

@@ -17,6 +17,26 @@ object Constants {
         }
     }
 
+    fun Int.toRoman(): String {
+        if (this !in 1..3999) {
+            return this.toString()
+        }
+        val romanValues = listOf(
+            1000 to "M", 900 to "CM", 500 to "D", 400 to "CD", 100 to "C",
+            90 to "XC", 50 to "L", 40 to "XL", 10 to "X", 9 to "IX", 5 to "V",
+            4 to "IV", 1 to "I"
+        )
+        val result = StringBuilder()
+        var number = this
+        for ((value, symbol) in romanValues) {
+            while (number >= value) {
+                result.append(symbol)
+                number -= value
+            }
+        }
+        return result.toString()
+    }
+
     fun getRefundEligibility(): Boolean {
         return (clicksPerTickLv > 1 && clicksPerPackLv > 1 && ticksPerSecondLv > 1 &&
             packRewardAmountLv > 1 && bonusPayIntervalLv > 1 && bonusPayScaleLv > 1 &&
@@ -91,6 +111,11 @@ object Constants {
         }
     }
     // can be increased; capped at 500
+
+    fun canPrestigeCheck(): Boolean {
+//        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000001) && minReward > 5_000_000
+        return true
+    }
 
     var uncertaintyFloor: Double = 0.1              // smallest uncertainty value [+change RESET]
     var uncertaintyFloorLv: Int = 1
@@ -378,9 +403,9 @@ object Constants {
     var minRewardLv: Int = 1
     var minRewardSp: Int = 50
     var minRewardIntv: Int = 25
-    var minRewardMax: Int = 10_000_000
+    var minRewardMax: Long = 10_000_000_000
     fun minRewardPrice(): Long {
-        return (minRewardSp * 1.35.pow((minRewardLv - 1).toDouble())).toLong()
+        return (minRewardSp * 1.15.pow((minRewardLv - 1).toDouble())).toLong()
     }
     fun minRewardAdd(): String {
         if(minReward + minRewardIntv >= minRewardMax) {
@@ -435,6 +460,5 @@ object Constants {
         fuzzySelectRangeMax = clicksPerPack / 2
         realTickRange_min = (clicksPerTick * ticksPerSecond * uncertaintyFloor).toInt()
         realTickRange_max = (clicksPerTick * ticksPerSecond * uncertaintyLimit).toInt()
-
     }
 }

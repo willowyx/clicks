@@ -78,4 +78,17 @@ object Upgrades {
             logger.log("[WARN] Double-click to activate. All attributes will be reset!")
         }
     }
+
+    fun prestigeResetAuto() {
+        constants.resetAll()
+        autoPack = false
+        hedgeFund = false
+
+        constants.currentClicks = 0
+        constants.currentMoney = 0
+        constants.packBonusProgress = 0
+        constants.currentPacks = 0
+
+        constants.currentPrestige++
+    }
 }

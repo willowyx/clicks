@@ -69,8 +69,8 @@ class GameLogic(private val logger: GameLogger) {
 
         when {
             constants.currentClicks == constants.clicksPerPack -> {
-                val prewarddef = calcPackageReward()
-                val pcalcbonusdef = calcPackBonus()                // define package reward amount
+                val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
+                val pcalcbonusdef = calcPackBonus()                // define package bonus amount
                 constants.currentMoney += prewarddef + pcalcbonusdef
                 constants.totalMoney += prewarddef + pcalcbonusdef
                 constants.currentPacks += 1
@@ -79,7 +79,7 @@ class GameLogic(private val logger: GameLogger) {
                 logger.log("perfect package, applied full reward plus bonus")
             }
             constants.currentClicks in minSelect..maxSelect -> {
-                val prewarddef = calcPackageReward()                    // define package reward amount
+                val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
                 val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
                 val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
                 constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
@@ -148,12 +148,12 @@ class GameLogic(private val logger: GameLogger) {
     fun calcPrestige(): Int {
         if (constants.currentPrestige == 0) return 0
 
-        val base = constants.currentPacks + (constants.totalTicks / 10)
-        val uncertainty = calcUncertainty().coerceAtMost(1.0 + (.1 * constants.uncertaintyLimit))
+        val base = constants.currentPacks + (constants.totalTicks / 100)
+        val uncertainty = calcUncertainty("boostMin")
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)
         val prestigeBonus = base * uncertainty * prestigeScale
 
-        logger.log("Prestige bonus applied: ${prestigeBonus.toInt()}")
+//        logger.log("Prestige bonus applied: ${prestigeBonus.toInt()}")
         return prestigeBonus.toInt()
     }
 
@@ -177,6 +177,7 @@ class GameLogic(private val logger: GameLogger) {
     clicks............${constants.currentClicks.toLong().prettyFormat()}
     money.............${constants.currentMoney.prettyFormat()}
     bonusIntvProg.....${constants.packBonusProgress}
+    prestige..........${constants.currentPrestige}
     
     === ACTUAL ===
     clicksMin.........${constants.realTickRange_min}
@@ -197,7 +198,6 @@ class GameLogic(private val logger: GameLogger) {
     minReward.........${constants.minReward}
     
     === STATS ===
-    prestige..........${constants.currentPrestige}
     clicksTotal.......${constants.combinedClicks}
     moneyTotal........${constants.totalMoney}
     packaged..........${constants.currentPacks}
