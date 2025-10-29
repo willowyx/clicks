@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.16.x
+###### for version 0.17.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -16,8 +16,8 @@
   * `Upgrades`, which linearly modify existing game variables; and
   * `Mods`, which introduce new mechanics that affect the game.
 * A `tick` is a unit of time in the game equal to 1 second, during which game mechanics and variables are updated.
-* `Prestige` is a game mechanic that allows you to reset your game progress in exchange for a permanent stat bonus, speeding up subsequent runs on the same save.
-  * This mechanic is not yet fully implemented but will be by the 1.0 release.
+* `Prestige` is a game mechanic that allows you to reset your game progress in exchange for a permanent stat bonus.
+  * This mechanic is still being testing and may change somewhat before release.
 
 ###### These mechanics will be described in more detail or elaborated on as necessary throughout the rest of guide.
 
@@ -33,8 +33,10 @@ These variables track the game state and cannot be directly modified by the play
   * `clicksTotal` measures the total number of clicks generated during your current run
 * `money` measures the amount of unspent money you currently have.
   * `moneyTotal` measures the total amount of money you have earned during the run, including money you have spent.
-* `prestige` measures the number of times you have reset your game progress in exchange for a permanent stat bonus.
+* `prestige`, or alternately `eminence`, measures the number of times you have reset your game progress in exchange for a permanent stat bonus.
+  * Eminence C (100) is the maximum prestige level
 * `bonusIntvProg` measures your progress towards the next bonus reward, which is rewarded every `bonusIntv` packs packaged (20 by default).
+  * `bonusIntvProg` resets to 0 each time a bonus is awarded
 * `clicksMin` and `clicksMax` display the minimum and maximum number of clicks that can be generated each tick, respectively.
 * `packaged` measures the number of times you have packaged a set of clicks.
 * `ticksElapsed` measures the number of ticks that have passed since the game began.
@@ -91,6 +93,9 @@ These variables can be directly modified as upgrades or mods
 The Controls window (labeled `Controls`) has multiple subsections, all of which contain various actions you can perform.
 
 ### a. Basic game controls
+
+###### These mechanics are not yet fully implemented
+
 The first subsection of the Controls window contains controls for basic game actions:
 * `New Game` starts a new game, provided one is not already in progress
 * `Load Game` allows you to load a previously saved game from a save file
@@ -108,7 +113,7 @@ Controls in the Game Actions subsection appear as they become relevant, and as s
   * The money you invest in the hedge fund is multiplied by a random value between 0.15 and 1.85
   * Each time you invest and lose money here, the lower limit of the random value generated is increased by 0.01, with a maximum lower limit of 0.35
   * Any profit from this mod cannot cause your total money to exceed the global maximum.
-    * If this happens, you will instead continually lose the money you invest until any given profit made no longer exceeds this limit.
+    * If this happens, you will instead continually lose the money you invest until the profit made no longer exceeds this limit.
 
 ### c. Mods
 Mods can be purchased with the `money` currency and, unlike Upgrades, affect or modify gameplay instead of only affecting one parameter.
@@ -129,12 +134,19 @@ The Event Log window displays game events every tick and immediate feedback on y
 * The Event Log history can be cleared by pressing the `Clear` button next to the Auto-scroll toggle.
 * By default, the Event Log scrolls to the newest additions as they are added. To unlock scrolling and view previous events, uncheck the `Auto-scroll` checkbox.
 
-## IV. Stats window
-The Stats window displays game state information as well as the values of generation variables that may be upgraded. The Stats window is refreshed each tick.
+## IV. Info window
+The Stats tab under the Info window displays game state information as well as the values of generation variables that may be upgraded. The Stats pane is refreshed each tick.
+* The individual parameters found in the Stats pane are described in detail under "Game parameters" (I.d)
 
-The individual parameters found in the Stats window are described in detail under "Game parameters" (I.d)
+The About tab contains version information and credits.
 
-## V. ImGui controls
+## V. Popout windows
+Popout windows appear in the in-game UI for certain game actions.
+
+* When you meet the requirements, a popout window will appear allowing you to Prestige.
+* If you purchase certain Mods, popout windows may also appear to allow you to perform actions.
+
+## VI. ImGui controls
 Clicks uses ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:
 * Move in-game windows by clicking and dragging on their title bar
 * Resize in-game windows by clicking and dragging on their borders
