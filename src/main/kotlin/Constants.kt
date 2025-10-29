@@ -113,8 +113,7 @@ object Constants {
     // can be increased; capped at 500
 
     fun canPrestigeCheck(): Boolean {
-//        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000001) && minReward > 5_000_000
-        return true
+        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000001) && minReward > 5_000_000
     }
 
     var uncertaintyFloor: Double = 0.1              // smallest uncertainty value [+change RESET]

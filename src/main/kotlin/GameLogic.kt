@@ -148,10 +148,10 @@ class GameLogic(private val logger: GameLogger) {
     fun calcPrestige(): Int {
         if (constants.currentPrestige == 0) return 0
 
-        val base = constants.currentPacks + (constants.totalTicks / 100)
+//        val base = constants.currentPacks + (constants.totalTicks / 100)
         val uncertainty = calcUncertainty("boostMin")
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)
-        val prestigeBonus = base * uncertainty * prestigeScale
+        val prestigeBonus = uncertainty * prestigeScale
 
 //        logger.log("Prestige bonus applied: ${prestigeBonus.toInt()}")
         return prestigeBonus.toInt()
