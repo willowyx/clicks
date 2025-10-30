@@ -68,7 +68,7 @@ class GameLogic(private val logger: GameLogger) {
         }
 
         when {
-            constants.currentClicks == constants.clicksPerPack -> {
+            constants.currentClicks == constants.clicksPerPack.toLong() -> {
                 val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
                 val pcalcbonusdef = calcPackBonus()                // define package bonus amount
                 constants.currentMoney += prewarddef + pcalcbonusdef
@@ -174,7 +174,7 @@ class GameLogic(private val logger: GameLogger) {
     fun statDump(): String {
         return """
     === CURRENT ===
-    clicks............${constants.currentClicks.toLong().prettyFormat()}
+    clicks............${constants.currentClicks.prettyFormat()}
     money.............${constants.currentMoney.prettyFormat()}
     bonusIntvProg.....${constants.packBonusProgress}
     prestige..........${constants.currentPrestige}
@@ -198,8 +198,8 @@ class GameLogic(private val logger: GameLogger) {
     minReward.........${constants.minReward}
     
     === STATS ===
-    clicksTotal.......${"%.2f".format(constants.combinedClicks)}
-    moneyTotal........${"%.2f".format(constants.totalMoney)}
+    clicksTotal.......${(constants.combinedClicks).prettyFormat()}
+    moneyTotal........${(constants.totalMoney).prettyFormat()}
     packaged..........${constants.currentPacks}
     ticksElapsed......${constants.totalTicks}
     """.trimIndent()

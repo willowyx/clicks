@@ -423,7 +423,7 @@ object Constants {
 
 
     // game state variables (cannot be directly upgraded)
-    var currentClicks: Int = 0                          // unpackaged clicks
+    var currentClicks: Long = 0                         // unpackaged clicks
     // game state variable
     var currentPacks: Long = 0                          // number of packages completed
     // game state variable
