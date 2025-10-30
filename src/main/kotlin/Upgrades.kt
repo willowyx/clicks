@@ -25,7 +25,7 @@ object Upgrades {
     var hedgeFund: Boolean = false
     var hedgeFundSp: Int = 2000
     var hedgeRisk: Double = 0.15
-    var hedgeGain: Double = 1.85
+    var hedgeGain: Double = 1.75
     fun startHedgeFund() {
         if (constants.currentMoney >= hedgeFundSp && !hedgeFund) {
             constants.currentMoney -= hedgeFundSp

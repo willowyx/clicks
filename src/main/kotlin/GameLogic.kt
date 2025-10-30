@@ -198,8 +198,8 @@ class GameLogic(private val logger: GameLogger) {
     minReward.........${constants.minReward}
     
     === STATS ===
-    clicksTotal.......${constants.combinedClicks}
-    moneyTotal........${constants.totalMoney}
+    clicksTotal.......${"%.2f".format(constants.combinedClicks)}
+    moneyTotal........${"%.2f".format(constants.totalMoney)}
     packaged..........${constants.currentPacks}
     ticksElapsed......${constants.totalTicks}
     """.trimIndent()

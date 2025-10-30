@@ -214,8 +214,16 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
-        if (ImGui.button("QA MONEY")) {
-            constants.currentMoney += 100000
+        if (ImGui.button("QA 1k")) {
+            constants.currentMoney += 1000
+        }
+        ImGui.sameLine()
+        if (ImGui.button("QA 100k")) {
+            constants.currentMoney += 100_000
+        }
+        ImGui.sameLine()
+        if (ImGui.button("QA 1m")) {
+            constants.currentMoney += 1_000_000
         }
 
         ImGui.end()

@@ -113,7 +113,7 @@ object Constants {
     // can be increased; capped at 500
 
     fun canPrestigeCheck(): Boolean {
-        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000001) && minReward > 5_000_000
+        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000005) && minReward > 1_000_000
     }
 
     var uncertaintyFloor: Double = 0.1              // smallest uncertainty value [+change RESET]
@@ -439,7 +439,7 @@ object Constants {
     // game state variable
     var totalMoney: Long = 0                            // total money statistic
     // game state variable
-    var totalMoneyMax: Long = 1_000_000_000_000
+    var totalMoneyMax: Long = 1_000_000_000_000_000
     // game state variable; upper limit: 1Q
     var realTickRange_min: Int = (clicksPerTick * ticksPerSecond * uncertaintyFloor).toInt()
     // game state variable
