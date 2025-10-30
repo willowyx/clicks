@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.17.x
+###### for version 0.18.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -79,13 +79,14 @@ These variables can be directly modified as upgrades or mods
   * The maximum penalty only applies when within range of `clicksPerPack`, as no penalty is applied to the consolation reward (`minReward`)
   * This value is directly modified by the "max penalty" upgrade
 * `minReward` is the consolation reward applied when exceeding the maximum packaging range.
-  * Receiving this reward does not count toward packaging bonuses
+  * All base packaging rewards will be at minimum this value
+  * Consolation rewards do not count toward packaging bonuses
   * This value is directly modified by the "min reward" upgrade
 
 ### e. Passive mechanics
 * Each tick, there is a 5% chance for the `clicksPerPack` parameter to increase by 1% of its current value
   * This mechanic will not apply if the current ratio of `clicksPerPack` to `clicksPerTick` exceeds 10:1
-  * The calculation's parameters remain constant over time, and cannot be modified by the player
+  * The calculation's parameters cannot be directly modified by the player
 * Upgrading `ticksPerSecond` (subticks) or `clicksPerPack` will automatically increase the value of `clicksPerTick` if needed, to avoid stacking click overflow
   * This does not completely prevent balancing issues, but does help to avoid unplayable game states
 
@@ -97,9 +98,10 @@ The Controls window (labeled `Controls`) has multiple subsections, all of which 
 ###### These mechanics are not yet fully implemented
 
 The first subsection of the Controls window contains controls for basic game actions:
-* `New Game` starts a new game, provided one is not already in progress
+* `New Game` starts a new game
 * `Load Game` allows you to load a previously saved game from a save file
 * `Save Game` allows you to save your current game to a save file
+  * Currently, this button only pauses the main game thread
 * `How to play` opens this guide
 
 ### b. Game Actions
@@ -109,9 +111,9 @@ Controls in the Game Actions subsection appear as they become relevant, and as s
 * `Package` appears when you have acquired a sufficient number of Clicks, and resets your clicks to 0, rewarding you with `money` based on the number of Clicks generated.
   * This control will no longer appear after purchasing the `Autopack` Mod.
 * `BUY BUY BUY` appears after purchasing the `Hedge fund` Mod, and allows you to spend your earned `money` with a chance to gain more or lose it.
-  * At least $2,000 or 50% of your money (whichever is higher) will be `invested` each time you activate it
-  * The money you invest in the hedge fund is multiplied by a random value between 0.15 and 1.85
-  * Each time you invest and lose money here, the lower limit of the random value generated is increased by 0.01, with a maximum lower limit of 0.35
+  * 75% of your money or $5,000 (whichever is higher) will be `invested` each time you activate it
+  * The money you invest in the hedge fund is multiplied by a random value between 0.05 and 1.75
+  * Each time you invest and lose money with this mod, the floor of the random value generated is increased by 0.01, with a maximum floor of 0.25
   * Any profit from this mod cannot cause your total money to exceed the global maximum.
     * If this happens, you will instead continually lose the money you invest until the profit made no longer exceeds this limit.
 

@@ -23,8 +23,8 @@ object Upgrades {
     }
 
     var hedgeFund: Boolean = false
-    var hedgeFundSp: Int = 2000
-    var hedgeRisk: Double = 0.15
+    var hedgeFundSp: Int = 5000
+    var hedgeRisk: Double = 0.05
     var hedgeGain: Double = 1.75
     fun startHedgeFund() {
         if (constants.currentMoney >= hedgeFundSp && !hedgeFund) {
@@ -44,15 +44,15 @@ object Upgrades {
             return
         }
         if (hedgeFund && constants.currentMoney >= hedgeFundSp) {
-            val investment = (constants.currentMoney * 0.5).coerceAtLeast(hedgeFundSp.toDouble())
-            // 2000 minimum investment; above 4000 invests 50% current money
+            val investment = (constants.currentMoney * 0.75).coerceAtLeast(hedgeFundSp.toDouble())
+            // 5000 minimum investment; otherwise invests 75% current money
             val profit: Long = (investment * Random.nextDouble(hedgeRisk, hedgeGain))
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
             constants.currentMoney += profit
             if(profit >= 0) {
                 logger.log("[OK] Hedge fund profit: ${profit.prettyFormat()}")
             } else {
-                if(hedgeRisk < 0.35) {
+                if(hedgeRisk < 0.25) {
                     hedgeRisk += 0.01
                     logger.log("[WARN] Hedge fund loss: ${profit.prettyFormat()}. Can't end on a loss...?")
                     return
@@ -87,7 +87,6 @@ object Upgrades {
         constants.currentClicks = 0
         constants.currentMoney = 0
         constants.packBonusProgress = 0
-        constants.currentPacks = 0
 
         constants.currentPrestige++
     }

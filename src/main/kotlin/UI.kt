@@ -43,15 +43,22 @@ object UI : GameLogger {
         ImGui.begin("Controls")
         ImGui.text("clicks")
 
-        if (ImGui.button("New game")) {
-            gl.genStart()
+        ImGui.newLine()
+        if(!gl.getJobRunStateInd()) {
+            if (ImGui.button("New game")) {
+                gl.genStart()
+            }
+            ImGui.sameLine()
+            ImGui.text("start fresh")
         }
-        ImGui.sameLine()
-        ImGui.text("start fresh")
 
-        if (ImGui.button("Save game")) {
-            gl.stop()
-            log("[INFO] would save game state")
+        if (gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
+            if (ImGui.button("Save game")) {
+                gl.stop()
+                log("[INFO] would save game state")
+            }
+        } else if (gl.isAwaitingInput()) {
+            ImGui.text("pending game actions")
         }
 
         if (ImGui.button("Load game...")) {
@@ -214,16 +221,17 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
-        if (ImGui.button("QA 1k")) {
-            constants.currentMoney += 1000
-        }
-        ImGui.sameLine()
+
         if (ImGui.button("QA 100k")) {
             constants.currentMoney += 100_000
         }
         ImGui.sameLine()
         if (ImGui.button("QA 1m")) {
             constants.currentMoney += 1_000_000
+        }
+        ImGui.sameLine()
+        if (ImGui.button("QA 0")) {
+            constants.currentMoney = 0
         }
 
         ImGui.end()
@@ -287,12 +295,10 @@ object UI : GameLogger {
                         line.contains("Eminence") || line.contains("Prestige") -> ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.84f, 0.0f, 1f) // Gold
                         else                     -> ImGui.pushStyleColor(ImGuiCol.Text, 0.9f, 0.9f, 0.9f, 1f) // Default gray
                     }
-
                     ImGui.textWrapped(line)
                     ImGui.popStyleColor()
                 }
             }
-
             if (autoScroll.get()) {
                 ImGui.setScrollHereY(1.0f) // scroll
             }

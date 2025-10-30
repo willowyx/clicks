@@ -40,11 +40,17 @@ object Constants {
     fun getRefundEligibility(): Boolean {
         return (clicksPerTickLv > 1 && clicksPerPackLv > 1 && ticksPerSecondLv > 1 &&
             packRewardAmountLv > 1 && bonusPayIntervalLv > 1 && bonusPayScaleLv > 1 &&
-            uncertaintyFloorLv > 1 && abs(uncertaintyLimitLv) > 1 && abs(fuzzySelectRangeLv) > 1 &&
-            fuzzySelectPenaltyUnitLv > 1 && abs(maxPenaltyLv) > 1 && minRewardLv > 1)
+            uncertaintyFloorLv > 1 && uncertaintyLimitLv != 1 && fuzzySelectRangeLv != 1 &&
+            fuzzySelectPenaltyUnitLv > 1 && maxPenaltyLv != 1 && minRewardLv > 1)
     }
     fun getRefundPrice(): Long {
         if(getRefundEligibility()) {
+            clicksPerPackLv--;clicksPerPackLv--
+            ticksPerSecondLv--;packRewardAmountLv--
+            bonusPayIntervalLv--;bonusPayScaleLv--
+            uncertaintyFloorLv--;uncertaintyLimitLv--
+            fuzzySelectRangeLv--;fuzzySelectPenaltyUnitLv--
+            maxPenaltyLv--;minRewardLv--
             return (clicksPerTickPrice() + clicksPerPackPrice() +
                     ticksPerSecondPrice() + packRewardAmountPrice() +
                     bonusPayIntervalPrice() + bonusPayScalePrice() +

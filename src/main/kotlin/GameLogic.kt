@@ -19,6 +19,10 @@ class GameLogic(private val logger: GameLogger) {
     fun isAwaitingInput(): Boolean = awaitingInput
     private var inputContinuation: (Continuation<Unit>)? = null
     private var jobIsRunning: Boolean = false
+    fun getJobRunStateInd(): Boolean = jobIsRunning
+    fun setJobRunStateInd(state: Boolean) {
+        jobIsRunning = state
+    }
 
     private fun resetScope() {
         job = Job()
@@ -27,11 +31,11 @@ class GameLogic(private val logger: GameLogger) {
 
     fun genStart() {
         resetScope()
-        if(jobIsRunning) {
+        if(getJobRunStateInd()) {
             logger.log("[ERROR] Game process is already running. Please stop it first.")
             return
         } else {
-            jobIsRunning = true
+            setJobRunStateInd(true)
         }
         scope.launch {
             while (true) {
@@ -76,7 +80,7 @@ class GameLogic(private val logger: GameLogger) {
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusProgress ++
-                logger.log("perfect package, applied full reward plus bonus")
+                logger.log("[INFO] perfect package, applied full reward plus bonus")
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
@@ -208,7 +212,7 @@ class GameLogic(private val logger: GameLogger) {
     fun stop() {
         // need to implement save state when stopping
         job.cancel()
-        jobIsRunning = false
+        setJobRunStateInd(false)
     }
 }
 
