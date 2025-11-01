@@ -83,7 +83,7 @@ object UI : GameLogger {
                 upgrades.buybuybuy()
             }
             ImGui.sameLine()
-            ImGui.text("invest ($${(constants.currentMoney * 0.5).toLong().coerceAtLeast(2000).prettyFormat()})")
+            ImGui.text("invest ($${(constants.currentMoney * 0.5).toLong().coerceAtLeast(5000).prettyFormat()})")
         }
 
         ImGui.separator()

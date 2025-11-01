@@ -24,7 +24,7 @@ object Upgrades {
 
     var hedgeFund: Boolean = false
     var hedgeFundSp: Int = 5000
-    var hedgeRisk: Double = 0.05
+    var hedgeRisk: Double = 0.15
     var hedgeGain: Double = 1.75
     fun startHedgeFund() {
         if (constants.currentMoney >= hedgeFundSp && !hedgeFund) {
@@ -52,7 +52,7 @@ object Upgrades {
             if(profit >= 0) {
                 logger.log("[OK] Hedge fund profit: ${profit.prettyFormat()}")
             } else {
-                if(hedgeRisk < 0.25) {
+                if(hedgeRisk < 0.35) {
                     hedgeRisk += 0.01
                     logger.log("[WARN] Hedge fund loss: ${profit.prettyFormat()}. Can't end on a loss...?")
                     return

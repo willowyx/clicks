@@ -251,7 +251,7 @@ object Constants {
     var bonusPayIntervalIntv: Int = 1
     var bonusPayIntervalMin: Int = 1
     fun bonusPayIntervalPrice(): Long {
-        return (bonusPayIntervalSp * 1.9.pow((bonusPayIntervalLv - 1).toDouble())).toLong()
+        return (bonusPayIntervalSp * 2.5.pow((bonusPayIntervalLv - 1).toDouble())).toLong()
     }
     fun bonusPayIntervalAdd(): String {
         if(bonusPayInterval - bonusPayIntervalIntv <= bonusPayIntervalMin) {
