@@ -98,6 +98,7 @@ object Constants {
     var ticksPerSecondLv: Int = 1                   // attribute level
     var ticksPerSecondSp: Int = 175                 // base upgrade price
     var ticksPerSecondIntv: Int = 1                 // interval by which the attribute is increased
+    var ticksPerSecondMin: Int = 1
     var ticksPerSecondMax: Int = 500                // soft cap (can be exceeded by no more than 1 additional interval)
     fun ticksPerSecondPrice(): Long {
         return (ticksPerSecondSp * 1.25.pow((ticksPerSecondLv - 1).toDouble())).toLong()
@@ -108,7 +109,7 @@ object Constants {
         }
         if(currentMoney >= ticksPerSecondPrice()) {
             currentMoney -= ticksPerSecondPrice()
-            ticksPerSecondLv ++      // increase level
+            ticksPerSecondLv ++                         // increase level
             ticksPerSecond += ticksPerSecondIntv        // increase attribute
             tickPackBalance()
             return "[OK] ticksPerSecond increased to $ticksPerSecondLv"
@@ -116,7 +117,20 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be increased; capped at 500
+    fun ticksPerSecondSub(): String {
+        if(ticksPerSecond <= ticksPerSecondMin) {
+            return "[WARN] min level reached"
+        }
+        if(currentMoney >= ticksPerSecondPrice()) {
+            currentMoney -= ticksPerSecondPrice()
+            ticksPerSecondLv --                         // decrease level
+            ticksPerSecond -= ticksPerSecondIntv        // decrease attribute
+            return "[OK] ticksPerSecond decreased to $ticksPerSecondLv"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
+    // can be increased or decreased; capped at 500
 
     fun canPrestigeCheck(): Boolean {
         return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000005) && minReward > 1_000_000
@@ -126,12 +140,12 @@ object Constants {
     var uncertaintyFloorLv: Int = 1
     var uncertaintyFloorSp: Int = 500
     var uncertaintyFloorIntv: Double = 0.1
-    var uncertaintyFloorMax: Double = 10.0
+    var uncertaintyFloorMax: Double = 50.0
     fun uncertaintyFloorPrice(): Long {
         return (uncertaintyFloorSp * 1.15.pow((uncertaintyFloorLv - 1).toDouble())).toLong()
     }
     fun uncertaintyFloorAdd(): String {
-        if(uncertaintyFloor + uncertaintyFloorIntv >= uncertaintyFloorMax) {
+        if(uncertaintyFloor >= uncertaintyFloorMax) {
             return "[WARN] limit reached"
         }
         if(uncertaintyFloor + uncertaintyFloorIntv >= uncertaintyLimit) {
@@ -139,7 +153,7 @@ object Constants {
         }
         if(currentMoney >= uncertaintyFloorPrice()) {
             currentMoney -= uncertaintyFloorPrice()
-            uncertaintyFloorLv ++      // increase level
+            uncertaintyFloorLv ++                           // increase level
             uncertaintyFloor += uncertaintyFloorIntv        // increase attribute
             return "[OK] uncertaintyFloor increased to %.2f".format(uncertaintyFloor)
         } else {
@@ -151,20 +165,20 @@ object Constants {
     var uncertaintyLimit: Double = 3.0              // largest uncertainty variance (not for money except bonuses)
                                                     //      [+change RESET]
     var uncertaintyLimitLv: Int = 1
-    var uncertaintyLimitSp: Int = 750
+    var uncertaintyLimitSp: Int = 550
     var uncertaintyLimitIntv: Double = 0.2
-    var uncertaintyLimitMin: Double = 1.0
+    var uncertaintyLimitMin: Double = 0.2
     var uncertaintyLimitMax: Double = 50.0
     fun uncertaintyLimitPrice(): Long {
         return (uncertaintyLimitSp * 1.5.pow(abs((abs(uncertaintyLimitLv) - 1)).toDouble())).toLong()
     }
     fun uncertaintyLimitAdd(): String {
-        if(uncertaintyLimit + uncertaintyLimitIntv >= uncertaintyLimitMax) {
+        if(uncertaintyLimit >= uncertaintyLimitMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= uncertaintyLimitPrice()) {
             currentMoney -= uncertaintyLimitPrice()
-            uncertaintyLimitLv ++      // increase level
+            uncertaintyLimitLv ++                           // increase level
             uncertaintyLimit += uncertaintyLimitIntv        // increase attribute
             return "[OK] uncertaintyLimit increased to %.2f".format(uncertaintyLimit)
         } else {
@@ -172,7 +186,7 @@ object Constants {
         }
     }
     fun uncertaintyLimitSub(): String {
-        if(uncertaintyLimit - uncertaintyLimitIntv <= uncertaintyLimitMin) {
+        if(uncertaintyLimit <= uncertaintyLimitMin) {
             return "[WARN] min level reached"
         }
         if(uncertaintyLimit - uncertaintyLimitIntv <= uncertaintyFloor) {
@@ -180,7 +194,7 @@ object Constants {
         }
         if(currentMoney >= uncertaintyLimitPrice()) {
             currentMoney -= uncertaintyLimitPrice()
-            uncertaintyLimitLv --      // decrease level
+            uncertaintyLimitLv --                           // decrease level
             uncertaintyLimit -= uncertaintyLimitIntv        // decrease attribute
             return "[OK] uncertaintyLimit decreased to %.2f".format(uncertaintyLimit)
         } else {
@@ -189,7 +203,7 @@ object Constants {
     }
     // can be increased or decreased; lower limit: uncertFloor + 0.1; upper limit: 50.0
 
-    var clicksPerPack: Int = 200                    // clicks required per package [+change RESET]
+    var clicksPerPack: Int = 200                    // clicks required per package
     var clicksPerPackLv: Int = 1
     var clicksPerPackSp: Int = 425
     var clicksPerPackIntv: Int = 200
@@ -198,12 +212,12 @@ object Constants {
         return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toLong()
     }
     fun clicksPerPackAdd(): String {
-        if(clicksPerPack + clicksPerPackIntv >= clicksPerPackMax) {
+        if(clicksPerPack >= clicksPerPackMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= clicksPerPackPrice()) {
             currentMoney -= clicksPerPackPrice()
-            clicksPerPackLv ++      // increase level
+            clicksPerPackLv ++                        // increase level
             clicksPerPack += clicksPerPackIntv        // increase attribute
             return "[OK] clicksPerPack increased to $clicksPerPack"
         } else {
@@ -226,17 +240,17 @@ object Constants {
     var packRewardAmountLv: Int = 1
     var packRewardAmountSp: Int = 200
     var packRewardAmountIntv: Int = 100
-    var packRewardAmountMax: Int = 100_000_000 // CHECK THIS
+    var packRewardAmountMax: Long = 10_000_000_000
     fun packRewardAmountPrice(): Long {
         return (packRewardAmountSp * 1.25.pow((packRewardAmountLv - 1).toDouble())).toLong()
     }
     fun packRewardAmountAdd(): String {
-        if(packRewardAmount + packRewardAmountIntv >= packRewardAmountMax) {
+        if(packRewardAmount >= packRewardAmountMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= packRewardAmountPrice()) {
             currentMoney -= packRewardAmountPrice()
-            packRewardAmountLv ++      // increase level
+            packRewardAmountLv ++                           // increase level
             packRewardAmount += packRewardAmountIntv        // increase attribute
             return "[OK] packRewardAmount increased to $packRewardAmount"
         } else {
@@ -249,17 +263,17 @@ object Constants {
     var bonusPayIntervalLv: Int = 1
     var bonusPayIntervalSp: Int = 50
     var bonusPayIntervalIntv: Int = 1
-    var bonusPayIntervalMin: Int = 1
+    var bonusPayIntervalMin: Int = 2
     fun bonusPayIntervalPrice(): Long {
         return (bonusPayIntervalSp * 2.5.pow((bonusPayIntervalLv - 1).toDouble())).toLong()
     }
     fun bonusPayIntervalAdd(): String {
-        if(bonusPayInterval - bonusPayIntervalIntv <= bonusPayIntervalMin) {
+        if(bonusPayInterval <= bonusPayIntervalMin) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= bonusPayIntervalPrice()) {
             currentMoney -= bonusPayIntervalPrice()
-            bonusPayIntervalLv ++      // increase level
+            bonusPayIntervalLv ++                           // increase level
             bonusPayInterval -= bonusPayIntervalIntv        // decrease attribute
             return "[OK] bonusPayInterval decreased to $bonusPayInterval"
         } else {
@@ -278,12 +292,12 @@ object Constants {
         return (bonusPayScaleSp * 1.25.pow((bonusPayScaleLv - 1).toDouble())).toLong()
     }
     fun bonusPayScaleAdd(): String {
-        if(bonusPayScale + bonusPayScaleIntv >= bonusPayScaleMax) {
+        if(bonusPayScale >= bonusPayScaleMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= bonusPayScalePrice()) {
             currentMoney -= bonusPayScalePrice()
-            bonusPayScaleLv ++      // increase level
+            bonusPayScaleLv ++                        // increase level
             bonusPayScale += bonusPayScaleIntv        // increase attribute
             return "[OK] bonusPayScale increased to %.2f".format(bonusPayScale)
         } else {
@@ -296,12 +310,13 @@ object Constants {
     var clicksPerTickLv: Int = 1
     var clicksPerTickSp: Int = 50
     var clicksPerTickIntv: Int = 15
-    var clicksPerTickMax: Int = 250_000
+    var clicksPerTickMax: Int = 10_000
+    var clicksPerTickMin: Int = 5
     fun clicksPerTickPrice(): Long {
         return (clicksPerTickSp * 1.01.pow((clicksPerTickLv - 1).toDouble())).toLong()
     }
     fun clicksPerTickAdd(): String {
-        if(clicksPerTick + clicksPerTickIntv >= clicksPerTickMax) {
+        if(clicksPerTick >= clicksPerTickMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= clicksPerTickPrice()) {
@@ -310,6 +325,19 @@ object Constants {
             clicksPerTick += clicksPerTickIntv          // increase attribute
             tickPackBalance()
             return "[OK] clicksPerTick increased to $clicksPerTick"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
+    fun clicksPerTickSub(): String {
+        if(clicksPerTick <= clicksPerTickMin) {
+            return "[WARN] cannot decrease attribute further"
+        }
+        if(currentMoney >= clicksPerTickPrice()) {
+            currentMoney -= clicksPerTickPrice()
+            clicksPerTickLv --                          // decrease level
+            clicksPerTick -= clicksPerTickIntv          // decrease attribute
+            return "[OK] clicksPerTick decreased to $clicksPerTick"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -326,12 +354,12 @@ object Constants {
         return (fuzzySelectRangeSp * 1.05.pow((fuzzySelectRangeLv - 1).toDouble())).toLong()
     }
     fun fuzzySelectRangeAdd(): String {
-        if(fuzzySelectRange + fuzzySelectRangeIntv >= fuzzySelectRangeMax) {
+        if(fuzzySelectRange >= fuzzySelectRangeMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= fuzzySelectRangePrice()) {
             currentMoney -= fuzzySelectRangePrice()
-            fuzzySelectRangeLv ++      // increase level
+            fuzzySelectRangeLv ++                           // increase level
             fuzzySelectRange += fuzzySelectRangeIntv        // increase attribute
             return "[OK] fuzzySelectRange increased to $fuzzySelectRange"
         } else {
@@ -339,7 +367,7 @@ object Constants {
         }
     }
     fun fuzzySelectRangeSub(): String {
-        if(fuzzySelectRange - fuzzySelectRangeIntv <= fuzzySelectRangeMin) {
+        if(fuzzySelectRange <= fuzzySelectRangeMin) {
             return "[WARN] min level reached"
         }
         if(currentMoney >= fuzzySelectRangePrice()) {
@@ -359,12 +387,12 @@ object Constants {
     var fuzzySelectPenaltyUnitLv: Int = 1
     var fuzzySelectPenaltyUnitSp: Int = 325
     var fuzzySelectPenaltyUnitIntv: Int = 9
-    var fuzzySelectPenaltyUnitMax: Int = 1_000_000
+    var fuzzySelectPenaltyUnitMax: Int = 10_000_000
     fun fuzzySelectPenaltyUnitPrice(): Long {
         return (fuzzySelectPenaltyUnitSp * 1.5.pow((fuzzySelectPenaltyUnitLv - 1).toDouble())).toLong()
     }
     fun fuzzySelectPenaltyUnitAdd(): String {
-        if(fuzzySelectPenaltyUnit + fuzzySelectPenaltyUnitIntv >= fuzzySelectPenaltyUnitMax) {
+        if(fuzzySelectPenaltyUnit >= fuzzySelectPenaltyUnitMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= fuzzySelectPenaltyUnitPrice()) {
@@ -376,7 +404,7 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be increased; capped at 1 000 000
+    // can be increased; capped at 10 000 000
 
     var maxPenalty: Double = 0.9                    // max penalty for inaccurate packs (as % of base reward)
                                                     //      [+change RESET]
@@ -388,8 +416,8 @@ object Constants {
         return (maxPenaltySp * 2.0.pow((maxPenaltyLv - 1).toDouble())).toLong()
     }
     fun maxPenaltyAdd(): String {
-        if(maxPenalty - maxPenaltyIntv <= maxPenaltyMin) {
-            return "[WARN] max level reached"
+        if(maxPenalty <= maxPenaltyMin) {
+            return "[WARN] cannot decrease attribute further"
         }
         if(currentMoney >= maxPenaltyPrice()) {
             currentMoney -= maxPenaltyPrice()
@@ -403,7 +431,7 @@ object Constants {
     // can be decreased; lower limit: 0.1
 
 
-    var minReward: Long = 10                         // consolation prize for unpackable clicks (if way too high)
+    var minReward: Long = 10                        // consolation prize for unpackable clicks (if way too high)
                                                     //      [+change RESET]
     var minRewardLv: Int = 1
     var minRewardSp: Int = 50
@@ -413,7 +441,7 @@ object Constants {
         return (minRewardSp * 1.15.pow((minRewardLv - 1).toDouble())).toLong()
     }
     fun minRewardAdd(): String {
-        if(minReward + minRewardIntv >= minRewardMax) {
+        if(minReward >= minRewardMax) {
             return "[WARN] max level reached"
         }
         if(currentMoney >= minRewardPrice()) {

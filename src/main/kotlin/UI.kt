@@ -98,17 +98,25 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.clicksPerPackPrice().prettyFormat()})")
 
+        if (ImGui.button("-###clicksPerTickSub")) {
+            log(constants.clicksPerTickSub())
+        }
+        ImGui.sameLine()
         ImGui.text("base clicks per tick")
         ImGui.sameLine()
-        if (ImGui.button("+###clicksPerTick")) {
+        if (ImGui.button("+###clicksPerTickAdd")) {
             log(constants.clicksPerTickAdd())
         }
         ImGui.sameLine()
         ImGui.text("($${constants.clicksPerTickPrice().prettyFormat()})")
 
+        if (ImGui.button("-###ticksPerSecondSub")) {
+            log(constants.ticksPerSecondSub())
+        }
+        ImGui.sameLine()
         ImGui.text("subticks per tick")
         ImGui.sameLine()
-        if (ImGui.button("+###ticksPerSecond")) {
+        if (ImGui.button("+###ticksPerSecondAdd")) {
             log(constants.ticksPerSecondAdd())
         }
         ImGui.sameLine()
