@@ -1,21 +1,36 @@
+import Constants
 import Constants.prettyFormat
 import Constants.toRoman
 import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
+import imgui.flag.ImGuiStyleVar
+import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
+import imgui.type.ImInt
 import imgui.type.ImString
 import java.util.Properties
 import Constants as constants
 import Upgrades as upgrades
 
 object UI : GameLogger {
-
     private val logBuffer = mutableListOf<String>()
     private val maxLogLines = 300
 
     private val autoScroll = ImBoolean(true)
     private val logFilter = ImString()
+
+    private val sizeGroup = ImInt(2)
+    private val tempGroup = ImInt(0)
+    private val syrupIndex = ImInt(0)
+    private val drinkIndex = ImInt(0)
+    private val dairyIndex = ImInt(0)
+    private val sugarIndex = ImInt(2)
+    private val iceAmountIndex = ImInt(2)
+    private val steamedMilk = ImBoolean(false)
+    private val makeDecaf = ImBoolean(false)
+    private val addEspresso = ImBoolean(false)
+    private val reviewReqMOpen = ImBoolean(false)
 
     override fun log(message: String) {
         synchronized(logBuffer) {
@@ -83,7 +98,7 @@ object UI : GameLogger {
                 upgrades.buybuybuy()
             }
             ImGui.sameLine()
-            ImGui.text("invest ($${(constants.currentMoney * 0.5).toLong().coerceAtLeast(5000).prettyFormat()})")
+            ImGui.text("invest ($${(constants.currentMoney * 0.75).toLong().coerceAtLeast(5000).prettyFormat()})")
         }
 
         ImGui.separator()
@@ -230,16 +245,20 @@ object UI : GameLogger {
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
 
-        if (ImGui.button("QA 100k")) {
+        ImGui.separator()
+        // START TEMP QA
+        ImGui.text("QA money")
+
+        if (ImGui.button("to 0")) {
+            constants.currentMoney = 0
+        }
+        ImGui.sameLine()
+        if (ImGui.button("+100k")) {
             constants.currentMoney += 100_000
         }
         ImGui.sameLine()
-        if (ImGui.button("QA 1m")) {
+        if (ImGui.button("+1m")) {
             constants.currentMoney += 1_000_000
-        }
-        ImGui.sameLine()
-        if (ImGui.button("QA 0")) {
-            constants.currentMoney = 0
         }
 
         ImGui.end()
@@ -265,7 +284,7 @@ object UI : GameLogger {
             if (ImGui.button("Square yourself")) {
                 gl.stop()
                 clearLogBuffer()
-                Upgrades.prestigeResetAuto()
+                upgrades.prestigeResetAuto()
                 log("A wave of calm washes over you.")
                 log("Eminence " + Constants.currentPrestige.toRoman() + " achieved.")
             }
@@ -273,8 +292,188 @@ object UI : GameLogger {
             ImGui.begin("Eminence C")
             ImGui.text("Mastery achieved.")
         }
-
         ImGui.end()
+    }
+
+    private fun renderCRWindow(x: Float, y: Float, width: Float, height: Float) {
+        ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
+        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+
+        ImGui.pushStyleVar(ImGuiStyleVar.WindowMinSize, 200f, 300f)
+
+        val brown = floatArrayOf(0.1f, 0.05f, 0.01f, 1.0f)
+        val lightBrown = floatArrayOf(0.2f, 0.15f, 0.11f, 1.0f)
+        val lighterBrown = floatArrayOf(0.3f, 0.25f, 0.21f, 1.0f)
+
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0.1f, 0.35f, 0.15f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, brown[0], brown[1], brown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBgHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBgActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Button, brown[0], brown[1], brown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Header, brown[0], brown[1], brown[2], 1.0f) // combo & list selected
+        ImGui.pushStyleColor(ImGuiCol.HeaderHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.HeaderActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 1.0f, 1.0f, 1.0f) // checkmark
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.15f, 0.15f, 0.15f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.15f, 0.15f, 0.15f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 0.1f, 0.35f, 0.15f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.1f, 0.05f, 0.01f, 0.95f)
+
+        ImGui.begin("Coffee Run")
+
+        if (ImGui.button("Check notepad")) {
+            ImGui.openPopup("check order")
+            reviewReqMOpen.set(true)
+        }
+        ImGui.newLine()
+
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.6f, 0.5f, 0.0f, 1.0f)
+        if (ImGui.beginPopupModal("check order", reviewReqMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoCollapse)) {
+            ImGui.text("You need to place this order:")
+            val childWidth = ImGui.getContentRegionAvailX()
+            val childHeight = 200f
+            if (ImGui.beginChild("orderOutput", childWidth, childHeight, true)) {
+                val orderText = gl.getTargetOrder().let { gl.cgenlogic.formatOrderData(it) }
+                ImGui.textWrapped(orderText)
+                ImGui.endChild()
+            }
+            ImGui.newLine()
+            if (ImGui.button("Got it")) {
+                ImGui.closeCurrentPopup()
+            }
+            ImGui.sameLine()
+            if (ImGui.button("Regen order")) {
+                gl.regenCoffeeOrder()
+            }
+            ImGui.endPopup()
+        }
+        ImGui.popStyleColor()
+
+        ImGui.beginGroup()
+        ImGui.radioButton("XS", sizeGroup, 0)
+        ImGui.sameLine()
+        ImGui.radioButton("Small", sizeGroup, 1)
+        ImGui.sameLine()
+        ImGui.radioButton("Medium", sizeGroup, 2)
+        ImGui.sameLine()
+        ImGui.radioButton("Large", sizeGroup, 3)
+        ImGui.endGroup()
+        ImGui.newLine()
+
+        ImGui.beginGroup()
+        ImGui.radioButton("Hot", tempGroup, 0)
+        ImGui.sameLine()
+        ImGui.radioButton("Iced", tempGroup, 1)
+        ImGui.endGroup()
+        ImGui.newLine()
+
+        val syrup = arrayOf(
+            "Caramel",
+            "Dark chocolate",
+            "Pecan",
+            "Pumpkin spice",
+            "Vanilla",
+            "None"
+        )
+        ImGui.combo("Syrup", syrupIndex, syrup, syrup.size)
+        if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
+            ImGui.setTooltip("sweetened syrups")
+            ImGui.popStyleColor()
+        }
+        ImGui.newLine()
+
+        val drink = arrayOf(
+            "Americano",
+            "Black",
+            "Breve",
+            "Cappucino",
+            "Cold Brew",
+            "Espresso",
+            "Hot Chocolate",
+            "Latte",
+            "Macchiato"
+        )
+        ImGui.combo("Drink", drinkIndex, drink, drink.size)
+        ImGui.newLine()
+
+        val dairy = arrayOf(
+            "2% milk",
+            "Almond milk",
+            "Cream",
+            "Half-and-half",
+            "Oat milk",
+            "Skim milk",
+            "Soy milk",
+            "Sweetened condensed milk",
+            "Whole milk",
+            "None"
+        )
+        ImGui.combo("Dairy", dairyIndex, dairy, dairy.size)
+        ImGui.newLine()
+
+        ImGui.separator()
+
+        ImGui.beginGroup()
+        ImGui.labelText("", "Additional options")
+        ImGui.newLine()
+
+        val sugar = arrayOf(
+            "Add sugar syrup",
+            "Add granulated sugar",
+            "Regular sugar",
+            "NO SUGAR"
+        )
+        ImGui.combo("Sugar", sugarIndex, sugar, sugar.size)
+
+        val iceAmount = arrayOf(
+            "No ice",
+            "Light ice",
+            "Regular ice",
+            "Extra ice"
+        )
+        ImGui.combo("Ice amount", iceAmountIndex, iceAmount, iceAmount.size)
+        ImGui.newLine()
+
+        ImGui.checkbox("Steamed milk", steamedMilk)
+        if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
+            ImGui.setTooltip("steam the selected dairy option")
+            ImGui.popStyleColor()
+        }
+
+        ImGui.checkbox("Make decaf", makeDecaf)
+
+        ImGui.checkbox("Add espresso", addEspresso)
+
+        ImGui.endGroup()
+
+        ImGui.newLine()
+        ImGui.separator()
+        ImGui.newLine()
+
+        if (ImGui.button("Place order >>")) {
+            val userOrder = CoffeeOrderFormData (
+                size = if (sizeGroup.get() == 0) "extra small" else if (sizeGroup.get() == 1) "small" else if (sizeGroup.get() == 2) "medium" else "large",
+                temp = if (tempGroup.get() == 0) "hot" else "iced",
+                syrup = syrup[syrupIndex.get()],
+                type = drink[drinkIndex.get()],
+                dairy = dairy[dairyIndex.get()],
+                iceAmount = iceAmount[iceAmountIndex.get()],
+                sugar = sugar[sugarIndex.get()],
+                isDecaf = makeDecaf.get(),
+                addEspresso = addEspresso.get(),
+                steamed = steamedMilk.get(),
+            )
+            log("[INFO] User placed order: $userOrder")
+            gl.setUserOrder(userOrder)
+        }
+        ImGui.end()
+        ImGui.popStyleColor(16)
+        ImGui.popStyleVar()
     }
 
     private fun renderEventLogWindow(x: Float, width: Float, height: Float) {
@@ -308,7 +507,7 @@ object UI : GameLogger {
                 }
             }
             if (autoScroll.get()) {
-                ImGui.setScrollHereY(1.0f) // scroll
+                ImGui.setScrollHereY(1.0f)
             }
         }
         ImGui.endChild()
@@ -360,12 +559,10 @@ object UI : GameLogger {
         val displayWidth = io.displaySize.x
         val displayHeight = io.displaySize.y
 
-        // Column widths
         val controlsWidth = displayWidth * 0.30f
         val middleWidth = displayWidth * 0.40f
         val rightWidth = displayWidth * 0.30f
 
-        // Window heights for right column
         val topHeight = displayHeight * 0.6f
         val bottomHeight = displayHeight * 0.4f
 
@@ -378,6 +575,9 @@ object UI : GameLogger {
             renderPrestigeWindow(rightColumnX, topHeight, rightWidth, bottomHeight)
         } else {
             renderInfoWindow(rightColumnX, rightWidth, displayHeight)
+        }
+        if (Upgrades.CRInternStatus) {
+            renderCRWindow(50f, 50f, 300f, displayHeight / 2)
         }
     }
 }

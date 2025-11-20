@@ -12,6 +12,26 @@ import Constants as constants
 import Upgrades as upgrades
 
 class GameLogic(private val logger: GameLogger) {
+    val cgenlogic = CoffeeGen()
+    private var targetCoffeeOrder = cgenlogic.initializeOrderGen()
+    fun getTargetOrder(): CoffeeOrder {
+        return targetCoffeeOrder
+    }
+    fun setTargetOrder(order: CoffeeOrder) {
+        targetCoffeeOrder = order
+    }
+    fun regenCoffeeOrder() {
+        setTargetOrder(cgenlogic.initializeOrderGen())
+    }
+
+    private var userOrderFormData: CoffeeOrderFormData? = null
+    fun getUserOrder(): CoffeeOrderFormData? {
+        return userOrderFormData
+    }
+    fun setUserOrder(order: CoffeeOrderFormData) {
+        userOrderFormData = order
+    }
+
     private var job = Job()
     private var scope = CoroutineScope(Dispatchers.Default + job)
 
@@ -210,10 +230,8 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun stop() {
-        // need to implement save state when stopping
+        // TODO: need to implement save state when stopping
         job.cancel()
         setJobRunStateInd(false)
     }
 }
-
-// removed main as game interface should be handled by ui

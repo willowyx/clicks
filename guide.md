@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.18.x
+###### for version 0.19.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -112,7 +112,7 @@ Controls in the Game Actions subsection appear as they become relevant, and as s
   * This control will no longer appear after purchasing the `Autopack` Mod.
 * `BUY BUY BUY` appears after purchasing the `Hedge fund` Mod, and allows you to spend your earned `money` with a chance to gain more or lose it.
   * 75% of your money or $5,000 (whichever is higher) will be `invested` each time you activate it
-  * The money you invest in the hedge fund is multiplied by a random value between 0.15 and 1.75
+  * The money you invest in the hedge fund is multiplied by a random value between 0.15 and 1.95
   * Each time you invest and lose money with this mod, the floor of the random value generated is increased by 0.01, with a maximum floor of 0.35
   * Any profit from this mod cannot cause your total money to exceed the global maximum.
     * If this happens, you will instead continually lose the money you invest until the profit made no longer exceeds this limit.

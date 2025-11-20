@@ -25,7 +25,7 @@ object Upgrades {
     var hedgeFund: Boolean = false
     var hedgeFundSp: Int = 5000
     var hedgeRisk: Double = 0.15
-    var hedgeGain: Double = 1.75
+    var hedgeGain: Double = 1.95
     fun startHedgeFund() {
         if (constants.currentMoney >= hedgeFundSp && !hedgeFund) {
             constants.currentMoney -= hedgeFundSp
@@ -64,6 +64,13 @@ object Upgrades {
         }
     }
 
+    // is "intern at large firm"
+    var CRInternStatus = true // TEMPORARY FOR TESTING
+    var CRInternSp = 950_000_000_000 // 950 billion
+    fun coffeeRunInit() {
+
+    }
+
     var prevClickTime: Long = 0L
 
     fun modResetClick() {
@@ -71,6 +78,7 @@ object Upgrades {
         if (now - prevClickTime <= 1000) {
             constants.resetAll()
             hedgeFund = false
+            CRInternStatus = false
             prevClickTime = 0L
             logger.log("[OK] All mods except auto-pack have been reset.")
         } else {
@@ -81,8 +89,8 @@ object Upgrades {
 
     fun prestigeResetAuto() {
         constants.resetAll()
-        autoPack = false
         hedgeFund = false
+        CRInternStatus = false
 
         constants.currentClicks = 0
         constants.currentMoney = 0
