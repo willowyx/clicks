@@ -25,8 +25,10 @@ data class CoffeeOrderFormData ( // form data somewhat translated into coffee or
 )
 
 class CoffeeGen {
+    // name & dept aren't important
     private val name = listOf("Lane", "Jerry", "Ben", "Alice", "Jay", "Eric", "Lee")
     private val dept = listOf("HR", "Accounting", "Legal", "IT", "Sales", "Marketing")
+
     private val size = listOf("extra small", "small", "medium", "large", "None")
     private val temp = listOf("iced", "hot", "None")
     private val syrup = listOf("vanilla", "pumpkin spice", "dark chocolate", "pecan", "None")
@@ -106,7 +108,7 @@ class CoffeeGen {
             dairy = if (dairy == "None") "2% milk" else dairy
         ) else this
 
-    fun scoreCoffeeGen(coffeeGenScoreIn: Array<String>): String {
+    fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): String {
         // points array (gain, lose)
         val rsize_pts = arrayOf(2, 0)
         val rtemp_pts = arrayOf(2, 5)

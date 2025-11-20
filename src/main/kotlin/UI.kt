@@ -65,15 +65,15 @@ object UI : GameLogger {
             }
             ImGui.sameLine()
             ImGui.text("start fresh")
-        }
-
-        if (gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
-            if (ImGui.button("Save game")) {
-                gl.stop()
-                log("[INFO] would save game state")
+        } else {
+            if (gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
+                if (ImGui.button("Save game")) {
+                    gl.stop()
+                    log("[INFO] would save game state")
+                }
+            } else if (gl.isAwaitingInput()) {
+                ImGui.text("pending game actions")
             }
-        } else if (gl.isAwaitingInput()) {
-            ImGui.text("pending game actions")
         }
 
         if (ImGui.button("Load game...")) {
@@ -456,7 +456,7 @@ object UI : GameLogger {
         ImGui.newLine()
 
         if (ImGui.button("Place order >>")) {
-            val userOrder = CoffeeOrderFormData (
+            val userOrder = CoffeeOrderFormData ( // TODO: make values lowercase for comparison, remove half-and-half symbols
                 size = if (sizeGroup.get() == 0) "extra small" else if (sizeGroup.get() == 1) "small" else if (sizeGroup.get() == 2) "medium" else "large",
                 temp = if (tempGroup.get() == 0) "hot" else "iced",
                 syrup = syrup[syrupIndex.get()],
@@ -470,6 +470,8 @@ object UI : GameLogger {
             )
             log("[INFO] User placed order: $userOrder")
             gl.setUserOrder(userOrder)
+
+            gl.regenCoffeeOrder() // regen once order is placed
         }
         ImGui.end()
         ImGui.popStyleColor(16)
@@ -496,10 +498,10 @@ object UI : GameLogger {
                 if (logFilter.get().isBlank() || line.contains(logFilter.get(), ignoreCase = true)) {
                     when {
                         line.contains("[ERROR]") -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.4f, 0.4f, 1f)   // Red
-                        line.contains("[WARN]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.8f, 0.4f, 1f)   // Yellow
+                        line.contains("[WARN]") || line.contains("Eminence") || line.contains("Prestige")
+                              -> ImGui.pushStyleColor(ImGuiCol.Text, 1f, 0.8f, 0.4f, 1f)   // Yellow
                         line.contains("[INFO]")  -> ImGui.pushStyleColor(ImGuiCol.Text, 0.7f, 0.8f, 1f, 1f)   // Light blue
                         line.contains("[READY]") || line.contains("[OK]") -> ImGui.pushStyleColor(ImGuiCol.Text, 0.4f, 1f, 0.4f, 1f) // Green
-                        line.contains("Eminence") || line.contains("Prestige") -> ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.84f, 0.0f, 1f) // Gold
                         else                     -> ImGui.pushStyleColor(ImGuiCol.Text, 0.9f, 0.9f, 0.9f, 1f) // Default gray
                     }
                     ImGui.textWrapped(line)
