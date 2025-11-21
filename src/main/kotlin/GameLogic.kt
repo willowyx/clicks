@@ -24,8 +24,8 @@ class GameLogic(private val logger: GameLogger) {
         setTargetOrder(cgenlogic.initializeOrderGen())
     }
 
-    private var userOrderFormData: CoffeeOrderFormData? = null
-    fun getUserOrder(): CoffeeOrderFormData? {
+    private lateinit var userOrderFormData: CoffeeOrderFormData
+    fun getUserOrder(): CoffeeOrderFormData {
         return userOrderFormData
     }
     fun setUserOrder(order: CoffeeOrderFormData) {

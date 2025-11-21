@@ -456,20 +456,21 @@ object UI : GameLogger {
         ImGui.newLine()
 
         if (ImGui.button("Place order >>")) {
-            val userOrder = CoffeeOrderFormData ( // TODO: make values lowercase for comparison, remove half-and-half symbols
+            val userOrder = CoffeeOrderFormData (
                 size = if (sizeGroup.get() == 0) "extra small" else if (sizeGroup.get() == 1) "small" else if (sizeGroup.get() == 2) "medium" else "large",
                 temp = if (tempGroup.get() == 0) "hot" else "iced",
-                syrup = syrup[syrupIndex.get()],
-                type = drink[drinkIndex.get()],
-                dairy = dairy[dairyIndex.get()],
-                iceAmount = iceAmount[iceAmountIndex.get()],
-                sugar = sugar[sugarIndex.get()],
+                syrup = syrup[syrupIndex.get()].lowercase(),
+                type = drink[drinkIndex.get()].lowercase(),
+                dairy = dairy[dairyIndex.get()].lowercase(),
+                iceAmount = iceAmount[iceAmountIndex.get()].lowercase(),
+                sugar = sugar[sugarIndex.get()].lowercase(),
                 isDecaf = makeDecaf.get(),
                 addEspresso = addEspresso.get(),
                 steamed = steamedMilk.get(),
             )
             log("[INFO] User placed order: $userOrder")
             gl.setUserOrder(userOrder)
+            log("[INFO] SCORED " + gl.cgenlogic.scoreCoffeeGen(gl.getUserOrder()))
 
             gl.regenCoffeeOrder() // regen once order is placed
         }

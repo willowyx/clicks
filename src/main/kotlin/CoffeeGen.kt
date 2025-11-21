@@ -31,14 +31,14 @@ class CoffeeGen {
 
     private val size = listOf("extra small", "small", "medium", "large", "None")
     private val temp = listOf("iced", "hot", "None")
-    private val syrup = listOf("vanilla", "pumpkin spice", "dark chocolate", "pecan", "None")
-    private val type = listOf("latte", "espresso", "macchiato", "cappucino", "americano", "breve", "cold brew", "black", "hot chocolate")
-    private val dairy = listOf("2% milk", "skim milk", "whole milk", "oat milk", "almond milk", "soy milk", "cream", "half-and-half", "condensed milk", "no dairy")
-    private val modA = listOf("decaf", "no ice", "light ice", "extra ice", "lactose free", "None")
-    private val modB = listOf("extra sugar syrup", "extra sugar", "no sugar", "extra espresso", "steamed milk", "None")
+    private val syrup = listOf("caramel", "dark chocolate", "pecan", "pumpkin spice", "vanilla", "None")
+    private val type = listOf("americano", "black", "breve", "cappucino", "cold brew", "espresso", "hot chocolate", "latte", "macchiato")
+    private val dairy = listOf("2% milk", "almond milk", "cream", "half-and-half", "oat milk", "skim milk", "soy milk", "condensed milk", "whole milk", "no dairy")
+    private val modA = listOf("decaf", "extra ice", "lactose free", "light ice", "no ice", "None")
+    private val modB = listOf("add granulated sugar", "add sugar syrup", "extra espresso", "no sugar", "steamed milk", "None")
 
-    private val withSugar = listOf("vanilla", "pumpkin spice", "dark chocolate", "pecan", "condensed milk", "extra sugar syrup", "extra sugar")
-    private val withLactose = arrayOf("breve", "2% milk", "skim milk", "whole milk", "cream", "half-and-half", "condensed milk")
+    private val withSugar = listOf("condensed milk", "dark chocolate", "add granulated sugar", "add sugar syrup", "pecan", "pumpkin spice", "vanilla")
+    private val withLactose = arrayOf("2% milk", "breve", "condensed milk", "cream", "half-and-half", "skim milk", "whole milk")
 
     private val validatedOrder = initializeOrderGen()
     fun getValidatedOrder(): CoffeeOrder {
@@ -108,22 +108,108 @@ class CoffeeGen {
             dairy = if (dairy == "None") "2% milk" else dairy
         ) else this
 
-    fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): String {
+    fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): Int {
+        var tempscore = 0
+
         // points array (gain, lose)
-        val rsize_pts = arrayOf(2, 0)
-        val rtemp_pts = arrayOf(2, 5)
-        val rsyrup_pts = arrayOf(3, 3)
-        val rtype_pts = arrayOf(4, 4)
-        val rdairy_pts = arrayOf(1, 5)
-        val rmodA_pts = arrayOf(4, 2)
-        val rmodB_pts = arrayOf(4, 2)
-        val adlrule_pts = arrayOf(0, 2)
+        val rsizepts = arrayOf(2, 0)
+        val rtemppts = arrayOf(2, -5)
+        val rsyruppts = arrayOf(3, -3)
+        val rtypepts = arrayOf(4, -4)
+        val rdairypts = arrayOf(1, -5)
+        val rmodApts = arrayOf(4, -2)
+        val rmodBpts = arrayOf(4, -2)
+        val adlrulepts = arrayOf(0, -2)
 
+        // validate size
+        if (validatedOrder.size == userOrderIn.size) {
+            tempscore += rsizepts[0]
+        } else if (validatedOrder.size == "None") {             // if size not provided
+            if (validatedOrder.type == "espresso") {            //      if type is espresso
+                if (userOrderIn.size == "medium") {             //          size should be Med
+                    tempscore += rsizepts[0]
+                } else {                                        //      else
+                    tempscore += rsizepts[1]                    //          no points
+                }
+            } else if (userOrderIn.size == "large") {           //      else if type not espresso
+                tempscore += rsizepts[1]                        //          no points
+            }
+        } else {                                                // else
+            tempscore += rsizepts[1]                            //      no points
+        }
 
+        // validate temp
+        if(validatedOrder.temp == userOrderIn.temp) {
+            tempscore += rtemppts[0]
+        } else if (validatedOrder.temp == "None" && userOrderIn.temp == "hot") {
+            tempscore += rtemppts[0]
+        } else {
+            tempscore += rtemppts[1]
+        }
 
-        // todo: if size omitted, should use largest: L except type: espresso should be M
+        // validate syrup
+        if (validatedOrder.syrup == userOrderIn.syrup) {
+            tempscore += rsyruppts[0]
+        } else {
+            tempscore += rsyruppts[1]
+        }
 
-        return TODO("return score")
+        // validate drink type
+        if (validatedOrder.type == userOrderIn.type) {
+            tempscore += rtypepts[0]
+        } else {
+            tempscore += rtypepts[1]
+        }
+
+        // validate dairy
+        if (validatedOrder.dairy == userOrderIn.dairy) {
+            tempscore += rdairypts[0]
+        } else if(validatedOrder.type == "breve" && userOrderIn.dairy == "half-and-half") {         // special case
+            tempscore += rdairypts[0]
+        } else {
+            tempscore += rdairypts[1]
+        }
+
+        // validate mod part A
+        if(validatedOrder.modA == userOrderIn.iceAmount) {                                          // check ice amount
+            tempscore += rmodApts[0]
+        } else if(validatedOrder.modA == "decaf" && userOrderIn.isDecaf) {                          // check decaf
+            tempscore += rmodApts[0]
+        } else if(validatedOrder.modA == "lactose free" && userOrderIn.dairy !in (withLactose)) {   // check dairy
+            tempscore += rmodApts[0]
+        } else if(validatedOrder.modA == "None" && (userOrderIn.iceAmount == "regular ice" || (userOrderIn.temp == "hot" && userOrderIn.iceAmount == "no ice"))) {
+            tempscore += rmodApts[0]
+        } else {
+            tempscore += rmodApts[1]
+        }
+
+        // validate mod part B
+        if(validatedOrder.modB == userOrderIn.sugar) {
+            tempscore += rmodBpts[0]
+        } else if(validatedOrder.modB == "extra espresso" && userOrderIn.addEspresso) {
+            tempscore += rmodBpts[0]
+        } else if(validatedOrder.modB == "steamed milk" && userOrderIn.steamed) {
+            tempscore += rmodBpts[0]
+        } else if(validatedOrder.modB == "no sugar" && (userOrderIn.syrup !in withSugar)) {
+            tempscore += rmodBpts[0]
+        } else {
+            tempscore += rmodBpts[1]
+        }
+
+        // validate extra rules
+        if(validatedOrder.type == "breve" && userOrderIn.dairy != "half-and-half") {
+            tempscore += adlrulepts[1]
+        }
+        if(validatedOrder.special == "black coffee" && !(userOrderIn.syrup == "None" && userOrderIn.dairy == "None")) {
+            tempscore += adlrulepts[1]
+        }
+        if(validatedOrder.size == "None" && userOrderIn.size != "large") {
+            if(!(userOrderIn.type == "espresso" && userOrderIn.size == "medium")) {
+                tempscore += adlrulepts[1]
+            }
+        }
+
+        return tempscore
     }
 
     fun formatOrderData(order: CoffeeOrder): String {
