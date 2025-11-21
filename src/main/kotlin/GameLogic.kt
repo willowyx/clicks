@@ -13,15 +13,11 @@ import Upgrades as upgrades
 
 class GameLogic(private val logger: GameLogger) {
     val cgenlogic = CoffeeGen()
-    private var targetCoffeeOrder = cgenlogic.initializeOrderGen()
     fun getTargetOrder(): CoffeeOrder {
-        return targetCoffeeOrder
-    }
-    fun setTargetOrder(order: CoffeeOrder) {
-        targetCoffeeOrder = order
+        return cgenlogic.getValidatedOrder()
     }
     fun regenCoffeeOrder() {
-        setTargetOrder(cgenlogic.initializeOrderGen())
+        cgenlogic.setValidatedOrder(cgenlogic.initializeOrderGen())
     }
 
     private lateinit var userOrderFormData: CoffeeOrderFormData

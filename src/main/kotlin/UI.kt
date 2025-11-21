@@ -15,7 +15,7 @@ import Upgrades as upgrades
 
 object UI : GameLogger {
     private val logBuffer = mutableListOf<String>()
-    private val maxLogLines = 300
+    private val maxLogLines = 500
 
     private val autoScroll = ImBoolean(true)
     private val logFilter = ImString()
@@ -472,7 +472,7 @@ object UI : GameLogger {
             gl.setUserOrder(userOrder)
             log("[INFO] SCORED " + gl.cgenlogic.scoreCoffeeGen(gl.getUserOrder()))
 
-            gl.regenCoffeeOrder() // regen once order is placed
+//            gl.regenCoffeeOrder() // regen once order is placed
         }
         ImGui.end()
         ImGui.popStyleColor(16)
@@ -557,6 +557,7 @@ object UI : GameLogger {
     fun render() {
         upgrades.logger = this
         constants.logger = this
+        gl.cgenlogic.logger = this
 
         val io = ImGui.getIO()
         val displayWidth = io.displaySize.x
