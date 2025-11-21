@@ -403,12 +403,12 @@ object UI : GameLogger {
         val dairy = arrayOf(
             "2% milk",
             "Almond milk",
+            "Condensed milk",
             "Cream",
             "Half-and-half",
             "Oat milk",
             "Skim milk",
             "Soy milk",
-            "Sweetened condensed milk",
             "Whole milk",
             "None"
         )

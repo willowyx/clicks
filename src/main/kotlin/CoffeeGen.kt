@@ -31,13 +31,13 @@ class CoffeeGen {
     private val name = listOf("Lane", "Jerry", "Ben", "Alice", "Jay", "Eric", "Lee")
     private val dept = listOf("HR", "Accounting", "Legal", "IT", "Sales", "Marketing")
 
-    private val size = listOf("extra small", "small", "medium", "large", "None")
-    private val temp = listOf("iced", "hot", "None")
-    private val syrup = listOf("caramel", "dark chocolate", "pecan", "pumpkin spice", "vanilla", "None")
+    private val size = listOf("extra small", "small", "medium", "large", "none")
+    private val temp = listOf("iced", "hot", "none")
+    private val syrup = listOf("caramel", "dark chocolate", "pecan", "pumpkin spice", "vanilla", "none")
     private val type = listOf("americano", "black", "breve", "cappucino", "cold brew", "espresso", "hot chocolate", "latte", "macchiato")
     private val dairy = listOf("2% milk", "almond milk", "cream", "half-and-half", "oat milk", "skim milk", "soy milk", "condensed milk", "whole milk", "no dairy")
-    private val modA = listOf("decaf", "extra ice", "lactose free", "light ice", "no ice", "None")
-    private val modB = listOf("add granulated sugar", "add sugar syrup", "extra espresso", "no sugar", "steamed milk", "None")
+    private val modA = listOf("decaf", "extra ice", "lactose free", "light ice", "no ice", "none")
+    private val modB = listOf("add granulated sugar", "add sugar syrup", "extra espresso", "no sugar", "steamed milk", "none")
 
     private val withSugar = listOf("condensed milk", "dark chocolate", "add granulated sugar", "add sugar syrup", "pecan", "pumpkin spice", "vanilla")
     private val withLactose = arrayOf("2% milk", "breve", "condensed milk", "cream", "half-and-half", "skim milk", "whole milk")
@@ -85,12 +85,12 @@ class CoffeeGen {
     }
 
     private fun CoffeeOrder.validateBlackCoffee() =
-        if (type == "black") copy(temp = "", syrup = "", dairy = "", special = "black coffee") else this
+        if (type == "black") copy(temp = "none", syrup = "none", dairy = "none", special = "black coffee") else this
 
-    private fun CoffeeOrder.validateBreve() = if (type == "breve") copy(dairy = "None") else this
+    private fun CoffeeOrder.validateBreve() = if (type == "breve") copy(dairy = "none") else this
 
     private fun CoffeeOrder.validateEspresso() =
-        if (type == "espresso") copy(size = if (size == "large") "medium" else size, modA = if (modA == "decaf") "None" else modA) else this
+        if (type == "espresso") copy(size = if (size == "large") "medium" else size, modA = if (modA == "decaf") "none" else modA) else this
 
     private fun CoffeeOrder.validateHotChocolate() =
         if (type == "hot chocolate" && temp == "iced") copy(temp = "hot") else this
@@ -99,18 +99,18 @@ class CoffeeGen {
         if (modA == "lactose free" && dairy in withLactose) copy(dairy = "almond milk") else this
 
     private fun CoffeeOrder.validateDecaf() =
-        if (modA == "decaf" && modB == "extra espresso") copy(modB = "None") else this
+        if (modA == "decaf" && modB == "extra espresso") copy(modB = "none") else this
 
     private fun CoffeeOrder.validateNoSugar() =
         if (modB == "no sugar") copy(
-            syrup = if (syrup in withSugar) "None" else syrup,
+            syrup = if (syrup in withSugar) "none" else syrup,
             dairy = if (dairy == "condensed milk") "2% milk" else dairy
         ) else this
 
     private fun CoffeeOrder.validateSteamedMilk() =
         if (modB == "steamed milk") copy(
             temp = if (temp == "iced") "hot" else temp,
-            dairy = if (dairy == "None") "2% milk" else dairy
+            dairy = if (dairy == "none") "2% milk" else dairy
         ) else this
 
     fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): Int {
@@ -130,13 +130,12 @@ class CoffeeGen {
         if (validatedOrder.size == userOrderIn.size) {
             tempscore += rsizepts[0]
             logger.log("[OK] size matches")
-        } else if (validatedOrder.size == "None") {             // if size not provided
-            if (validatedOrder.type == "espresso") {            //      if type is espresso
-                if (userOrderIn.size == "medium") {             //          size should be Med
-                    tempscore += rsizepts[0]
-                    logger.log("[OK] espresso size ok")
-                }
-            }
+        } else if(validatedOrder.size == "none" && userOrderIn.size == "large") {
+            tempscore += rsizepts[0]
+            logger.log("[OK] implicit size ok")
+        } else if (validatedOrder.size == "none" && validatedOrder.type == "espresso" && userOrderIn.size == "medium") {
+            tempscore += rsizepts[0]
+            logger.log("[OK] implicit espresso size ok")
         } else {                                                // else
             tempscore += rsizepts[1]                            //      no points
             logger.log("[WARN] size wrong")
@@ -146,9 +145,9 @@ class CoffeeGen {
         if(validatedOrder.temp == userOrderIn.temp) {
             tempscore += rtemppts[0]
             logger.log("[OK] temp matches")
-        } else if (validatedOrder.temp == "None" && userOrderIn.temp == "hot") {
+        } else if (validatedOrder.temp == "none" && userOrderIn.temp == "hot") {
             tempscore += rtemppts[0]
-            logger.log("[OK] unspecified temp ok")
+            logger.log("[OK] implicit temp ok")
         } else {
             tempscore += rtemppts[1]
             logger.log("[WARN] temp wrong")
@@ -178,7 +177,7 @@ class CoffeeGen {
             logger.log("[OK] dairy matches")
         } else if(validatedOrder.type == "breve" && userOrderIn.dairy == "half-and-half") {         // special case
             tempscore += rdairypts[0]
-            logger.log("[OK] special drink match")
+            logger.log("[OK] special drink matches")
         } else {
             tempscore += rdairypts[1]
             logger.log("[WARN] dairy wrong")
@@ -194,7 +193,7 @@ class CoffeeGen {
         } else if(validatedOrder.modA == "lactose free" && userOrderIn.dairy !in (withLactose)) {   // check dairy
             tempscore += rmodApts[0]
             logger.log("[OK] lactose free matches")
-        } else if(validatedOrder.modA == "None" && (userOrderIn.iceAmount == "regular ice" || (userOrderIn.temp == "hot" && userOrderIn.iceAmount == "no ice"))) {
+        } else if(validatedOrder.modA == "none" && (userOrderIn.iceAmount == "regular ice" || (userOrderIn.temp == "hot" && userOrderIn.iceAmount == "no ice"))) {
             tempscore += rmodApts[0]
             logger.log("[OK] ice amount matches")
         } else {
@@ -212,11 +211,19 @@ class CoffeeGen {
         } else if(validatedOrder.modB == "steamed milk" && userOrderIn.steamed) {
             tempscore += rmodBpts[0]
             logger.log("[OK] steamed matches")
-        } else if(validatedOrder.modB == "no sugar" && (userOrderIn.syrup == "None")) {
+        } else if(validatedOrder.modB == "no sugar" && (userOrderIn.syrup == "none")) {
             tempscore += rmodBpts[0]
             logger.log("[OK] no sugar matches")
+        } else if(validatedOrder.modB in listOf("add granulated sugar", "add sugar syrup", "no sugar") && userOrderIn.sugar == "regular sugar") {
+            if(validatedOrder.special == "black coffee") {
+                tempscore += rmodBpts[0]
+                logger.log("[OK] special rule for black coffee matches")
+            } else {
+                tempscore += rmodBpts[1]
+                logger.log("[WARN] regular sugar is wrong")
+            }
         } else {
-            tempscore += rmodBpts[1]                // TODO: this line sometimes triggers when it shouldn't
+            tempscore += rmodBpts[1]
             logger.log("[WARN] modB wrong")
         }
 
@@ -225,14 +232,17 @@ class CoffeeGen {
             tempscore += adlrulepts[1]
             logger.log("[WARN] breve needs half-and-half")
         }
-        if(validatedOrder.special == "black coffee" && !(userOrderIn.syrup == "None" && userOrderIn.dairy == "None")) {
+        if(validatedOrder.special == "black coffee" && !(userOrderIn.syrup == "none" && userOrderIn.dairy == "none")) {
             tempscore += adlrulepts[1]
             logger.log("[WARN] black coffee cannot have dairy or syrup")
         }
-        if(validatedOrder.size == "None" && userOrderIn.size != "large") {
-            if(!(userOrderIn.type == "espresso" && userOrderIn.size == "medium")) {
+        if(validatedOrder.size == "none" && userOrderIn.size != "large") {
+            if((userOrderIn.type == "espresso" && userOrderIn.size != "medium")) {
                 tempscore += adlrulepts[1]
-                logger.log("[WARN] espresso cannot be large")
+                logger.log("[WARN] implicit espresso size must be medium")
+            } else {
+                tempscore += adlrulepts[1]
+                logger.log("[WARN] implicit drink size must be large")
             }
         }
 
@@ -242,20 +252,20 @@ class CoffeeGen {
     fun formatOrderData(order: CoffeeOrder): String {
         val intro = "${order.name} from ${order.dept} wants:"
         if (order.special.isNotBlank()) {
-            val size = order.size.takeIf { it != "None" } ?: ""
+            val size = order.size.takeIf { it != "none" } ?: ""
             return "$intro ${size.trim()} ${order.special}.".replace("  ", " ")
         }
         val baseDrinkParts = listOfNotNull(
-            order.size.takeIf { it != "None" },
-            order.temp.takeIf { it != "None" },
-            order.syrup.takeIf { it != "None" },
+            order.size.takeIf { it != "none" },
+            order.temp.takeIf { it != "none" },
+            order.syrup.takeIf { it != "none" },
             order.type
         )
         val baseDrink = baseDrinkParts.joinToString(" ")
         val additions = listOfNotNull(
-            order.dairy.takeIf { it != "None" },
-            order.modA.takeIf { it != "None" },
-            order.modB.takeIf { it != "None" }
+            order.dairy.takeIf { it != "none" },
+            order.modA.takeIf { it != "none" },
+            order.modB.takeIf { it != "none" }
         )
         return when {
             additions.isEmpty() -> "$intro $baseDrink."
