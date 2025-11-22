@@ -50,7 +50,7 @@ class CoffeeGen {
         validatedOrder = order
     }
 
-    fun initializeOrderGen(): CoffeeOrder {
+    fun initializeOrderGen(): CoffeeOrder { // todo: doesn't validate irrelevant choices
         val rname = name.random()
         val rdept = dept.random()
         val rsize = size.random()
@@ -126,6 +126,7 @@ class CoffeeGen {
         val rmodBpts = arrayOf(4, -2)
         val adlrulepts = arrayOf(0, -2)
 
+        // !! Validate relevant order details !!
         // validate size
         if (validatedOrder.size == userOrderIn.size) {
             tempscore += rsizepts[0]
@@ -136,8 +137,8 @@ class CoffeeGen {
         } else if (validatedOrder.size == "none" && validatedOrder.type == "espresso" && userOrderIn.size == "medium") {
             tempscore += rsizepts[0]
             logger.log("[OK] implicit espresso size ok")
-        } else {                                                // else
-            tempscore += rsizepts[1]                            //      no points
+        } else {
+            tempscore += rsizepts[1]
             logger.log("[WARN] size wrong")
         }
 
@@ -225,6 +226,26 @@ class CoffeeGen {
         } else {
             tempscore += rmodBpts[1]
             logger.log("[WARN] modB wrong")
+        }
+
+        // !! validate other order details !!
+        // validate form checkboxes
+        if(userOrderIn.isDecaf) {      // if selected decaf unnecessarily
+            if (validatedOrder.modA != "decaf") {
+                tempscore += rmodApts[1]
+                logger.log("[WARN] decaf is wrong")
+            }
+        }
+        if(userOrderIn.steamed) {       // if selected steamed milk unnecessarily
+            if(validatedOrder.modB != "steamed milk") {
+                tempscore += rmodBpts[1]
+                logger.log("[WARN] steamed milk is wrong")
+            }
+        } else if(userOrderIn.addEspresso) {  // if added espresso unnecessarily
+            if (validatedOrder.modB != "extra espresso") {
+                tempscore += rmodBpts[1]
+                logger.log("[WARN] add espresso is wrong")
+            }
         }
 
         // validate extra rules

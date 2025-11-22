@@ -44,7 +44,7 @@ object Constants {
             fuzzySelectPenaltyUnitLv > 1 && maxPenaltyLv != 1 && minRewardLv > 1)
     }
     fun getRefundPrice(): Long {
-        if(getRefundEligibility()) {
+        if(getRefundEligibility()) { // todo: check if some should some be increased/set to 0 instead?
             clicksPerPackLv--;clicksPerPackLv--
             ticksPerSecondLv--;packRewardAmountLv--
             bonusPayIntervalLv--;bonusPayScaleLv--
