@@ -179,6 +179,9 @@ class CoffeeGen {
         } else if(validatedOrder.type == "breve" && userOrderIn.dairy == "half-and-half") {         // special case
             tempscore += rdairypts[0]
             logger.log("[OK] special drink matches")
+        } else if(validatedOrder.dairy == "no dairy" && userOrderIn.dairy == "none") {
+            tempscore += rdairypts[0]
+            logger.log("[OK] no dairy matches")
         } else {
             tempscore += rdairypts[1]
             logger.log("[WARN] dairy wrong")
