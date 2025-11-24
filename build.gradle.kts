@@ -9,7 +9,7 @@ kotlin {
 }
 
 group = "dev.willowyx"
-version = "0.20.2"
+version = "0.20.3"
 
 repositories {
     mavenCentral()
@@ -53,8 +53,6 @@ dependencies {
 
 application {
     mainClass.set("Main")
-//    val osName = System.getProperty("os.name").lowercase()
-//    if ("mac" in osName) {
     if (org.gradle.internal.os.OperatingSystem.current().isMacOsX) {
         applicationDefaultJvmArgs = listOf("-XstartOnFirstThread", "--enable-native-access=ALL-UNNAMED")
     }

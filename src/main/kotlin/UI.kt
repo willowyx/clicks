@@ -96,7 +96,7 @@ object UI : GameLogger {
             if (ImGui.button("Pause game")) {
                 gl.stop()
             }
-        }else if (gl.getJobRunStateInd() && gl.isAwaitingInput()) {
+        } else if (gl.getJobRunStateInd() && gl.isAwaitingInput()) {
             ImGui.text("pending game actions")
         }
 
@@ -154,9 +154,9 @@ object UI : GameLogger {
             if (ImGui.button("Package!")) {
                 gl.confirmInput()
             }
+            ImGui.newLine()
         }
         if (upgrades.hedgeFund) {
-            ImGui.newLine()
             if (ImGui.button("BUY BUY BUY")) {
                 upgrades.buybuybuy()
             }
