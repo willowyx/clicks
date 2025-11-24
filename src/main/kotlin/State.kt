@@ -1,8 +1,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.awt.FileDialog
-import java.awt.Frame
 import java.io.File
+import org.lwjgl.util.tinyfd.TinyFileDialogs
 import java.util.Properties
 
 data class SaveStateData (      // todo: refresh const values on load??
@@ -155,28 +154,32 @@ object State {
     }
 
     fun saveStateDialog(): Boolean {
-        val dialog = FileDialog(null as Frame?, "Save game - clicks", FileDialog.SAVE)
-        dialog.file = "${collectedSaveData.saveName}.json"
-        dialog.isVisible = true
-
-        if (dialog.directory != null && dialog.file != null) {
-            val saveFile = File(dialog.directory, dialog.file)
+        val path = TinyFileDialogs.tinyfd_saveFileDialog(
+            "Save game - clicks",
+            "${collectedSaveData.saveName}.json",
+            null,
+            "JSON files (*.json)"
+        )
+        if (path != null) {
+            val saveFile = File(path)
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(saveFile, collectedSaveData)
             logger.log("[OK] Game saved to ${saveFile.name}")
             return true
-        } else {
-            logger.log("[INFO] cancelled saving game")
-            return false
         }
+        logger.log("[INFO] cancelled saving game")
+        return false
     }
 
     fun loadStateDialog(): Boolean {
-        val dialog = FileDialog(null as Frame?, "Load save - clicks", FileDialog.LOAD)
-        dialog.file = "*.json"
-        dialog.isVisible = true
-
-        if (dialog.directory != null && dialog.file != null) {
-            val saveFile = File(dialog.directory, dialog.file)
+        val path = TinyFileDialogs.tinyfd_openFileDialog(
+            "Load save - clicks",
+            "",
+            null,
+            "JSON files (*.json)",
+            false
+        )
+        if (path != null) {
+            val saveFile = File(path)
             if (saveFile.exists()) {
                 val data = objectMapper.readValue(saveFile, SaveStateData::class.java)
                 collectedSaveData = data
@@ -186,9 +189,8 @@ object State {
                 logger.log("[ERROR] data file not found: ${saveFile.path}")
                 return false
             }
-        } else {
-            logger.log("[INFO] cancelled loading save")
-            return false
         }
+        logger.log("[INFO] cancelled loading save")
+        return false
     }
 }

@@ -9,6 +9,7 @@ import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.system.MemoryUtil.NULL
+import kotlin.system.exitProcess
 
 object Main {
     private var imGuiGl3: ImGuiImplGl3? = null
@@ -92,10 +93,14 @@ object Main {
         }
 
         // cleanup
+        UI.gl.stop()
+        imGuiGlfw?.shutdown()
         imGuiGl3?.shutdown()
         ImGui.destroyContext()
         glfwFreeCallbacks(window)
         glfwDestroyWindow(window)
         glfwTerminate()
+        glfwSetErrorCallback(null)?.free()
+        exitProcess(0)
     }
 }
