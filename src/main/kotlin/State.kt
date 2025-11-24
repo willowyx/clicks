@@ -5,13 +5,10 @@ import java.awt.Frame
 import java.io.File
 import java.util.Properties
 
-data class SaveStateData (
-    // todo: refresh const values on load??
-    // in order of: metadata, constants, upgrades
+data class SaveStateData (      // todo: refresh const values on load??
     val saveName: String,
-    val minVersion: String,
+    val minVersion: String,     // todo: validate version on load?
 
-    // constants
     val ticksPerSecond: Int,
     var ticksPerSecondLv: Int,
 

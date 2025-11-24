@@ -72,6 +72,7 @@ class GameLogic(private val logger: GameLogger) {
                     constants.currentMoney += calcPrestige()                                  // apply bonuses
                 }
                 logger.log("${constants.currentClicks.prettyFormat()}/${constants.clicksPerPack.prettyFormat()} clicks")
+                constants.refreshConstValues()
                 delay(1000L)
             }
         }
@@ -223,7 +224,7 @@ class GameLogic(private val logger: GameLogger) {
     fuzzyRange........${constants.fuzzySelectRange}
     fuzzyPenaltyIntv..${constants.fuzzySelectPenaltyUnit}
     maxPenalty........${constants.maxPenalty.prettyFormat()}
-    minReward.........${constants.minReward}
+    minReward.........${constants.minReward.prettyFormat()}
     
     === STATS ===
     clicksTotal.......${(constants.combinedClicks).prettyFormat()}

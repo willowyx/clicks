@@ -32,6 +32,7 @@ object UI : GameLogger {
     private val steamedMilk = ImBoolean(false)
     private val makeDecaf = ImBoolean(false)
     private val addEspresso = ImBoolean(false)
+    private val aboutInfoMOpen = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
     private val saveGameMOpen = ImBoolean(false)
     private val loadGameMOpen = ImBoolean(false)
@@ -155,6 +156,7 @@ object UI : GameLogger {
             }
         }
         if (upgrades.hedgeFund) {
+            ImGui.newLine()
             if (ImGui.button("BUY BUY BUY")) {
                 upgrades.buybuybuy()
             }
@@ -335,6 +337,16 @@ object UI : GameLogger {
         ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
         ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
 
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.53f, 0.81f, 0.92f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.53f, 0.81f, 0.92f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 1.0f, 1.0f, 0.8f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 1.0f, 1.0f, 0.8f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 1.0f, 1.0f, 0.8f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Button, 1.0f, 1.0f, 1.0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 1.0f, 1.0f, 1.0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.53f, 0.81f, 0.92f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 0.0f, 0.0f, 0.0f, 1.0f)
+
         if (Constants.currentPrestige < 100) {
             ImGui.begin("Prestige available")
             ImGui.textWrapped(
@@ -342,6 +354,7 @@ object UI : GameLogger {
                         + (Constants.currentPrestige + 1).toString() + " and reset all other attributes."
             )
             ImGui.newLine()
+
             if (ImGui.button("Square yourself")) {
                 gl.stop()
                 clearLogBuffer()
@@ -354,7 +367,10 @@ object UI : GameLogger {
             ImGui.text("Mastery achieved.")
         }
         ImGui.end()
+        ImGui.popStyleColor(9)
     }
+
+    // todo: popup modal after prestige?
 
     private fun renderCRWindow(x: Float, y: Float, width: Float, height: Float) {
         ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
@@ -374,10 +390,10 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.Button, brown[0], brown[1], brown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.Header, brown[0], brown[1], brown[2], 1.0f) // combo & list selected
+        ImGui.pushStyleColor(ImGuiCol.Header, brown[0], brown[1], brown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.HeaderHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.HeaderActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 1.0f, 1.0f, 1.0f) // checkmark
+        ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 1.0f, 1.0f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.15f, 0.15f, 0.15f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.15f, 0.15f, 0.15f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 0.1f, 0.35f, 0.15f, 1.0f)
@@ -543,6 +559,7 @@ object UI : GameLogger {
     private fun renderEventLogWindow(x: Float, width: Float, height: Float) {
         ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
         ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+
         ImGui.begin("Event Log")
 
         ImGui.inputText("Filter", logFilter)
@@ -554,7 +571,8 @@ object UI : GameLogger {
         ImGui.checkbox("Auto-scroll", autoScroll)
 
         ImGui.separator()
-        (ImGui.beginChild("LogRegion", 0f, 0f, true))
+
+        ImGui.beginChild("LogRegion", 0f, 0f, true)
         synchronized(logBuffer) {
             for (line in logBuffer) {
                 if (logFilter.get().isBlank() || line.contains(logFilter.get(), ignoreCase = true)) {
@@ -593,21 +611,48 @@ object UI : GameLogger {
             if (ImGui.beginTabItem("About")) {
                 ImGui.text("clicks v${getAppVersion()} by willow")
                 ImGui.text("willowyx.dev/projects/clicks")
-                ImGui.separator()
-                ImGui.textWrapped("special thanks to gab for testing and moral support ^-^")
-                ImGui.beginChild("AboutCredits", 0f, 0f, true)
-                ImGui.textWrapped("""
-                    This project was made possible by the following libraries and software:
-        
-                    -Dear ImGui by ocornut
-                    -imgui-java by SpaiR
-                    -Kotlin Coroutines
-                    -Shadow (jar creation)
-                    -LWJGL3
-                    -GLFW3
-                    -Launch4j (Windows executable)
-                """.trimIndent())
-                ImGui.endChild()
+                ImGui.newLine()
+                if (ImGui.button("Credits & thanks")) {
+                    ImGui.openPopup("Credits & thanks")
+                    aboutInfoMOpen.set(true)
+                }
+
+                if (ImGui.beginPopupModal("Credits & thanks", aboutInfoMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
+                    ImGui.newLine()
+                    if(ImGui.beginChild("AboutCredits", 500f, 300f, true)) {
+                        ImGui.textWrapped(
+                            """
+                            This project was made possible by the following open-source libraries and software:
+                            
+                            -Dear ImGui by ocornut
+                            -imgui-java by SpaiR
+                            -Shadow (jar creation)
+                            -LWJGL3
+                            -GLFW3
+                            -Launch4j (Windows executable)
+                        """.trimIndent()
+                        )
+                        ImGui.newLine()
+
+                        ImGui.separator()
+                        ImGui.newLine()
+
+                        ImGui.textWrapped("Special thanks to gab and westo for testing and moral support!! ^-^")
+                        ImGui.newLine()
+
+                        ImGui.separator()
+                        ImGui.newLine()
+
+                        ImGui.textWrapped("Finally: thank you for taking the time to try out my thing!")
+                    }
+                    ImGui.endChild()
+
+                    ImGui.newLine()
+                    if (ImGui.button("Close")) {
+                        ImGui.closeCurrentPopup()
+                    }
+                    ImGui.endPopup()
+                }
                 ImGui.endTabItem()
             }
             ImGui.endTabBar()
