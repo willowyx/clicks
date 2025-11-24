@@ -4,16 +4,17 @@ import kotlin.math.pow
 object Constants {
     lateinit var logger: GameLogger
 
-    fun Long.prettyFormat(): String {
-        val absValue = abs(this)
+    fun Number.prettyFormat(): String {
+        val value = this.toDouble()
+        val absValue = abs(value)
         return when {
-            absValue >= 1_000_000_000_000_000_000   -> this.toString()
-            absValue >= 1_000_000_000_000_000       -> String.format("%.2fQ", this / 1_000_000_000_000_000.0)
-            absValue >= 1_000_000_000_000           -> String.format("%.2fT", this / 1_000_000_000_000.0)
-            absValue >= 1_000_000_000               -> String.format("%.2fB", this / 1_000_000_000.0)
-            absValue >= 1_000_000                   -> String.format("%.2fM", this / 1_000_000.0)
-            absValue >= 1_000                       -> String.format("%.2fk", this / 1_000.0)
-            else                                    -> this.toString()
+            absValue >= 1_000_000_000_000_000_000   -> if (this is Long || this is Int) this.toString() else String.format("%.2f", value)
+            absValue >= 1_000_000_000_000_000       -> String.format("%.2fQ", value / 1_000_000_000_000_000.0)
+            absValue >= 1_000_000_000_000           -> String.format("%.2fT", value / 1_000_000_000_000.0)
+            absValue >= 1_000_000_000               -> String.format("%.2fB", value / 1_000_000_000.0)
+            absValue >= 1_000_000                   -> String.format("%.2fM", value / 1_000_000.0)
+            absValue >= 1_000                       -> String.format("%.2fk", value / 1_000.0)
+            else                                    -> if (this is Long || this is Int) this.toString() else String.format("%.2f", value)
         }
     }
 
@@ -94,6 +95,10 @@ object Constants {
         minReward = 10
     }
 
+    fun canPrestigeCheck(): Boolean {
+        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000005) && minReward > 1_000_000
+    }
+
     var ticksPerSecond: Int = 1                     // calculations are run every tick period [+change RESET]
     var ticksPerSecondLv: Int = 1                   // attribute level
     var ticksPerSecondSp: Int = 175                 // base upgrade price
@@ -132,10 +137,6 @@ object Constants {
     }
     // can be increased or decreased; capped at 500
 
-    fun canPrestigeCheck(): Boolean {
-        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.000005) && minReward > 1_000_000
-    }
-
     var uncertaintyFloor: Double = 0.1              // smallest uncertainty value [+change RESET]
     var uncertaintyFloorLv: Int = 1
     var uncertaintyFloorSp: Int = 500
@@ -155,7 +156,7 @@ object Constants {
             currentMoney -= uncertaintyFloorPrice()
             uncertaintyFloorLv ++                           // increase level
             uncertaintyFloor += uncertaintyFloorIntv        // increase attribute
-            return "[OK] uncertaintyFloor increased to %.2f".format(uncertaintyFloor)
+            return "[OK] uncertaintyFloor increased to ${uncertaintyFloor.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -180,7 +181,7 @@ object Constants {
             currentMoney -= uncertaintyLimitPrice()
             uncertaintyLimitLv ++                           // increase level
             uncertaintyLimit += uncertaintyLimitIntv        // increase attribute
-            return "[OK] uncertaintyLimit increased to %.2f".format(uncertaintyLimit)
+            return "[OK] uncertaintyLimit increased to ${uncertaintyLimit.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -196,7 +197,7 @@ object Constants {
             currentMoney -= uncertaintyLimitPrice()
             uncertaintyLimitLv --                           // decrease level
             uncertaintyLimit -= uncertaintyLimitIntv        // decrease attribute
-            return "[OK] uncertaintyLimit decreased to %.2f".format(uncertaintyLimit)
+            return "[OK] uncertaintyLimit decreased to ${uncertaintyLimit.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -299,7 +300,7 @@ object Constants {
             currentMoney -= bonusPayScalePrice()
             bonusPayScaleLv ++                        // increase level
             bonusPayScale += bonusPayScaleIntv        // increase attribute
-            return "[OK] bonusPayScale increased to %.2f".format(bonusPayScale)
+            return "[OK] bonusPayScale increased to ${bonusPayScale.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }

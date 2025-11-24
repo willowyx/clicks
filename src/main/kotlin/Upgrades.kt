@@ -1,5 +1,5 @@
-import Constants.prettyFormat
 import kotlin.random.Random
+import Constants.prettyFormat
 import Constants as constants
 
 object Upgrades {

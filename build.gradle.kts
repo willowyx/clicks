@@ -9,7 +9,7 @@ kotlin {
 }
 
 group = "dev.willowyx"
-version = "0.19.6"
+version = "0.20.0"
 
 repositories {
     mavenCentral()
@@ -17,6 +17,7 @@ repositories {
 }
 
 val lwjglVersion = "3.3.6"
+val jacksonVersion = "2.17.2"
 val os = org.gradle.internal.os.OperatingSystem.current()
 
 fun lwjglNatives(os: org.gradle.internal.os.OperatingSystem): String = when {
@@ -42,15 +43,17 @@ dependencies {
     runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:${lwjglNatives(os)}")
     runtimeOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion:${lwjglNatives(os)}")
 
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
     testImplementation(kotlin("test"))
 }
 
 application {
     mainClass.set("Main")
-    val osName = System.getProperty("os.name").lowercase()
-
-    // should be inherited by tasks
-    if ("mac" in osName) {
+//    val osName = System.getProperty("os.name").lowercase()
+//    if ("mac" in osName) {
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX) {
         applicationDefaultJvmArgs = listOf("-XstartOnFirstThread", "--enable-native-access=ALL-UNNAMED")
     }
 }

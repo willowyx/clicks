@@ -10,8 +10,10 @@ import imgui.type.ImBoolean
 import imgui.type.ImInt
 import imgui.type.ImString
 import java.util.Properties
+import CoffeeGen as cgenlogic
 import Constants as constants
 import Upgrades as upgrades
+import State as state
 
 object UI : GameLogger {
     private val logBuffer = mutableListOf<String>()
@@ -31,6 +33,9 @@ object UI : GameLogger {
     private val makeDecaf = ImBoolean(false)
     private val addEspresso = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
+    private val saveGameMOpen = ImBoolean(false)
+    private val loadGameMOpen = ImBoolean(false)
+    private val saveGameInput = ImString("clicks-save")
 
     override fun log(message: String) {
         synchronized(logBuffer) {
@@ -59,25 +64,81 @@ object UI : GameLogger {
         ImGui.text("clicks")
 
         ImGui.newLine()
-        if(!gl.getJobRunStateInd()) {
-            if (ImGui.button("New game")) {
-                gl.genStart()
-            }
-            ImGui.sameLine()
-            ImGui.text("start fresh")
-        } else {
-            if (gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
-                if (ImGui.button("Save game")) {
-                    gl.stop()
-                    log("[INFO] would save game state")
+
+        if (!gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
+            if(gl.getIsGameStarted()) {
+                if (ImGui.button("Resume")) {
+                    gl.genStart()
                 }
-            } else if (gl.isAwaitingInput()) {
-                ImGui.text("pending game actions")
+                ImGui.newLine()
+            } else {
+                if (ImGui.button("New game")) {
+                    gl.genStart()
+                }
+                ImGui.sameLine()
+                ImGui.text("start fresh")
+            }
+
+            if(gl.getIsGameStarted()) {
+                if (ImGui.button("Save game")) {
+                    saveGameMOpen.set(true)
+                    ImGui.openPopup("Save game")
+                }
+            }
+            if (ImGui.button("Load game")) {
+                loadGameMOpen.set(true)
+                ImGui.openPopup("Load save")
             }
         }
 
-        if (ImGui.button("Load game...")) {
-            log("[INFO] would load a saved game state")
+        if(gl.getJobRunStateInd() && !gl.isAwaitingInput()) {
+            if (ImGui.button("Pause game")) {
+                gl.stop()
+            }
+        }else if (gl.getJobRunStateInd() && gl.isAwaitingInput()) {
+            ImGui.text("pending game actions")
+        }
+
+        if (ImGui.beginPopupModal("Save game", saveGameMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
+            ImGui.textWrapped("Name your save file:")
+            val childWidth = 300f
+            val childHeight = 100f
+            if (ImGui.beginChild("saveGameModal", childWidth, childHeight, true)) {
+                ImGui.inputText("data", saveGameInput)
+                ImGui.newLine()
+                if(ImGui.button("Save game...")) {
+                    State.initializeStateSave(saveGameInput.get())
+                    if(State.saveStateDialog()) {
+                        ImGui.closeCurrentPopup()
+                    }
+                }
+                ImGui.endChild()
+            }
+            ImGui.newLine()
+            if (ImGui.button("Close")) {
+                ImGui.closeCurrentPopup()
+            }
+            ImGui.endPopup()
+        }
+
+        if (ImGui.beginPopupModal("Load save", loadGameMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
+            ImGui.textWrapped("Select save data to load:")
+            val childWidth = 300f
+            val childHeight = 100f
+            if (ImGui.beginChild("loadGameModal", childWidth, childHeight, true)) {
+                if(ImGui.button("Choose file...")) {
+                    if(State.loadStateDialog()) {
+                        gl.genStart()
+                        ImGui.closeCurrentPopup()
+                    }
+                }
+                ImGui.endChild()
+            }
+            ImGui.newLine()
+            if (ImGui.button("Close")) {
+                ImGui.closeCurrentPopup()
+            }
+            ImGui.endPopup()
         }
 
         ImGui.newLine()
@@ -331,12 +392,12 @@ object UI : GameLogger {
         ImGui.newLine()
 
         ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.6f, 0.5f, 0.0f, 1.0f)
-        if (ImGui.beginPopupModal("check order", reviewReqMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoCollapse)) {
+        if (ImGui.beginPopupModal("check order", reviewReqMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
             ImGui.text("You need to place this order:")
             val childWidth = ImGui.getContentRegionAvailX()
             val childHeight = 200f
             if (ImGui.beginChild("orderOutput", childWidth, childHeight, true)) {
-                val orderText = gl.getTargetOrder().let { gl.cgenlogic.formatOrderData(it) }
+                val orderText = gl.getTargetOrder().let { cgenlogic.formatOrderData(it) }
                 ImGui.textWrapped(orderText)
                 ImGui.endChild()
             }
@@ -470,7 +531,7 @@ object UI : GameLogger {
             )
             log("[INFO] User placed order: $userOrder")
             gl.setUserOrder(userOrder)
-            log("[INFO] SCORED " + gl.cgenlogic.scoreCoffeeGen(gl.getUserOrder()))
+            log("[INFO] SCORED " + cgenlogic.scoreCoffeeGen(gl.getUserOrder()))
 
 //            gl.regenCoffeeOrder() // regen once order is placed
         }
@@ -557,7 +618,8 @@ object UI : GameLogger {
     fun render() {
         upgrades.logger = this
         constants.logger = this
-        gl.cgenlogic.logger = this
+        cgenlogic.logger = this
+        state.logger = this
 
         val io = ImGui.getIO()
         val displayWidth = io.displaySize.x

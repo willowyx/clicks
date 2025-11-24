@@ -1,4 +1,3 @@
-import Constants.prettyFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -8,11 +7,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.math.abs
+import Constants.prettyFormat
 import Constants as constants
+import CoffeeGen as cgenlogic
 import Upgrades as upgrades
 
 class GameLogic(private val logger: GameLogger) {
-    val cgenlogic = CoffeeGen()
     fun getTargetOrder(): CoffeeOrder {
         return cgenlogic.getValidatedOrder()
     }
@@ -34,10 +34,17 @@ class GameLogic(private val logger: GameLogger) {
     private var awaitingInput = false
     fun isAwaitingInput(): Boolean = awaitingInput
     private var inputContinuation: (Continuation<Unit>)? = null
+
     private var jobIsRunning: Boolean = false
     fun getJobRunStateInd(): Boolean = jobIsRunning
     fun setJobRunStateInd(state: Boolean) {
         jobIsRunning = state
+    }
+
+    private var isGameStarted: Boolean = false
+    fun getIsGameStarted(): Boolean = isGameStarted
+    fun setIsGameStarted(state: Boolean) {
+        isGameStarted = state
     }
 
     private fun resetScope() {
@@ -52,6 +59,7 @@ class GameLogic(private val logger: GameLogger) {
             return
         } else {
             setJobRunStateInd(true)
+            setIsGameStarted(true)
         }
         scope.launch {
             while (true) {
@@ -63,7 +71,7 @@ class GameLogic(private val logger: GameLogger) {
                     tryPackage()                                                              // check if packageable
                     constants.currentMoney += calcPrestige()                                  // apply bonuses
                 }
-                logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks") // prints per tick
+                logger.log("${constants.currentClicks.prettyFormat()}/${constants.clicksPerPack.prettyFormat()} clicks")
                 delay(1000L)
             }
         }
@@ -200,21 +208,21 @@ class GameLogic(private val logger: GameLogger) {
     prestige..........${constants.currentPrestige}
     
     === ACTUAL ===
-    clicksMin.........${constants.realTickRange_min}
-    clicksMax.........${constants.realTickRange_max}
+    clicksMin.........${constants.realTickRange_min.prettyFormat()}
+    clicksMax.........${constants.realTickRange_max.prettyFormat()}
     
     === VARIABLES ===
-    baseClickAmt......${constants.clicksPerTick}
-    clicksPerPack.....${constants.clicksPerPack}
+    baseClickAmt......${constants.clicksPerTick.prettyFormat()}
+    clicksPerPack.....${constants.clicksPerPack.prettyFormat()}
     subticks..........${constants.ticksPerSecond}
-    baseReward........${constants.packRewardAmount}
+    baseReward........${constants.packRewardAmount.prettyFormat()}
     bonusRewardIntv...${constants.bonusPayInterval}
-    bonusScaleAmt.....${"%.2f".format(constants.bonusPayScale)}
-    uncertMin.........${"%.2f".format(constants.uncertaintyFloor)}
-    uncertMax.........${"%.2f".format(constants.uncertaintyLimit)}
+    bonusScaleAmt.....${constants.bonusPayScale.prettyFormat()}
+    uncertMin.........${constants.uncertaintyFloor.prettyFormat()}
+    uncertMax.........${constants.uncertaintyLimit.prettyFormat()}
     fuzzyRange........${constants.fuzzySelectRange}
     fuzzyPenaltyIntv..${constants.fuzzySelectPenaltyUnit}
-    maxPenalty........${"%.2f".format(constants.maxPenalty)}
+    maxPenalty........${constants.maxPenalty.prettyFormat()}
     minReward.........${constants.minReward}
     
     === STATS ===
@@ -226,7 +234,6 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun stop() {
-        // TODO: need to implement save state when stopping
         job.cancel()
         setJobRunStateInd(false)
     }

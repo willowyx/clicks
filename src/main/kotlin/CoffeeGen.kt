@@ -24,7 +24,7 @@ data class CoffeeOrderFormData ( // form data somewhat translated into coffee or
     val steamed: Boolean
 )
 
-class CoffeeGen {
+object CoffeeGen {
     lateinit var logger: GameLogger
 
     // name & dept aren't important
@@ -50,7 +50,7 @@ class CoffeeGen {
         validatedOrder = order
     }
 
-    fun initializeOrderGen(): CoffeeOrder { // todo: doesn't validate irrelevant choices
+    fun initializeOrderGen(): CoffeeOrder {
         val rname = name.random()
         val rdept = dept.random()
         val rsize = size.random()
@@ -188,6 +188,7 @@ class CoffeeGen {
         }
 
         // validate mod part A
+        // todo: double check logic
         if(validatedOrder.modA == userOrderIn.iceAmount) {                                          // check ice amount
             tempscore += rmodApts[0]
             logger.log("[OK] ice amount matches")
@@ -206,6 +207,7 @@ class CoffeeGen {
         }
 
         // validate mod part B
+        // todo: double check logic
         if(validatedOrder.modB == userOrderIn.sugar) {
             tempscore += rmodBpts[0]
             logger.log("[OK] sugar matches")
@@ -269,7 +271,6 @@ class CoffeeGen {
                 logger.log("[WARN] implicit drink size must be large")
             }
         }
-
         return tempscore
     }
 
@@ -277,7 +278,7 @@ class CoffeeGen {
         val intro = "${order.name} from ${order.dept} wants:"
         if (order.special.isNotBlank()) {
             val size = order.size.takeIf { it != "none" } ?: ""
-            return "$intro ${size.trim()} ${order.special}.".replace("  ", " ")
+            return "$intro ${size.trim()} ${order.special}, ${order.modA} and ${order.modB}.".replace("  ", " ")
         }
         val baseDrinkParts = listOfNotNull(
             order.size.takeIf { it != "none" },
@@ -296,9 +297,4 @@ class CoffeeGen {
             else -> "$intro $baseDrink with ${additions.joinToString(", ")}.".replace("%", "%%")
         }
     }
-}
-fun main() {
-    val coffeegen = CoffeeGen()
-    println(coffeegen.formatOrderData(coffeegen.getValidatedOrder()))
-    println(coffeegen.getValidatedOrder().toString())
 }
