@@ -5,8 +5,8 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs
 import java.util.Properties
 
 data class SaveStateData (      // todo: refresh const values on load??
-    val saveName: String,
-    val minVersion: String,     // todo: validate version on load?
+    val dataName: String,
+    val gameVersion: String,     // todo: validate version on load?
 
     val ticksPerSecond: Int,
     var ticksPerSecondLv: Int,
@@ -70,8 +70,8 @@ object State {
 
     fun initializeStateSave(saveName: String) {
         collectedSaveData = SaveStateData (
-            saveName = saveName,
-            minVersion = version,
+            dataName = saveName,
+            gameVersion = version,
             ticksPerSecond = Constants.ticksPerSecond,
             ticksPerSecondLv = Constants.ticksPerSecondLv,
             uncertaintyFloor = Constants.uncertaintyFloor,
@@ -113,7 +113,7 @@ object State {
 
     fun loadStateData() {
         val data = collectedSaveData
-        logger.log("[INFO] Loading save file: ${data.saveName}...")
+        logger.log("[INFO] Loading save file: ${data.dataName}...")
         Constants.ticksPerSecond = data.ticksPerSecond
         Constants.ticksPerSecondLv = data.ticksPerSecondLv
         Constants.uncertaintyFloor = data.uncertaintyFloor
@@ -156,7 +156,7 @@ object State {
     fun saveStateDialog(): Boolean {
         val path = TinyFileDialogs.tinyfd_saveFileDialog(
             "Save game - clicks",
-            "${collectedSaveData.saveName}.json",
+            "${collectedSaveData.dataName}.json",
             null,
             "JSON files (*.json)"
         )
@@ -181,10 +181,15 @@ object State {
         if (path != null) {
             val saveFile = File(path)
             if (saveFile.exists()) {
-                val data = objectMapper.readValue(saveFile, SaveStateData::class.java)
-                collectedSaveData = data
-                loadStateData()
-                return true
+                try {
+                    val data = objectMapper.readValue(saveFile, SaveStateData::class.java)
+                    collectedSaveData = data
+                    loadStateData()
+                    return true
+                } catch (e: Exception) {
+                    logger.log("[ERROR] unable to read data")
+                    return false
+                }
             } else {
                 logger.log("[ERROR] data file not found: ${saveFile.path}")
                 return false

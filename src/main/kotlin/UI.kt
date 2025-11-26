@@ -105,7 +105,7 @@ object UI : GameLogger {
             val childWidth = 300f
             val childHeight = 100f
             if (ImGui.beginChild("saveGameModal", childWidth, childHeight, true)) {
-                ImGui.inputText("data", saveGameInput)
+                ImGui.inputText("name", saveGameInput)
                 ImGui.newLine()
                 if(ImGui.button("Save game...")) {
                     State.initializeStateSave(saveGameInput.get())
