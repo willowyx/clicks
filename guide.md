@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.19.x
+###### for version 0.20.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -17,6 +17,8 @@
   * `Mods`, which introduce new mechanics that affect the game.
 * A `tick` is a unit of time in the game equal to 1 second, during which game mechanics and variables are updated.
 * `Prestige` is a game mechanic that allows you to reset your game progress in exchange for a permanent stat bonus.
+  * Each time you increase your Prestige (also called Eminence), you receive a permanent multiplier on rewards you earn
+  * Prestige level can be increased up to 100 ("Eminence C")
   * This mechanic is still being testing and may change somewhat before release.
 
 ###### These mechanics will be described in more detail or elaborated on as necessary throughout the rest of guide.
@@ -99,10 +101,11 @@ The Controls window (labeled `Controls`) has multiple subsections, all of which 
 
 The first subsection of the Controls window contains controls for basic game actions:
 * `New Game` starts a new game
+* `Pause game` pauses the game, provided no game actions are pending, and allows you to save, load, or resume your game
 * `Load Game` allows you to load a previously saved game from a save file
 * `Save Game` allows you to save your current game to a save file
-  * Currently, this button only pauses the main game thread
 * `How to play` opens this guide
+  * this feature is not yet implemented
 
 ### b. Game Actions
 The Game Actions subsection (labeled `Game Actions`) contains controls for the game's various mechanics.
@@ -146,7 +149,7 @@ The About tab contains version information and credits.
 Popout windows appear in the in-game UI for certain game actions.
 
 * When you meet the requirements, a popout window will appear allowing you to Prestige.
-* If you purchase certain Mods, popout windows may also appear to allow you to perform actions.
+* If you purchase certain Mods, popout windows will also appear to allow you to perform actions.
 
 ## VI. ImGui controls
 Clicks uses ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:

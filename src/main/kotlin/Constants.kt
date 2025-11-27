@@ -8,13 +8,13 @@ object Constants {
         val value = this.toDouble()
         val absValue = abs(value)
         return when {
-            absValue >= 1_000_000_000_000_000_000-> String.format("%.2fE", value / 1_000_000_000_000_000_000.0)
-            absValue >= 1_000_000_000_000_000    -> String.format("%.2fQ", value / 1_000_000_000_000_000.0)
-            absValue >= 1_000_000_000_000        -> String.format("%.2fT", value / 1_000_000_000_000.0)
-            absValue >= 1_000_000_000            -> String.format("%.2fB", value / 1_000_000_000.0)
-            absValue >= 1_000_000                -> String.format("%.2fM", value / 1_000_000.0)
-            absValue >= 1_000                    -> String.format("%.2fk", value / 1_000.0)
-            else                                 -> if (this is Long || this is Int || value % 1.0 == 0.0) toLong().toString() else String.format("%.2f", value)
+            absValue >= 1_000_000_000_000_000_000   -> String.format("%.2fE", value / 1_000_000_000_000_000_000.0)
+            absValue >= 1_000_000_000_000_000       -> String.format("%.2fQ", value / 1_000_000_000_000_000.0)
+            absValue >= 1_000_000_000_000           -> String.format("%.2fT", value / 1_000_000_000_000.0)
+            absValue >= 1_000_000_000               -> String.format("%.2fB", value / 1_000_000_000.0)
+            absValue >= 1_000_000                   -> String.format("%.2fM", value / 1_000_000.0)
+            absValue >= 1_000                       -> String.format("%.2fk", value / 1_000.0)
+            else                                    -> if (this is Long || this is Int || value % 1.0 == 0.0) toLong().toString() else String.format("%.2f", value)
         }
     }
 

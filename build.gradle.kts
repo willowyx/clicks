@@ -9,7 +9,7 @@ kotlin {
 }
 
 group = "dev.willowyx"
-version = "0.20.4"
+version = "0.20.5"
 
 repositories {
     mavenCentral()
