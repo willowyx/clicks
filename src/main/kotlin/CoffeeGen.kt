@@ -220,7 +220,7 @@ object CoffeeGen {
         } else if(validatedOrder.modB == "no sugar" && (userOrderIn.syrup == "none")) {
             tempscore += rmodBpts[0]
             logger.log("[OK] no sugar matches")
-        } else if(validatedOrder.modB in listOf("add granulated sugar", "add sugar syrup", "no sugar") && userOrderIn.sugar == "regular sugar") {
+        } else if(validatedOrder.modB !in listOf("add granulated sugar", "add sugar syrup", "no sugar") && userOrderIn.sugar == "regular sugar") {
             if(validatedOrder.special == "black coffee") {
                 tempscore += rmodBpts[0]
                 logger.log("[OK] special rule for black coffee matches")

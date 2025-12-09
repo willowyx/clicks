@@ -114,6 +114,9 @@ object State {
     fun loadStateData() {
         val data = collectedSaveData
         logger.log("[INFO] Loading save file: ${data.dataName}...")
+        if(data.gameVersion < version) {
+            logger.log("[WARN] Save data is from an old version of clicks")
+        }
         Constants.ticksPerSecond = data.ticksPerSecond
         Constants.ticksPerSecondLv = data.ticksPerSecondLv
         Constants.uncertaintyFloor = data.uncertaintyFloor

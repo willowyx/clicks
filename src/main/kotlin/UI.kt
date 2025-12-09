@@ -110,6 +110,7 @@ object UI : GameLogger {
                 if(ImGui.button("Save game...")) {
                     State.initializeStateSave(saveGameInput.get())
                     if(State.saveStateDialog()) {
+                        gl.genStart()
                         ImGui.closeCurrentPopup()
                     }
                 }
@@ -180,7 +181,7 @@ object UI : GameLogger {
             log(constants.clicksPerTickSub())
         }
         ImGui.sameLine()
-        ImGui.text("base clicks per tick")
+        ImGui.text("base clicks gen")
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerTickAdd")) {
             log(constants.clicksPerTickAdd())

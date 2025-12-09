@@ -49,6 +49,7 @@ object Upgrades {
             val profit: Long = (investment * Random.nextDouble(hedgeRisk, hedgeGain))
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
             constants.currentMoney += profit
+            constants.totalMoney += profit
             if(profit >= 0) {
                 logger.log("[OK] Hedge fund profit: ${profit.prettyFormat()}")
             } else {
