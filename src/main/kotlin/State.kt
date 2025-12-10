@@ -5,8 +5,8 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs
 import java.util.Properties
 
 data class SaveStateData (      // todo: refresh const values on load??
-    val dataName: String,
-    val gameVersion: String,     // todo: validate version on load?
+    val dataName: String,       // identify save type
+    val gameVersion: String,    // todo: validate version on load?
 
     val ticksPerSecond: Int,
     var ticksPerSecondLv: Int,
@@ -60,6 +60,8 @@ data class SaveStateData (      // todo: refresh const values on load??
 object State {
     lateinit var collectedSaveData: SaveStateData // for saving only
     lateinit var logger: GameLogger
+    private val saveTypeConst = "clicks-save"
+    private var userFileName = "clicks-save"
     private val version: String by lazy {
         val props = Properties()
         val stream = State::class.java.getResourceAsStream("/version.properties")
@@ -69,8 +71,9 @@ object State {
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     fun initializeStateSave(saveName: String) {
+        userFileName = saveName
         collectedSaveData = SaveStateData (
-            dataName = saveName,
+            dataName = saveTypeConst,
             gameVersion = version,
             ticksPerSecond = Constants.ticksPerSecond,
             ticksPerSecondLv = Constants.ticksPerSecondLv,
@@ -113,7 +116,7 @@ object State {
 
     fun loadStateData() {
         val data = collectedSaveData
-        logger.log("[INFO] Loading save file: ${data.dataName}...")
+        logger.log("[INFO] Loading save data...")
         if(data.gameVersion < version) {
             logger.log("[WARN] Save data is from an old version of clicks")
         }
@@ -159,7 +162,7 @@ object State {
     fun saveStateDialog(): Boolean {
         val path = TinyFileDialogs.tinyfd_saveFileDialog(
             "Save game - clicks",
-            "${collectedSaveData.dataName}.json",
+            "${userFileName}.json",
             null,
             "JSON files (*.json)"
         )
