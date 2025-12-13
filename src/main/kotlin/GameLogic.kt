@@ -10,7 +10,7 @@ import kotlin.math.abs
 import Constants.prettyFormat
 import Constants as constants
 import CoffeeGen as cgenlogic
-import Upgrades as upgrades
+import Mods as mods
 
 class GameLogic(private val logger: GameLogger) {
     fun getTargetOrder(): CoffeeOrder {
@@ -90,7 +90,7 @@ class GameLogic(private val logger: GameLogger) {
             return
         }
 
-        if(!upgrades.autoPack) {
+        if(!mods.autoPack) {
             awaitInput("[READY] Ready to package ${constants.currentClicks} clicks")
         } else {
             logger.log("[INFO] Packaging ${constants.currentClicks} clicks")

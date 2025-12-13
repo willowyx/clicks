@@ -2,7 +2,7 @@ import kotlin.random.Random
 import Constants.prettyFormat
 import Constants as constants
 
-object Upgrades {
+object Mods {
     // these do not change constants, but rather modify game rules / gameplay
     lateinit var logger: GameLogger
 
@@ -78,7 +78,6 @@ object Upgrades {
         val now = System.currentTimeMillis()
         if (now - prevClickTime <= 1000) {
             constants.resetAll()
-            hedgeFund = false
             CRInternStatus = false
             prevClickTime = 0L
             logger.log("[OK] All mods except auto-pack have been reset.")
@@ -90,7 +89,6 @@ object Upgrades {
 
     fun prestigeResetAuto() {
         constants.resetAll()
-        hedgeFund = false
         CRInternStatus = false
 
         constants.currentClicks = 0

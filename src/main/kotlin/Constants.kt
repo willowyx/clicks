@@ -123,8 +123,8 @@ object Constants {
         }
     }
     fun ticksPerSecondSub(): String {
-        if(ticksPerSecond <= ticksPerSecondMin) {
-            return "[WARN] min level reached"
+        if(ticksPerSecond - ticksPerSecondIntv < ticksPerSecondMin) {
+            return "[WARN] cannot decrease attribute further"
         }
         if(currentMoney >= ticksPerSecondPrice()) {
             currentMoney -= ticksPerSecondPrice()
@@ -187,7 +187,7 @@ object Constants {
         }
     }
     fun uncertaintyLimitSub(): String {
-        if(uncertaintyLimit <= uncertaintyLimitMin) {
+        if(uncertaintyLimit - uncertaintyLimitIntv < uncertaintyLimitMin) {
             return "[WARN] min level reached"
         }
         if(uncertaintyLimit - uncertaintyLimitIntv <= uncertaintyFloor) {
@@ -331,7 +331,7 @@ object Constants {
         }
     }
     fun clicksPerTickSub(): String {
-        if(clicksPerTick <= clicksPerTickMin) {
+        if(clicksPerTick - clicksPerTickIntv < clicksPerTickMin) {
             return "[WARN] cannot decrease attribute further"
         }
         if(currentMoney >= clicksPerTickPrice()) {
@@ -368,8 +368,8 @@ object Constants {
         }
     }
     fun fuzzySelectRangeSub(): String {
-        if(fuzzySelectRange <= fuzzySelectRangeMin) {
-            return "[WARN] min level reached"
+        if(fuzzySelectRange - fuzzySelectRangeIntv < fuzzySelectRangeMin) {
+            return "[WARN] cannot decrease attribute further"
         }
         if(currentMoney >= fuzzySelectRangePrice()) {
             currentMoney -= fuzzySelectRangePrice()
@@ -417,7 +417,7 @@ object Constants {
         return (maxPenaltySp * 2.0.pow((maxPenaltyLv - 1).toDouble())).toLong()
     }
     fun maxPenaltyAdd(): String {
-        if(maxPenalty <= maxPenaltyMin) {
+        if(maxPenalty - maxPenaltyIntv < maxPenaltyMin) {
             return "[WARN] cannot decrease attribute further"
         }
         if(currentMoney >= maxPenaltyPrice()) {

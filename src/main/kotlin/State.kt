@@ -61,7 +61,6 @@ object State {
     lateinit var collectedSaveData: SaveStateData // for saving only
     lateinit var logger: GameLogger
     private val saveTypeConst = "clicks-save"
-    private var userFileName = "clicks-save"
     private val version: String by lazy {
         val props = Properties()
         val stream = State::class.java.getResourceAsStream("/version.properties")
@@ -70,8 +69,7 @@ object State {
     }
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
-    fun initializeStateSave(saveName: String) {
-        userFileName = saveName
+    fun initializeStateSave() {
         collectedSaveData = SaveStateData (
             dataName = saveTypeConst,
             gameVersion = version,
@@ -107,10 +105,10 @@ object State {
             combinedClicks = Constants.combinedClicks,
             totalTicks = Constants.totalTicks,
             totalMoney = Constants.totalMoney,
-            autoPack = Upgrades.autoPack,
-            hedgeFund = Upgrades.hedgeFund,
-            hedgeRisk = Upgrades.hedgeRisk,
-            CRInternStatus = Upgrades.CRInternStatus
+            autoPack = Mods.autoPack,
+            hedgeFund = Mods.hedgeFund,
+            hedgeRisk = Mods.hedgeRisk,
+            CRInternStatus = Mods.CRInternStatus
         )
     }
 
@@ -152,17 +150,17 @@ object State {
         Constants.combinedClicks = data.combinedClicks
         Constants.totalTicks = data.totalTicks
         Constants.totalMoney = data.totalMoney
-        Upgrades.autoPack = data.autoPack
-        Upgrades.hedgeFund = data.hedgeFund
-        Upgrades.hedgeRisk = data.hedgeRisk
-        Upgrades.CRInternStatus = data.CRInternStatus
+        Mods.autoPack = data.autoPack
+        Mods.hedgeFund = data.hedgeFund
+        Mods.hedgeRisk = data.hedgeRisk
+        Mods.CRInternStatus = data.CRInternStatus
         logger.log("[OK] Save data successfully loaded.")
     }
 
     fun saveStateDialog(): Boolean {
         val path = TinyFileDialogs.tinyfd_saveFileDialog(
             "Save game - clicks",
-            "${userFileName}.json",
+            "clicks-save.json",
             null,
             "JSON files (*.json)"
         )
@@ -172,7 +170,7 @@ object State {
             logger.log("[OK] Game saved to ${saveFile.name}")
             return true
         }
-        logger.log("[INFO] cancelled saving game")
+        logger.log("[WARN] cancelled saving game")
         return false
     }
 
@@ -201,7 +199,7 @@ object State {
                 return false
             }
         }
-        logger.log("[INFO] cancelled loading save")
+        logger.log("[WARN] cancelled loading save")
         return false
     }
 }

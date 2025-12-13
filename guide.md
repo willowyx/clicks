@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.20.x
+###### for version 0.21.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -49,9 +49,9 @@ These variables track the game state and cannot be directly modified by the play
 These variables can be directly modified as upgrades or mods
 * `baseClickAmt` is the base number of clicks generated each tick.
   * This value is modified each tick by `uncertainty`, another game parameter
-  * This value is directly modified by the "base clicks per tick" upgrade
+  * This value is directly modified by the "base clicks gen" upgrade
 * `clicksPerPack` is the target number of clicks required to create a pack.
-  * This value is directly modified by the "clicks required per pack" upgrade
+  * This value is directly modified by the "clicks per pack" upgrade
 * `subticks` is the number of ticks operations that are performed each tick (second). Basically, this is the number of ticks run every second. More subticks means clicks are generated faster
   * This value is directly modified by the "subticks" upgrade
 * `baseReward` is the amount of money rewarded for a perfect package (one with exactly as many clicks as `clicksPerPack`).
@@ -151,8 +151,38 @@ Popout windows appear in the in-game UI for certain game actions.
 * When you meet the requirements, a popout window will appear allowing you to Prestige.
 * If you purchase certain Mods, popout windows will also appear to allow you to perform actions.
 
-## VI. ImGui controls
-Clicks uses ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:
+## VI. Additional mechanics
+These mechanics appear later in the game, and are a bit more involved.
+
+### a. Mod: Coffee Run
+The Coffee Run mod is found later in the game and appears in its own window. It can be purchased from the Mods section of the Controls window after meeting certain requirements. Here's a breakdown of its mechanics:
+
+#### Overview
+* As an intern at a large firm, you are tasked with running around the office delivering things, sorting papers, and...going on coffee runs?
+* You get one order at a time, and you're expected to place it without messing it up.
+* Successfully completing coffee runs will give you bonuses to your Upgrades so you can Prestige with moderately less tedium!
+
+#### Order Rules
+Most rules are quite straightforward and require only that your selection matches the order.
+Note that orders won't explicitly contradict themselves.
+
+* Breve is always prepared with Half-and-half
+* Black coffee must be Hot with No Dairy or Syrup
+  * Black coffee may contain Sugar
+* Hot coffee may contain ice
+* If no size is specified, the largest size is requested
+  * If the drink is Espresso, its size cannot be larger than Medium
+* If no temperature is specified, a Hot drink is requested
+
+#### Scoring
+Scoring is done based on order data that may not exactly match the interface for entering an order. Please check the chart linked below for a full breakdown of how orders may be generated, as well as scoring for each category.
+
+* https://willowyx.github.io/name-pending/clicks/genchart
+
+###### some features are not yet be fully implemented
+
+## VII. ImGui controls
+Clicks uses Dear ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:
 * Move in-game windows by clicking and dragging on their title bar
 * Resize in-game windows by clicking and dragging on their borders
 * Collapse in-game windows by clicking on the arrow in their upper left corner

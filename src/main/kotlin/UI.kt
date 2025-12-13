@@ -12,7 +12,7 @@ import imgui.type.ImString
 import java.util.Properties
 import CoffeeGen as cgenlogic
 import Constants as constants
-import Upgrades as upgrades
+import Mods as mods
 import State as state
 
 object UI : GameLogger {
@@ -36,7 +36,6 @@ object UI : GameLogger {
     private val reviewReqMOpen = ImBoolean(false)
     private val saveGameMOpen = ImBoolean(false)
     private val loadGameMOpen = ImBoolean(false)
-    private val saveGameInput = ImString("clicks-save")
 
     override fun log(message: String) {
         synchronized(logBuffer) {
@@ -101,14 +100,12 @@ object UI : GameLogger {
         }
 
         if (ImGui.beginPopupModal("Save game", saveGameMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
-            ImGui.textWrapped("Name your save file:")
+            ImGui.textWrapped("Save your game to a file:")
             val childWidth = 300f
             val childHeight = 100f
             if (ImGui.beginChild("saveGameModal", childWidth, childHeight, true)) {
-                ImGui.inputText("name", saveGameInput)
-                ImGui.newLine()
                 if(ImGui.button("Save game...")) {
-                    State.initializeStateSave(saveGameInput.get())
+                    State.initializeStateSave()
                     if(State.saveStateDialog()) {
                         gl.genStart()
                         ImGui.closeCurrentPopup()
@@ -157,9 +154,9 @@ object UI : GameLogger {
             }
             ImGui.newLine()
         }
-        if (upgrades.hedgeFund) {
+        if (mods.hedgeFund) {
             if (ImGui.button("BUY BUY BUY")) {
-                upgrades.buybuybuy()
+                mods.buybuybuy()
             }
             ImGui.sameLine()
             ImGui.text("invest ($${(constants.currentMoney * 0.75).toLong().coerceAtLeast(5000).prettyFormat()})")
@@ -287,20 +284,20 @@ object UI : GameLogger {
         ImGui.textWrapped("Mods")
 
         if (ImGui.button("Autopack")) {
-            upgrades.autoPackToggle()
+            mods.autoPackToggle()
         }
         ImGui.sameLine()
-        ImGui.text("(${if (upgrades.autoPack) "ON" else "$${upgrades.autoPackSp}"})")
+        ImGui.text("(${if (mods.autoPack) "ON" else "$${mods.autoPackSp}"})")
 
         if (ImGui.button("Hedge fund")) {
-            upgrades.startHedgeFund()
+            mods.startHedgeFund()
         }
         ImGui.sameLine()
-        ImGui.text("(${if (upgrades.hedgeFund) "give up?" else "$${upgrades.hedgeFundSp.toLong().prettyFormat()}"})")
+        ImGui.text("(${if (mods.hedgeFund) "give up?" else "$${mods.hedgeFundSp.toLong().prettyFormat()}"})")
 
         if (ImGui.button("sell everything")) {
             if (constants.getRefundEligibility()) {
-                upgrades.modResetClick()
+                mods.modResetClick()
             } else {
                 log("[WARN] You must upgrade every attribute at least once to use this mod.")
             }
@@ -359,7 +356,7 @@ object UI : GameLogger {
             if (ImGui.button("Square yourself")) {
                 gl.stop()
                 clearLogBuffer()
-                upgrades.prestigeResetAuto()
+                mods.prestigeResetAuto()
                 log("A wave of calm washes over you.")
                 log("Eminence " + Constants.currentPrestige.toRoman() + " achieved.")
             }
@@ -662,7 +659,7 @@ object UI : GameLogger {
     }
 
     fun render() {
-        upgrades.logger = this
+        mods.logger = this
         constants.logger = this
         cgenlogic.logger = this
         state.logger = this
@@ -688,7 +685,7 @@ object UI : GameLogger {
         } else {
             renderInfoWindow(rightColumnX, rightWidth, displayHeight)
         }
-        if (Upgrades.CRInternStatus) {
+        if (Mods.CRInternStatus) {
             renderCRWindow(50f, 50f, 300f, displayHeight / 2)
         }
     }
