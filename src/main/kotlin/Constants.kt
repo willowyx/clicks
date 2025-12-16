@@ -96,7 +96,10 @@ object Constants {
     }
 
     fun canPrestigeCheck(): Boolean {
-        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.0001) && minReward > 1_000_000
+        return totalMoney >= (totalMoneyMax - totalMoneyMax * 0.001)
+                && minReward > 1_000_000
+                && bonusPayInterval < 5
+                && maxPenalty < 0.3
     }
 
     var ticksPerSecond: Int = 1                     // calculations are run every tick period [+change RESET]

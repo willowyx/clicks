@@ -69,7 +69,6 @@ class GameLogic(private val logger: GameLogger) {
                     constants.currentClicks += tickrtn                                        // update clicks
                     constants.combinedClicks += tickrtn                                       // update total clicks
                     tryPackage()                                                              // check if packageable
-                    constants.currentMoney += calcPrestige()                                  // apply bonuses
                 }
                 logger.log("${constants.currentClicks.prettyFormat()}/${constants.clicksPerPack.prettyFormat()} clicks")
                 constants.refreshConstValues()
@@ -98,7 +97,7 @@ class GameLogic(private val logger: GameLogger) {
 
         when {
             constants.currentClicks == constants.clicksPerPack.toLong() -> {
-                val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
+                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * calcPrestige()).toLong()
                 val pcalcbonusdef = calcPackBonus()                // define package bonus amount
                 constants.currentMoney += prewarddef + pcalcbonusdef
                 constants.totalMoney += prewarddef + pcalcbonusdef
@@ -108,7 +107,7 @@ class GameLogic(private val logger: GameLogger) {
                 logger.log("[INFO] perfect package, applied full reward plus bonus")
             }
             constants.currentClicks in minSelect..maxSelect -> {
-                val prewarddef = calcPackageReward().coerceAtLeast(constants.minReward)
+                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * calcPrestige()).toLong()
                 val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
                 val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
                 constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
@@ -119,8 +118,8 @@ class GameLogic(private val logger: GameLogger) {
                 logger.log("[INFO] over/undershot but within range; applied penalty of $penalty")
             }
             else -> {
-                constants.currentMoney += constants.minReward           // give minReward
-                constants.totalMoney += constants.minReward
+                constants.currentMoney += (constants.minReward * calcPrestige()).toLong()           // give minReward
+                constants.totalMoney += (constants.minReward * calcPrestige()).toLong()
                 constants.currentClicks = 0
                 logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange} clicks")
             }
@@ -174,16 +173,15 @@ class GameLogic(private val logger: GameLogger) {
 //        logger.log("uncertainty: $uncertaintyrtn")
     }
 
-    fun calcPrestige(): Int {
-        if (constants.currentPrestige == 0) return 0
+    fun calcPrestige(): Double {
+        if (constants.currentPrestige == 0) return 1.0 // return multiplier 1 (none) if not prestiged
 
 //        val base = constants.currentPacks + (constants.totalTicks / 100)
-        val uncertainty = calcUncertainty("boostMin")
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)
-        val prestigeBonus = uncertainty * prestigeScale
+        val prestigeBonus = calcUncertainty("boostMin") * prestigeScale
 
 //        logger.log("Prestige bonus applied: ${prestigeBonus.toInt()}")
-        return prestigeBonus.toInt()
+        return prestigeBonus
     }
 
     suspend fun awaitInput(message: String) {
