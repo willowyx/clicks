@@ -167,6 +167,9 @@ object UI : GameLogger {
         ImGui.textWrapped("Upgrades")
 
         ImGui.text("clicks per pack")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("the number of clicks required per package")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerPack")) {
             log(constants.clicksPerPackAdd())
@@ -178,7 +181,10 @@ object UI : GameLogger {
             log(constants.clicksPerTickSub())
         }
         ImGui.sameLine()
-        ImGui.text("base clicks gen")
+        ImGui.text("base clicks")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("base number of clicks generated per tick")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerTickAdd")) {
             log(constants.clicksPerTickAdd())
@@ -190,7 +196,10 @@ object UI : GameLogger {
             log(constants.ticksPerSecondSub())
         }
         ImGui.sameLine()
-        ImGui.text("subticks per tick")
+        ImGui.text("subticks")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("clicks are generated this many times per tick")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###ticksPerSecondAdd")) {
             log(constants.ticksPerSecondAdd())
@@ -198,7 +207,10 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.ticksPerSecondPrice().prettyFormat()})")
 
-        ImGui.text("base pack reward")
+        ImGui.text("base reward")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("base reward each time clicks are packaged")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###packRewardAmount")) {
             log(constants.packRewardAmountAdd())
@@ -211,10 +223,16 @@ object UI : GameLogger {
         }
         ImGui.sameLine()
         ImGui.text("bonus interval")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("receive bonus reward every x times you package clicks")
+        }
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
 
-        ImGui.text("bonus pay multiplier")
+        ImGui.text("bonus multiplier")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("bonuses multiply base reward by this amount")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###bonusPayScale")) {
             log(constants.bonusPayScaleAdd())
@@ -246,7 +264,10 @@ object UI : GameLogger {
             log(constants.fuzzySelectRangeSub())
         }
         ImGui.sameLine()
-        ImGui.text("pack penalty range")
+        ImGui.text("package range")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("range below clicksPerPack in which clicks may be packaged")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectRangeAdd")) {
             log(constants.fuzzySelectRangeAdd())
@@ -254,7 +275,10 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("($${constants.fuzzySelectRangePrice().prettyFormat()})")
 
-        ImGui.text("pack penalty interval")
+        ImGui.text("penalty interval")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("penalty applied for every x clicks away from a perfect pack")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectPenaltyUnit")) {
             log(constants.fuzzySelectPenaltyUnitAdd())
@@ -267,10 +291,16 @@ object UI : GameLogger {
         }
         ImGui.sameLine()
         ImGui.text("max penalty")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("package penalty cannot exceed this percentage of package reward")
+        }
         ImGui.sameLine()
         ImGui.text("($${constants.maxPenaltyPrice().prettyFormat()})")
 
         ImGui.text("min reward")
+        if (ImGui.isItemHovered()) {
+            ImGui.setTooltip("any reward may not be less than this amount")
+        }
         ImGui.sameLine()
         if (ImGui.button("+###minReward")) {
             log(constants.minRewardAdd())

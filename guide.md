@@ -3,8 +3,6 @@
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
-#### Note: this guide describes fictional game mechanics and currencies, and does not attempt to provide any advice regarding real-world investments or financial decisions.
-
 ***
 
 ## I. Game Mechanics
@@ -49,18 +47,18 @@ These variables track the game state and cannot be directly modified by the play
 These variables can be directly modified as upgrades or mods
 * `baseClickAmt` is the base number of clicks generated each tick.
   * This value is modified each tick by `uncertainty`, another game parameter
-  * This value is directly modified by the "base clicks gen" upgrade
+  * This value is directly modified by the "base clicks" upgrade
 * `clicksPerPack` is the target number of clicks required to create a pack.
   * This value is directly modified by the "clicks per pack" upgrade
 * `subticks` is the number of ticks operations that are performed each tick (second). Basically, this is the number of ticks run every second. More subticks means clicks are generated faster
   * This value is directly modified by the "subticks" upgrade
 * `baseReward` is the amount of money rewarded for a perfect package (one with exactly as many clicks as `clicksPerPack`).
-  * This value can be affected by the packaging penalty, `uncertainty` (positive), and `prestige` (positive)
-  * This value is directly modified by the "base pack reward" upgrade
+  * This value can be affected by the packaging penalty, `uncertainty`, and `prestige`
+  * This value is directly modified by the "base reward" upgrade
 * `bonusRewardInterval` is the number of successful packages elapsed before the bonus multiplier `bonusScaleAmt` is applied to the next pack's base reward.
   * This value is directly modified by the "bonus interval" upgrade
 * `bonusScaleAmt` is the multiplier applied to `baseReward` for each bonus package
-  * This value is directly modified by the "bonus pay multiplier" upgrade
+  * This value is directly modified by the "bonus multiplier" upgrade
 * `uncertMin` is the lower limit of the game-wide `uncertainty` value, which affects various aspects of generation, including bonus calculation and click generation.
   * For bonus and reward calculations, `uncertMin` may be interpreted as `1` if it would otherwise be less than `1` in order for the resulting value to act as a bonus multiplier
   * The value of `uncertainty` is recalculated within the set generation parameters before every use
@@ -72,11 +70,11 @@ These variables can be directly modified as upgrades or mods
   * As soon as the number of clicks acquired enters the packaging range (between `clicksPerPack - fuzzyRange` and `fuzzyRange + clicksPerPack`), click generation stops until the current amount is packaged
   * If the clicks generated exceeds the packaging range without first entering it, the minimum reward value is applied instead of the normal reward calculation
     * Exceeding `fuzzyRange` and receiving the `minReward` value does not count as a successful package
-  * This value is directly modified by the "pack penalty range" upgrade
+  * This value is directly modified by the "package range" upgrade
 * `fuzzyPenaltyIntv` is the interval in which the packaging penalty is applied for inaccurate packaging of clicks (-10% non-compounding base reward penalty per _n_ clicks from `clicksPerPack`)
   * For example, consider if `fuzzyPenaltyIntv` was set to 3 and the amount of clicks generated was 5 away from the target amount (`clicksPerPack`):
     * Only a 10% penalty would be applied in this scenario, since the penalty is incremented by one for every 3 clicks the target is missed by
-  * This value is directly modified by the "pack penalty interval" upgrade
+  * This value is directly modified by the "penalty interval" upgrade
 * `maxPenalty` is the maximum penalty that can be applied as a result of packaging inaccuracy, calculated as a percentage of the base packaging reward.
   * The maximum penalty only applies when within range of `clicksPerPack`, as no penalty is applied to the consolation reward (`minReward`)
   * This value is directly modified by the "max penalty" upgrade
@@ -164,10 +162,10 @@ The Coffee Run mod is found later in the game and appears in its own window. It 
 
 #### Order Rules
 Most rules are quite straightforward and require only that your selection matches the order.
-Note that orders won't explicitly contradict themselves.
+Note that orders won't explicitly contradict themselves, but ensure your placed order still matches these additional rules:
 
 * Breve is always prepared with Half-and-half
-* Black coffee must be Hot with No Dairy or Syrup
+* Black coffee must not contain Dairy or Syrup
   * Black coffee may contain Sugar
 * Hot coffee may contain ice
 * If no size is specified, the largest size is requested
