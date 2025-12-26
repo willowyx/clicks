@@ -11,7 +11,7 @@ data class CoffeeOrder (
     val special: String = ""
 )
 
-data class CoffeeOrderFormData ( // form data somewhat translated into coffee order
+data class CoffeeOrderFormData (    // form data somewhat translated into coffee order
     val size: String,
     val temp: String,
     val syrup: String,
@@ -21,14 +21,16 @@ data class CoffeeOrderFormData ( // form data somewhat translated into coffee or
     val sugar: String,
     val isDecaf: Boolean,
     val addEspresso: Boolean,
-    val steamed: Boolean
+    val steamed: Boolean,
+    val reward: Int,
+    val debug: Boolean
 )
 
 object CoffeeGen {
     lateinit var logger: GameLogger
 
     // name & dept aren't important
-    private val name = listOf("Lane", "Jerry", "Ben", "Alice", "Jay", "Eric", "Lee")
+    private val name = listOf("Lane", "Jerry", "Ben", "Alice", "Jo", "Eric", "Lee", "Ronald")
     private val dept = listOf("HR", "Accounting", "Legal", "IT", "Sales", "Marketing")
 
     private val size = listOf("extra small", "small", "medium", "large", "none")
@@ -48,6 +50,22 @@ object CoffeeGen {
     }
     fun setValidatedOrder(order: CoffeeOrder) {
         validatedOrder = order
+    }
+
+    private var crDebugEnabled: Boolean = false     // default
+    fun getDebugEnabled(): Boolean {
+        return crDebugEnabled
+    }
+    fun setDebugEnabled(enabled: Boolean) {
+        crDebugEnabled = enabled
+    }
+
+    private var rewardTypeVar = 1     // default
+    fun getRewardType(): Int {
+        return rewardTypeVar
+    }
+    fun setRewardType(type: Int) {
+        rewardTypeVar = type
     }
 
     fun initializeOrderGen(): CoffeeOrder {
@@ -115,6 +133,8 @@ object CoffeeGen {
 
     fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): Int {
         var tempscore = 0
+        setRewardType(userOrderIn.reward)
+        setDebugEnabled(userOrderIn.debug)
 
         // points array (gain, lose)
         val rsizepts = arrayOf(2, 0)

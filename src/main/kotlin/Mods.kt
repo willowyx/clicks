@@ -65,11 +65,26 @@ object Mods {
         }
     }
 
-    // is "intern at large firm"
-    var CRInternStatus = true // TEMPORARY FOR TESTING
-    var CRInternSp = 950_000_000_000 // 950 billion
-    fun coffeeRunInit() {
-
+    // coffee run
+    var CRInternStatus = true               // TEMPORARY FOR TESTING
+    var CRInternSp = 950_000_000_000        // 950 billion todo: add ui for enabling coffeerun
+    fun calcApplyCRBonus(score: Int, rewardType: Int) {      // takes existing score and calculates percentage bonus
+        if(constants.minReward < constants.minRewardMax) {
+            // score up to 20; result should be between -2.00 and 2.00
+            val adjustment: Double = ((score * 5 * 2) / 100.0).coerceIn(-2.00, 2.00)
+            // todo: charge money for placing order
+            if(rewardType == 1) {
+                constants.minReward += (constants.minRewardIntv * adjustment).toLong()
+                if(constants.minReward < constants.minRewardIntv) {                 // prevent negative amounts
+                    constants.minReward = constants.minRewardIntv.toLong()
+                }
+            } else {
+                constants.packRewardAmount += (constants.packRewardAmountIntv * adjustment).toLong()
+                if(constants.packRewardAmount < constants.packRewardAmountIntv) {   // prevent negative amounts
+                    constants.packRewardAmount = constants.packRewardAmountIntv.toLong()
+                }
+            }
+        }
     }
 
     var prevClickTime: Long = 0L

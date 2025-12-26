@@ -32,6 +32,8 @@ object UI : GameLogger {
     private val steamedMilk = ImBoolean(false)
     private val makeDecaf = ImBoolean(false)
     private val addEspresso = ImBoolean(false)
+    private val debugMode = ImBoolean(false)
+    private val rewardGroup = ImInt(1)
     private val aboutInfoMOpen = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
     private val saveGameMOpen = ImBoolean(false)
@@ -224,7 +226,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("bonus interval")
         if (ImGui.isItemHovered()) {
-            ImGui.setTooltip("receive bonus reward every x times you package clicks")
+            ImGui.setTooltip("bonus package reward frequency (fewer = more often)")
         }
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
@@ -292,7 +294,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("max penalty")
         if (ImGui.isItemHovered()) {
-            ImGui.setTooltip("package penalty cannot exceed this percentage of package reward")
+            ImGui.setTooltip("package penalty cannot exceed this percentage of reward")
         }
         ImGui.sameLine()
         ImGui.text("($${constants.maxPenaltyPrice().prettyFormat()})")
@@ -436,7 +438,12 @@ object UI : GameLogger {
         ImGui.newLine()
 
         ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.6f, 0.5f, 0.0f, 1.0f)
-        if (ImGui.beginPopupModal("check order", reviewReqMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
+        if (ImGui.beginPopupModal(
+                "check order",
+                reviewReqMOpen,
+                ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse
+            )
+        ) {
             ImGui.text("You need to place this order:")
             val childWidth = ImGui.getContentRegionAvailX()
             val childHeight = 200f
@@ -553,7 +560,17 @@ object UI : GameLogger {
         ImGui.checkbox("Make decaf", makeDecaf)
 
         ImGui.checkbox("Add espresso", addEspresso)
+        ImGui.endGroup()
 
+        ImGui.newLine()
+        ImGui.separator()
+
+        ImGui.beginGroup()
+        ImGui.text("Attribute to upgrade:")
+        ImGui.newLine()
+        ImGui.radioButton("baseReward", rewardGroup, 0)
+        ImGui.sameLine()
+        ImGui.radioButton("minReward", rewardGroup, 1)
         ImGui.endGroup()
 
         ImGui.newLine()
@@ -561,7 +578,7 @@ object UI : GameLogger {
         ImGui.newLine()
 
         if (ImGui.button("Place order >>")) {
-            val userOrder = CoffeeOrderFormData (
+            val userOrder = CoffeeOrderFormData(
                 size = if (sizeGroup.get() == 0) "extra small" else if (sizeGroup.get() == 1) "small" else if (sizeGroup.get() == 2) "medium" else "large",
                 temp = if (tempGroup.get() == 0) "hot" else "iced",
                 syrup = syrup[syrupIndex.get()].lowercase(),
@@ -572,13 +589,32 @@ object UI : GameLogger {
                 isDecaf = makeDecaf.get(),
                 addEspresso = addEspresso.get(),
                 steamed = steamedMilk.get(),
+                reward = rewardGroup.get(),     // 0 = baseReward, 1 = minReward
+                debug = debugMode.get()
             )
             log("[INFO] User placed order: $userOrder")
             gl.setUserOrder(userOrder)
-            log("[INFO] SCORED " + cgenlogic.scoreCoffeeGen(gl.getUserOrder()))
+            val cgenScoreVal = cgenlogic.scoreCoffeeGen(gl.getUserOrder())
+            log("[INFO] SCORED $cgenScoreVal")
 
-//            gl.regenCoffeeOrder() // regen once order is placed
+            if (!cgenlogic.getDebugEnabled()) {     // if debug mode is NOT enabled
+                mods.calcApplyCRBonus(cgenScoreVal, cgenlogic.getRewardType())
+                gl.regenCoffeeOrder()               // regen once order is placed
+            } else {
+                log("[WARN] Debug mode enabled, score not applied")
+            }
         }
+        ImGui.sameLine()
+        ImGui.checkbox("debug mode", debugMode)
+        if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
+            ImGui.setTooltip("QA: prevent orders from refreshing after submitting")
+            ImGui.popStyleColor()
+        }
+        if (ImGui.isItemDeactivated() && !debugMode.get()) {
+            log("[INFO] debug mode deactivated") // could refresh order
+        }
+
         ImGui.end()
         ImGui.popStyleColor(16)
         ImGui.popStyleVar()
