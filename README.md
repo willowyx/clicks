@@ -11,7 +11,7 @@ Honestly difficult to say; I work on it as I feel inspiration, plus life obligat
 The most "efficient" way to play is probably to run it in the background and interact once in a while. As for the play time, technically speaking you could play for a very long time with the prestige system.
 
 ## how do I play?
-Check out the [playing guide](guide.md)! The guide version corresponds with the version of the game you have installed. Or, use the [remote repository](https://github.com/willowyx/clicks/blob/main/guide.md) for the most recent version of the guide.
+Check out the [playing guide](guide.md)! It's updated and revised for most major release versions.
 
 ## what new features can I expect?
 These features **will** be implemented by the 1.0 release:
@@ -24,9 +24,6 @@ These features **will** be implemented by the 1.0 release:
 * some sort of onboarding?
 
 As I think of other things I will add them to this "roadmap" but the current list will not get smaller.
-
-## can I grab code from this?
-Yes
 
 # building clicks
 

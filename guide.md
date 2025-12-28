@@ -116,7 +116,7 @@ Controls in the Game Actions subsection appear as they become relevant, and as s
   * The money you invest in the hedge fund is multiplied by a random value between 0.15 and 1.95
   * Each time you invest and lose money with this mod, the floor of the random value generated is increased by 0.01, with a maximum floor of 0.35
   * Any profit from this mod cannot cause your total money to exceed the global maximum.
-    * If this happens, you will instead continually lose the money you invest until the profit made no longer exceeds this limit.
+    * If this happens, you will instead repeatedly lose the money you invest until the profit made no longer exceeds this limit.
 
 ### c. Mods
 Mods can be purchased with the `money` currency and, unlike Upgrades, affect or modify gameplay instead of only affecting one parameter.
@@ -144,16 +144,16 @@ The Stats tab under the Info window displays game state information as well as t
 The About tab contains version information and credits.
 
 ## V. Popout windows
-Popout windows appear in the in-game UI for certain game actions.
+Popout windows appear in the in-game UI for certain game actions. Some may require interaction to dismiss them, while others simply introduce new mechanics and actions you can perform.
 
 * When you meet the requirements, a popout window will appear allowing you to Prestige.
-* If you purchase certain Mods, popout windows will also appear to allow you to perform actions.
+* If you purchase certain Mods, popout windows can also appear, allowing you to perform new actions.
 
 ## VI. Additional mechanics
 These mechanics appear later in the game, and are a bit more involved.
 
 ### a. Mod: Coffee Run
-The Coffee Run mod is found later in the game and appears in its own window. It can be purchased from the Mods section of the Controls window after meeting certain requirements. Here's a breakdown of its mechanics:
+The Coffee Run mod is found later in the game and appears in its own window. It can be purchased from the Mods section of the Controls window after acquiring a certain amount of money. Here's a breakdown of its mechanics:
 
 #### Overview
 * As an intern at a large firm, you are tasked with running around the office delivering things, sorting papers, and...going on coffee runs?
@@ -177,7 +177,7 @@ Scoring is done based on order data that may not exactly match the interface for
 
 * https://willowyx.github.io/name-pending/clicks/genchart
 
-###### some features are not yet be fully implemented
+###### some features are not yet fully implemented
 
 ## VII. ImGui controls
 Clicks uses Dear ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:

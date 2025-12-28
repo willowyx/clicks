@@ -37,12 +37,12 @@ object CoffeeGen {
     private val temp = listOf("iced", "hot", "none")
     private val syrup = listOf("caramel", "dark chocolate", "pecan", "pumpkin spice", "vanilla", "none")
     private val type = listOf("americano", "black", "breve", "cappucino", "cold brew", "espresso", "hot chocolate", "latte", "macchiato")
-    private val dairy = listOf("2% milk", "almond milk", "cream", "half-and-half", "oat milk", "skim milk", "soy milk", "condensed milk", "whole milk", "no dairy")
+    private val dairy = listOf("2 percent milk", "almond milk", "cream", "half-and-half", "oat milk", "skim milk", "soy milk", "condensed milk", "whole milk", "no dairy")
     private val modA = listOf("decaf", "extra ice", "lactose free", "light ice", "no ice", "none")
     private val modB = listOf("add granulated sugar", "add sugar syrup", "extra espresso", "no sugar", "steamed milk", "none")
 
     private val withSugar = listOf("condensed milk", "dark chocolate", "add granulated sugar", "add sugar syrup", "pecan", "pumpkin spice", "vanilla")
-    private val withLactose = arrayOf("2% milk", "breve", "condensed milk", "cream", "half-and-half", "skim milk", "whole milk")
+    private val withLactose = arrayOf("2 percent milk", "breve", "condensed milk", "cream", "half-and-half", "skim milk", "whole milk")
 
     private var validatedOrder = initializeOrderGen()
     fun getValidatedOrder(): CoffeeOrder {
@@ -122,13 +122,13 @@ object CoffeeGen {
     private fun CoffeeOrder.validateNoSugar() =
         if (modB == "no sugar") copy(
             syrup = if (syrup in withSugar) "none" else syrup,
-            dairy = if (dairy == "condensed milk") "2% milk" else dairy
+            dairy = if (dairy == "condensed milk") "2 percent milk" else dairy
         ) else this
 
     private fun CoffeeOrder.validateSteamedMilk() =
         if (modB == "steamed milk") copy(
             temp = if (temp == "iced") "hot" else temp,
-            dairy = if (dairy == "none") "2% milk" else dairy
+            dairy = if (dairy == "none") "2 percent milk" else dairy
         ) else this
 
     fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): Int {

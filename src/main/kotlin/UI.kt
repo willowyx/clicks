@@ -226,7 +226,7 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("bonus interval")
         if (ImGui.isItemHovered()) {
-            ImGui.setTooltip("bonus package reward frequency (fewer = more often)")
+            ImGui.setTooltip("bonus package reward interval (fewer is more frequent)")
         }
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
@@ -513,7 +513,7 @@ object UI : GameLogger {
         ImGui.newLine()
 
         val dairy = arrayOf(
-            "2% milk",
+            "2 percent milk",
             "Almond milk",
             "Condensed milk",
             "Cream",
@@ -592,9 +592,12 @@ object UI : GameLogger {
                 reward = rewardGroup.get(),     // 0 = baseReward, 1 = minReward
                 debug = debugMode.get()
             )
-            log("[INFO] User placed order: $userOrder")
             gl.setUserOrder(userOrder)
             val cgenScoreVal = cgenlogic.scoreCoffeeGen(gl.getUserOrder())
+            if (cgenlogic.getDebugEnabled()) {
+                log("[INFO] User placed order: $userOrder")
+                log("[INFO] Target order: ${cgenlogic.getValidatedOrder()}")
+            }
             log("[INFO] SCORED $cgenScoreVal")
 
             if (!cgenlogic.getDebugEnabled()) {     // if debug mode is NOT enabled
