@@ -174,10 +174,17 @@ Note that orders won't explicitly contradict themselves, but ensure your placed 
 
 #### Scoring
 Scoring is done based on order data that may not exactly match the interface for entering an order. Please check the chart linked below for a full breakdown of how orders may be generated, as well as scoring for each category.
-
 * https://willowyx.github.io/name-pending/clicks/genchart
 
+#### Rewards
+Before placing an order, you have the option to choose between "baseReward" and "minReward" as an accuracy-based reward for your placed order. Based on the option selected, the following points apply:
+* You may gain or lose stats for your selected upgrade depending on your order's accuracy
+* At 5% per point, you may earn between -200% and 200% of your upgrade's current value
+
 ###### some features are not yet fully implemented
+
+### b. QA Mechanics
+Mechanics labeled "QA" are for testing prerelease versions of clicks, and will not generally be available in later versions of the game.
 
 ## VII. ImGui controls
 Clicks uses Dear ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:

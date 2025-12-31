@@ -66,8 +66,16 @@ object Mods {
     }
 
     // coffee run
-    var CRInternStatus = true               // TEMPORARY FOR TESTING
-    var CRInternSp = 950_000_000_000        // 950 billion todo: add ui for enabling coffeerun
+    var CRInternStatus = false
+    var CRInternSp = 950_000_000_000        // 950 billion
+    fun startCRIntern() {
+        if (constants.currentMoney >= CRInternSp) {
+            constants.currentMoney -= CRInternSp
+            CRInternStatus = true
+        } else {
+            logger.log("[WARN] insufficient funds. work harder!")
+        }
+    }
     fun calcApplyCRBonus(score: Int, rewardType: Int) {      // takes existing score and calculates percentage bonus
         if(constants.minReward < constants.minRewardMax) {
             // score up to 20; result should be between -2.00 and 2.00

@@ -327,6 +327,14 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("(${if (mods.hedgeFund) "give up?" else "$${mods.hedgeFundSp.toLong().prettyFormat()}"})")
 
+        if(!mods.CRInternStatus) {
+            if (ImGui.button("Coffee Run")) {
+                mods.startCRIntern()
+            }
+            ImGui.sameLine()
+            ImGui.text("($${mods.CRInternSp.prettyFormat()})")
+        }
+
         if (ImGui.button("sell everything")) {
             if (constants.getRefundEligibility()) {
                 mods.modResetClick()
@@ -336,23 +344,6 @@ object UI : GameLogger {
         }
         ImGui.sameLine()
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
-
-
-        ImGui.separator()
-        // START TEMP QA
-        ImGui.text("QA money")
-
-        if (ImGui.button("to 0")) {
-            constants.currentMoney = 0
-        }
-        ImGui.sameLine()
-        if (ImGui.button("+100k")) {
-            constants.currentMoney += 100_000
-        }
-        ImGui.sameLine()
-        if (ImGui.button("+1m")) {
-            constants.currentMoney += 1_000_000
-        }
 
         ImGui.end()
     }
