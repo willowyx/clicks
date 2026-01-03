@@ -38,6 +38,9 @@ object UI : GameLogger {
     private val reviewReqMOpen = ImBoolean(false)
     private val saveGameMOpen = ImBoolean(false)
     private val loadGameMOpen = ImBoolean(false)
+    
+    private var layoutMode = 0                                  // 0 = modern (default), 1 = columns
+    private var resetLayout = false
 
     override fun log(message: String) {
         synchronized(logBuffer) {
@@ -59,7 +62,7 @@ object UI : GameLogger {
         return "[unknown]"
     }
 
-    private fun renderControlsWindow(controlsWidth: Float, displayHeight: Float) {
+    private fun renderControlsWindow(x: Float, y: Float, width: Float, height: Float, cond: Int) {
         // start window style
         ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
@@ -72,8 +75,8 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
         // end window style
 
-        ImGui.setNextWindowPos(0f, 0f, ImGuiCond.Once)
-        ImGui.setNextWindowSize(controlsWidth, displayHeight, ImGuiCond.Once)
+        ImGui.setNextWindowPos(x, y, cond)
+        ImGui.setNextWindowSize(width, height, cond)
         ImGui.begin("Controls", ImGuiWindowFlags.HorizontalScrollbar)
         ImGui.text("clicks")
 
@@ -647,7 +650,7 @@ object UI : GameLogger {
         ImGui.popStyleVar()
     }
 
-    private fun renderEventLogWindow(x: Float, y: Float, width: Float, height: Float) {
+    private fun renderEventLogWindow(x: Float, y: Float, width: Float, height: Float, cond: Int) {
         // start window style
         ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
@@ -660,8 +663,8 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
         // end window style
 
-        ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
-        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+        ImGui.setNextWindowPos(x, y, cond)
+        ImGui.setNextWindowSize(width, height, cond)
 
         ImGui.begin("Event Log")
 
@@ -700,7 +703,7 @@ object UI : GameLogger {
         ImGui.popStyleColor(9)
     }
 
-    private fun renderInfoWindow(x: Float, width: Float, height: Float) {
+    private fun renderInfoWindow(x: Float, y: Float, width: Float, height: Float, cond: Int) {
         // start window style
         ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
@@ -716,14 +719,31 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
         // end window style
 
-        ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
-        ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
+        ImGui.setNextWindowPos(x, y, cond)
+        ImGui.setNextWindowSize(width, height, cond)
         ImGui.begin("Info", ImGuiWindowFlags.HorizontalScrollbar)
         if (ImGui.beginTabBar("InfoTabs")) {
             if (ImGui.beginTabItem("Stats")) {
                 ImGui.text("Game statistics")
                 ImGui.beginChild("StatsRegion", 0f, 0f, true)
                 ImGui.text(gl.statDump())
+                ImGui.endChild()
+                ImGui.endTabItem()
+            }
+            if (ImGui.beginTabItem("Settings")) {
+                ImGui.text("Prefs")
+                ImGui.beginChild("PrefsList", 0f, 0f, true)
+
+                ImGui.text("Layout preset")
+                if(ImGui.button("Modern")) {
+                    layoutMode = 0
+                    resetLayout = true
+                }
+                ImGui.sameLine()
+                if(ImGui.button("Columns")) {
+                    layoutMode = 1
+                    resetLayout = true
+                }
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
@@ -790,15 +810,27 @@ object UI : GameLogger {
         val displayWidth = io.displaySize.x
         val displayHeight = io.displaySize.y
 
-        val rightWidth = displayWidth * 0.4f
-        val leftWidth = displayWidth - rightWidth
+        var cond = ImGuiCond.Once
+        if (resetLayout) {
+            cond = ImGuiCond.Always
+            resetLayout = false
+        }
 
-        val topHeight = displayHeight * 0.5f
-        val bottomHeight = displayHeight - topHeight
+        if (layoutMode == 1) {
+            val colWidth = displayWidth / 3f
+            renderControlsWindow(0f, 0f, colWidth, displayHeight, cond)
+            renderEventLogWindow(colWidth, 0f, colWidth, displayHeight, cond)
+            renderInfoWindow(colWidth * 2, 0f, colWidth, displayHeight, cond)
+        } else {
+            val rightWidth = displayWidth * 0.4f
+            val leftWidth = displayWidth - rightWidth
+            val topHeight = displayHeight * 0.5f
+            val bottomHeight = displayHeight - topHeight
 
-        renderControlsWindow(leftWidth, topHeight)
-        renderEventLogWindow(0f, topHeight, leftWidth, bottomHeight)
-        renderInfoWindow(leftWidth, rightWidth, displayHeight)
+            renderControlsWindow(0f, 0f, leftWidth, topHeight, cond)
+            renderEventLogWindow(0f, topHeight, leftWidth, bottomHeight, cond)
+            renderInfoWindow(leftWidth, 0f, rightWidth, displayHeight, cond)
+        }
 
         if (Constants.canPrestigeCheck()) {
             renderPrestigeWindow(50f, 50f, 200f, displayHeight / 2)

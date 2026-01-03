@@ -54,7 +54,7 @@ data class SaveStateData (      // todo: refresh const values on load??
     var autoPack: Boolean,
     var hedgeFund: Boolean,
     var hedgeRisk: Double,
-    var CRInternStatus: Boolean
+    var crInternStatus: Boolean
 )
 
 object State {
@@ -108,7 +108,7 @@ object State {
             autoPack = Mods.autoPack,
             hedgeFund = Mods.hedgeFund,
             hedgeRisk = Mods.hedgeRisk,
-            CRInternStatus = Mods.CRInternStatus
+            crInternStatus = Mods.CRInternStatus
         )
     }
 
@@ -153,7 +153,7 @@ object State {
         Mods.autoPack = data.autoPack
         Mods.hedgeFund = data.hedgeFund
         Mods.hedgeRisk = data.hedgeRisk
-        Mods.CRInternStatus = data.CRInternStatus
+        Mods.CRInternStatus = data.crInternStatus
         logger.log("[OK] Save data successfully loaded.")
     }
 
@@ -191,7 +191,7 @@ object State {
                     loadStateData()
                     return true
                 } catch (e: Exception) {
-                    logger.log("[ERROR] unable to read data")
+                    logger.log("[ERROR] unable to read data:\n$e")
                     return false
                 }
             } else {
