@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.21.x
+###### for version 0.22.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -125,6 +125,8 @@ Mods can be purchased with the `money` currency and, unlike Upgrades, affect or 
   * This Mod can be refunded by clicking it again.
 * `Hedge fund` enables the `BUY BUY BUY` Action.
   * This Mod can be returned, but not refunded, by clicking it again.
+* `Coffee Run` is a Mod with special rules, and is available permanently once unlocked, by clicking the button.
+  * More details regarding this Mod can be found under Additional Mechanics (Section VI.a)
 * `Sell everything` resets all purchased Upgrades in exchange for a partial refund.
   * This Mod can only be activated after purchasing every upgrade at least once.
   * The amount of `money` refunded is capped such that it can never cause your total money to exceed the global maximum.
@@ -179,12 +181,10 @@ Scoring is done based on order data that may not exactly match the interface for
 #### Rewards
 Before placing an order, you have the option to choose between "baseReward" and "minReward" as an accuracy-based reward for your placed order. Based on the option selected, the following points apply:
 * You may gain or lose stats for your selected upgrade depending on your order's accuracy
-* At 5% per point, you may earn between -200% and 200% of your upgrade's current value
-
-###### some features are not yet fully implemented
+* At 5% per point, you may earn between -2.0 and 2.0 times of your upgrade's current value
 
 ### b. QA Mechanics
-Mechanics labeled "QA" are for testing prerelease versions of clicks, and will not generally be available in later versions of the game.
+Mechanics labeled "QA" are to make testing the game less tedious. However, with the addition of a save system most of these aren't really needed anymore.
 
 ## VII. ImGui controls
 Clicks uses Dear ImGui to render and manage its user interface. Some of these features allow in-game window management that you may find useful:

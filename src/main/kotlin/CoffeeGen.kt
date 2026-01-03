@@ -227,7 +227,6 @@ object CoffeeGen {
         }
 
         // validate mod part B
-        // todo: double check logic
         if(validatedOrder.modB == userOrderIn.sugar) {
             tempscore += rmodBpts[0]
             logger.log("[OK] sugar matches")
@@ -253,6 +252,9 @@ object CoffeeGen {
                 tempscore += rmodBpts[0]
                 logger.log("[OK] implicit ice amount ok")
             }
+        } else if(validatedOrder.modB != "no sugar" && userOrderIn.sugar == "regular sugar") {
+            tempscore += rmodBpts[0] // applied last so other conditions still checked
+            logger.log("[OK] implicit sugar amount ok")
         } else {
             tempscore += rmodBpts[1]
             logger.log("[WARN] modB wrong")
@@ -260,7 +262,7 @@ object CoffeeGen {
 
         // !! validate other order details !!
         // validate form checkboxes
-        if(userOrderIn.isDecaf) {      // if selected decaf unnecessarily
+        if(userOrderIn.isDecaf) {       // if selected decaf unnecessarily
             if (validatedOrder.modA != "decaf") {
                 tempscore += rmodApts[1]
                 logger.log("[WARN] decaf is wrong")

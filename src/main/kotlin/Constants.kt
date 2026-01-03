@@ -120,7 +120,7 @@ object Constants {
             ticksPerSecondLv ++                         // increase level
             ticksPerSecond += ticksPerSecondIntv        // increase attribute
             tickPackBalance()
-            return "[OK] ticksPerSecond increased to $ticksPerSecondLv"
+            return "[OK] ticksPerSecond increased to $ticksPerSecond"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -133,7 +133,7 @@ object Constants {
             currentMoney -= ticksPerSecondPrice()
             ticksPerSecondLv --                         // decrease level
             ticksPerSecond -= ticksPerSecondIntv        // decrease attribute
-            return "[OK] ticksPerSecond decreased to $ticksPerSecondLv"
+            return "[OK] ticksPerSecond decreased to $ticksPerSecond"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -223,7 +223,7 @@ object Constants {
             currentMoney -= clicksPerPackPrice()
             clicksPerPackLv ++                        // increase level
             clicksPerPack += clicksPerPackIntv        // increase attribute
-            return "[OK] clicksPerPack increased to $clicksPerPack"
+            return "[OK] clicksPerPack increased to ${clicksPerPack.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -256,7 +256,7 @@ object Constants {
             currentMoney -= packRewardAmountPrice()
             packRewardAmountLv ++                           // increase level
             packRewardAmount += packRewardAmountIntv        // increase attribute
-            return "[OK] packRewardAmount increased to $packRewardAmount"
+            return "[OK] packRewardAmount increased to ${packRewardAmount.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -279,7 +279,7 @@ object Constants {
             currentMoney -= bonusPayIntervalPrice()
             bonusPayIntervalLv ++                           // increase level
             bonusPayInterval -= bonusPayIntervalIntv        // decrease attribute
-            return "[OK] bonusPayInterval decreased to $bonusPayInterval"
+            return "[OK] bonusPayInterval decreased to ${bonusPayInterval.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -328,7 +328,7 @@ object Constants {
             clicksPerTickLv ++                          // increase level
             clicksPerTick += clicksPerTickIntv          // increase attribute
             tickPackBalance()
-            return "[OK] clicksPerTick increased to $clicksPerTick"
+            return "[OK] clicksPerTick increased to ${clicksPerTick.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -341,7 +341,7 @@ object Constants {
             currentMoney -= clicksPerTickPrice()
             clicksPerTickLv --                          // decrease level
             clicksPerTick -= clicksPerTickIntv          // decrease attribute
-            return "[OK] clicksPerTick decreased to $clicksPerTick"
+            return "[OK] clicksPerTick decreased to ${clicksPerTick.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -365,7 +365,7 @@ object Constants {
             currentMoney -= fuzzySelectRangePrice()
             fuzzySelectRangeLv ++                           // increase level
             fuzzySelectRange += fuzzySelectRangeIntv        // increase attribute
-            return "[OK] fuzzySelectRange increased to $fuzzySelectRange"
+            return "[OK] fuzzySelectRange increased to ${fuzzySelectRange.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -378,7 +378,7 @@ object Constants {
             currentMoney -= fuzzySelectRangePrice()
             fuzzySelectRangeLv --                           // decrease level
             fuzzySelectRange -= fuzzySelectRangeIntv        // decrease attribute
-            return "[OK] fuzzySelectRange decreased to $fuzzySelectRange"
+            return "[OK] fuzzySelectRange decreased to ${fuzzySelectRange.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -403,7 +403,7 @@ object Constants {
             currentMoney -= fuzzySelectPenaltyUnitPrice()
             fuzzySelectPenaltyUnitLv ++                                 // increase level
             fuzzySelectPenaltyUnit += fuzzySelectPenaltyUnitIntv        // increase attribute
-            return "[OK] fuzzySelectPenaltyUnit increased to $fuzzySelectPenaltyUnit"
+            return "[OK] fuzzySelectPenaltyUnit increased to ${fuzzySelectPenaltyUnit.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -415,7 +415,7 @@ object Constants {
     var maxPenaltyLv: Int = 1
     var maxPenaltySp: Int = 150
     var maxPenaltyIntv: Double = 0.05
-    var maxPenaltyMin: Double = 0.1
+    var maxPenaltyMin: Double = 0.99
     fun maxPenaltyPrice(): Long {
         return (maxPenaltySp * 2.0.pow((maxPenaltyLv - 1).toDouble())).toLong()
     }
@@ -432,7 +432,7 @@ object Constants {
             return "[WARN] insufficient funds"
         }
     }
-    // can be decreased; lower limit: 0.1
+    // can be decreased; lower limit: .99 (eff. 0.1)
 
 
     var minReward: Long = 10                        // consolation prize for unpackable clicks (if way too high)
@@ -452,7 +452,7 @@ object Constants {
             currentMoney -= minRewardPrice()
             minRewardLv ++                      // increase level
             minReward += minRewardIntv          // increase attribute
-            return "[OK] minReward increased to $minReward"
+            return "[OK] minReward increased to ${minReward.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
@@ -487,7 +487,7 @@ object Constants {
     fun tickPackBalance() {
         if(clicksPerTick * ticksPerSecond * 4 > clicksPerPack) {     // calculate balancing adjustment after increase
             clicksPerPack = (clicksPerTick * ticksPerSecond * 6)     // ensure clicks/pack is always at least 6x clicks/tick
-            logger.log("[INFO] clicksPerPack increased to $clicksPerPack to maintain balance")
+            logger.log("[INFO] clicksPerPack increased to ${clicksPerPack.prettyFormat()} to maintain balance")
         }
     }
     fun refreshConstValues() {

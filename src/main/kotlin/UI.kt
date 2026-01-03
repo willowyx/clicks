@@ -60,9 +60,21 @@ object UI : GameLogger {
     }
 
     private fun renderControlsWindow(controlsWidth: Float, displayHeight: Float) {
+        // start window style
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 1.0f, 1.0f, 0.8f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.22f, 0.31f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ModalWindowDimBg, 0f, 0.06f, 0.11f, 0.7f)
+        ImGui.pushStyleColor(ImGuiCol.Button, 0.22f, 0.01f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 0.41f, 0.14f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.54f, 0.01f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
+        // end window style
+
         ImGui.setNextWindowPos(0f, 0f, ImGuiCond.Once)
         ImGui.setNextWindowSize(controlsWidth, displayHeight, ImGuiCond.Once)
-        ImGui.begin("Controls")
+        ImGui.begin("Controls", ImGuiWindowFlags.HorizontalScrollbar)
         ImGui.text("clicks")
 
         ImGui.newLine()
@@ -170,7 +182,9 @@ object UI : GameLogger {
 
         ImGui.text("clicks per pack")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("the number of clicks required per package")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerPack")) {
@@ -185,7 +199,9 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("base clicks")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("base number of clicks generated per tick")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###clicksPerTickAdd")) {
@@ -200,7 +216,9 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("subticks")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("clicks are generated this many times per tick")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###ticksPerSecondAdd")) {
@@ -211,7 +229,9 @@ object UI : GameLogger {
 
         ImGui.text("base reward")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("base reward each time clicks are packaged")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###packRewardAmount")) {
@@ -226,14 +246,18 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("bonus interval")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("bonus package reward interval (fewer is more frequent)")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         ImGui.text("($${constants.bonusPayIntervalPrice().prettyFormat()})")
 
         ImGui.text("bonus multiplier")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("bonuses multiply base reward by this amount")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###bonusPayScale")) {
@@ -268,7 +292,9 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("package range")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("range below clicksPerPack in which clicks may be packaged")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectRangeAdd")) {
@@ -279,7 +305,9 @@ object UI : GameLogger {
 
         ImGui.text("penalty interval")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("penalty applied for every x clicks away from a perfect pack")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###fuzzySelectPenaltyUnit")) {
@@ -294,14 +322,18 @@ object UI : GameLogger {
         ImGui.sameLine()
         ImGui.text("max penalty")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("package penalty cannot exceed this percentage of reward")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         ImGui.text("($${constants.maxPenaltyPrice().prettyFormat()})")
 
         ImGui.text("min reward")
         if (ImGui.isItemHovered()) {
+            ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
             ImGui.setTooltip("any reward may not be less than this amount")
+            ImGui.popStyleColor()
         }
         ImGui.sameLine()
         if (ImGui.button("+###minReward")) {
@@ -346,6 +378,7 @@ object UI : GameLogger {
         ImGui.text("(+$${constants.getRefundPrice().prettyFormat()})")
 
         ImGui.end()
+        ImGui.popStyleColor(9)
     }
 
     private fun clearLogBuffer() {
@@ -361,12 +394,12 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.53f, 0.81f, 0.92f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.53f, 0.81f, 0.92f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 1.0f, 1.0f, 0.8f, 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.FrameBg, 1.0f, 1.0f, 0.8f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.WindowBg, 1.0f, 1.0f, 0.8f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 1.0f, 1.0f, 0.8f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.Button, 1.0f, 1.0f, 1.0f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 1.0f, 1.0f, 1.0f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.53f, 0.81f, 0.92f, 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.Text, 0.0f, 0.0f, 0.0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 0f, 0f, 0f, 1.0f)
 
         if (Constants.currentPrestige < 100) {
             ImGui.begin("Prestige available")
@@ -404,10 +437,10 @@ object UI : GameLogger {
         val lighterBrown = floatArrayOf(0.3f, 0.25f, 0.21f, 1.0f)
 
         ImGui.pushStyleColor(ImGuiCol.WindowBg, 0.1f, 0.35f, 0.15f, 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.FrameBg, brown[0], brown[1], brown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.FrameBgHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.FrameBgActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.1f, 0.05f, 0.01f, 0.95f)
         ImGui.pushStyleColor(ImGuiCol.Button, brown[0], brown[1], brown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.ButtonActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
@@ -415,10 +448,10 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.HeaderHovered, lightBrown[0], lightBrown[1], lightBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.HeaderActive, lighterBrown[0], lighterBrown[1], lighterBrown[2], 1.0f)
         ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 1.0f, 1.0f, 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.15f, 0.15f, 0.15f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.15f, 0.15f, 0.15f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.15f, 0.15f, 0.15f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 0.1f, 0.35f, 0.15f, 1.0f)
-        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.1f, 0.05f, 0.01f, 0.95f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
 
         ImGui.begin("Coffee Run")
 
@@ -428,7 +461,7 @@ object UI : GameLogger {
         }
         ImGui.newLine()
 
-        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.6f, 0.5f, 0.0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0.6f, 0.5f, 0f, 1.0f)
         if (ImGui.beginPopupModal(
                 "check order",
                 reviewReqMOpen,
@@ -614,8 +647,20 @@ object UI : GameLogger {
         ImGui.popStyleVar()
     }
 
-    private fun renderEventLogWindow(x: Float, width: Float, height: Float) {
-        ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
+    private fun renderEventLogWindow(x: Float, y: Float, width: Float, height: Float) {
+        // start window style
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 0.22f, 0f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ChildBg, 0f, 0.06f, 0.11f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Button, 0.22f, 0f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 0.41f, 0.14f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.54f, 0.01f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 0.78f, 0.69f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
+        // end window style
+
+        ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
         ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
 
         ImGui.begin("Event Log")
@@ -652,12 +697,28 @@ object UI : GameLogger {
         }
         ImGui.endChild()
         ImGui.end()
+        ImGui.popStyleColor(9)
     }
 
     private fun renderInfoWindow(x: Float, width: Float, height: Float) {
+        // start window style
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0f, 0.05f, 0.1f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0f, 0.22f, 0.31f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 0.22f, 0f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ChildBg, 0f, 0.06f, 0.11f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.22f, 0.31f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ModalWindowDimBg, 0f, 0.06f, 0.11f, 0.7f)
+        ImGui.pushStyleColor(ImGuiCol.Tab, 0f, 0.05f, 0.1f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Button, 0.22f, 0f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 0.42f, 0.14f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.54f, 0.01f, 0f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.CheckMark, 1.0f, 0.78f, 0.69f, 1.0f)
+        ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.78f, 0.69f, 1.0f)
+        // end window style
+
         ImGui.setNextWindowPos(x, 0f, ImGuiCond.Once)
         ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
-        ImGui.begin("Info")
+        ImGui.begin("Info", ImGuiWindowFlags.HorizontalScrollbar)
         if (ImGui.beginTabBar("InfoTabs")) {
             if (ImGui.beginTabItem("Stats")) {
                 ImGui.text("Game statistics")
@@ -716,6 +777,7 @@ object UI : GameLogger {
             ImGui.endTabBar()
         }
         ImGui.end()
+        ImGui.popStyleColor(12)
     }
 
     fun render() {
@@ -728,22 +790,18 @@ object UI : GameLogger {
         val displayWidth = io.displaySize.x
         val displayHeight = io.displaySize.y
 
-        val controlsWidth = displayWidth * 0.30f
-        val middleWidth = displayWidth * 0.40f
-        val rightWidth = displayWidth * 0.30f
+        val rightWidth = displayWidth * 0.4f
+        val leftWidth = displayWidth - rightWidth
 
-        val topHeight = displayHeight * 0.6f
-        val bottomHeight = displayHeight * 0.4f
+        val topHeight = displayHeight * 0.5f
+        val bottomHeight = displayHeight - topHeight
 
-        renderControlsWindow(controlsWidth, displayHeight)
-        renderEventLogWindow(controlsWidth, middleWidth, displayHeight)
+        renderControlsWindow(leftWidth, topHeight)
+        renderEventLogWindow(0f, topHeight, leftWidth, bottomHeight)
+        renderInfoWindow(leftWidth, rightWidth, displayHeight)
 
-        val rightColumnX = controlsWidth + middleWidth
         if (Constants.canPrestigeCheck()) {
-            renderInfoWindow(rightColumnX, rightWidth, topHeight)
-            renderPrestigeWindow(rightColumnX, topHeight, rightWidth, bottomHeight)
-        } else {
-            renderInfoWindow(rightColumnX, rightWidth, displayHeight)
+            renderPrestigeWindow(50f, 50f, 200f, displayHeight / 2)
         }
         if (Mods.CRInternStatus) {
             renderCRWindow(50f, 50f, 300f, displayHeight / 2)
