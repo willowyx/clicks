@@ -184,6 +184,24 @@ class GameLogic(private val logger: GameLogger) {
         return prestigeBonus
     }
 
+    fun getValidatedCredits(): String {
+        fun getStrFor(p: Array<Int>): String { var compstr = ""
+            for(i in 0..<p.size) { compstr += p[i].toChar().toString() }
+            return compstr }
+        val aa = arrayOf(83, 112, 101, 99, 105, 97, 108, 32, 116, 104, 97, 110, 107, 115, 32)
+        val ba = getStrFor(aa)
+        val ab = arrayOf(116, 111, 32, 103, 97, 98)
+        val bb = getStrFor(ab)
+        val ac = arrayOf(32, 97, 110, 100, 32, 119, 101, 115, 116, 111, 32)
+        var bc = getStrFor(ac)
+        val ad = arrayOf(102, 111, 114, 32, 116, 101, 115, 116, 105, 110, 103, 32, 97, 110, 100, 32, 109, 111, 114, 97, 108, 32, 115, 117, 112, 112, 111, 114, 116, 32)
+        val bd = getStrFor(ad)
+        val ae = arrayOf(33, 33, 32, 94, 45, 94)
+        val be = getStrFor(ae)
+        if (UI.getLayoutMode() == 2) { bc = getStrFor(arrayOf(32)) }
+        return "${ba}${bb}${bc}${bd}$be"
+    }
+
     suspend fun awaitInput(message: String) {
         logger.log(message)
         return suspendCancellableCoroutine { cont ->
@@ -229,6 +247,9 @@ class GameLogic(private val logger: GameLogger) {
     moneyTotal........${(constants.totalMoney).prettyFormat()}
     packaged..........${constants.currentPacks}
     ticksElapsed......${constants.totalTicks}
+    
+    === QA ===
+    layoutMode@UI.....${UI.getLayoutMode()}
     """.trimIndent()
     }
 

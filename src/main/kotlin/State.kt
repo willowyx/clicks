@@ -4,7 +4,7 @@ import java.io.File
 import org.lwjgl.util.tinyfd.TinyFileDialogs
 import java.util.Properties
 
-data class SaveStateData (      // todo: refresh const values on load??
+data class SaveStateData (
     val dataName: String,       // identify save type
     val gameVersion: String,    // todo: validate version on load?
 
@@ -54,7 +54,9 @@ data class SaveStateData (      // todo: refresh const values on load??
     var autoPack: Boolean,
     var hedgeFund: Boolean,
     var hedgeRisk: Double,
-    var crInternStatus: Boolean
+    var crInternStatus: Boolean,
+
+    var layoutMode: Int
 )
 
 object State {
@@ -108,7 +110,8 @@ object State {
             autoPack = Mods.autoPack,
             hedgeFund = Mods.hedgeFund,
             hedgeRisk = Mods.hedgeRisk,
-            crInternStatus = Mods.CRInternStatus
+            crInternStatus = Mods.CRInternStatus,
+            layoutMode = UI.getLayoutMode()
         )
     }
 
@@ -154,6 +157,8 @@ object State {
         Mods.hedgeFund = data.hedgeFund
         Mods.hedgeRisk = data.hedgeRisk
         Mods.CRInternStatus = data.crInternStatus
+        UI.setLayoutMode(data.layoutMode)
+        logger.log("[WARN] Found in save: ${data.layoutMode}")
         logger.log("[OK] Save data successfully loaded.")
     }
 

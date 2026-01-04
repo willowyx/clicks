@@ -39,7 +39,15 @@ object UI : GameLogger {
     private val saveGameMOpen = ImBoolean(false)
     private val loadGameMOpen = ImBoolean(false)
     
-    private var layoutMode = 0                                  // 0 = modern (default), 1 = columns
+    private var layoutMode = 0
+    // 0 = modern (default), 1 = columns, 2 = columns (classic)
+    fun setLayoutMode(preset: Int) {
+        resetLayout = true
+        layoutMode = preset
+    }
+    fun getLayoutMode(): Int {
+        return layoutMode
+    }
     private var resetLayout = false
 
     override fun log(message: String) {
@@ -744,6 +752,12 @@ object UI : GameLogger {
                     layoutMode = 1
                     resetLayout = true
                 }
+                ImGui.sameLine()
+                if(ImGui.button("Classic")) {
+                    layoutMode = 2
+                    resetLayout = true
+                }
+
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
@@ -776,7 +790,7 @@ object UI : GameLogger {
                         ImGui.separator()
                         ImGui.newLine()
 
-                        ImGui.textWrapped("Special thanks to gab and westo for testing and moral support!! ^-^")
+                        ImGui.textWrapped(gl.getValidatedCredits())
                         ImGui.newLine()
 
                         ImGui.separator()
@@ -816,7 +830,7 @@ object UI : GameLogger {
             resetLayout = false
         }
 
-        if (layoutMode == 1) {
+        if (getLayoutMode() in listOf(1, 2)) {
             val colWidth = displayWidth / 3f
             renderControlsWindow(0f, 0f, colWidth, displayHeight, cond)
             renderEventLogWindow(colWidth, 0f, colWidth, displayHeight, cond)
