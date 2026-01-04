@@ -21,12 +21,8 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     private lateinit var userOrderFormData: CoffeeOrderFormData
-    fun getUserOrder(): CoffeeOrderFormData {
-        return userOrderFormData
-    }
-    fun setUserOrder(order: CoffeeOrderFormData) {
-        userOrderFormData = order
-    }
+    fun getUserOrder(): CoffeeOrderFormData { return userOrderFormData }
+    fun setUserOrder(order: CoffeeOrderFormData) { userOrderFormData = order }
 
     private var job = Job()
     private var scope = CoroutineScope(Dispatchers.Default + job)
@@ -37,15 +33,11 @@ class GameLogic(private val logger: GameLogger) {
 
     private var jobIsRunning: Boolean = false
     fun getJobRunStateInd(): Boolean = jobIsRunning
-    fun setJobRunStateInd(state: Boolean) {
-        jobIsRunning = state
-    }
+    fun setJobRunStateInd(state: Boolean) { jobIsRunning = state }
 
     private var isGameStarted: Boolean = false
     fun getIsGameStarted(): Boolean = isGameStarted
-    fun setIsGameStarted(state: Boolean) {
-        isGameStarted = state
-    }
+    fun setIsGameStarted(state: Boolean) { isGameStarted = state }
 
     private fun resetScope() {
         job = Job()
@@ -247,9 +239,6 @@ class GameLogic(private val logger: GameLogger) {
     moneyTotal........${(constants.totalMoney).prettyFormat()}
     packaged..........${constants.currentPacks}
     ticksElapsed......${constants.totalTicks}
-    
-    === QA ===
-    layoutMode@UI.....${UI.getLayoutMode()}
     """.trimIndent()
     }
 

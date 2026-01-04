@@ -45,28 +45,16 @@ object CoffeeGen {
     private val withLactose = arrayOf("2 percent milk", "breve", "condensed milk", "cream", "half-and-half", "skim milk", "whole milk")
 
     private var validatedOrder = initializeOrderGen()
-    fun getValidatedOrder(): CoffeeOrder {
-        return validatedOrder
-    }
-    fun setValidatedOrder(order: CoffeeOrder) {
-        validatedOrder = order
-    }
+    fun getValidatedOrder(): CoffeeOrder { return validatedOrder }
+    fun setValidatedOrder(order: CoffeeOrder) { validatedOrder = order }
 
     private var crDebugEnabled: Boolean = false     // default
-    fun getDebugEnabled(): Boolean {
-        return crDebugEnabled
-    }
-    fun setDebugEnabled(enabled: Boolean) {
-        crDebugEnabled = enabled
-    }
+    fun getDebugEnabled(): Boolean { return crDebugEnabled }
+    fun setDebugEnabled(enabled: Boolean) { crDebugEnabled = enabled }
 
     private var rewardTypeVar = 1     // default
-    fun getRewardType(): Int {
-        return rewardTypeVar
-    }
-    fun setRewardType(type: Int) {
-        rewardTypeVar = type
-    }
+    fun getRewardType(): Int { return rewardTypeVar }
+    fun setRewardType(type: Int) { rewardTypeVar = type }
 
     fun initializeOrderGen(): CoffeeOrder {
         val rname = name.random()

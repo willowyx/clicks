@@ -56,7 +56,8 @@ data class SaveStateData (
     var hedgeRisk: Double,
     var crInternStatus: Boolean,
 
-    var layoutMode: Int
+    var layoutMode: Int,
+    var maxLogLines: Int = 500
 )
 
 object State {
@@ -111,7 +112,8 @@ object State {
             hedgeFund = Mods.hedgeFund,
             hedgeRisk = Mods.hedgeRisk,
             crInternStatus = Mods.CRInternStatus,
-            layoutMode = UI.getLayoutMode()
+            layoutMode = UI.getLayoutMode(),
+            maxLogLines = UI.getMaxLogLines()
         )
     }
 
@@ -158,7 +160,7 @@ object State {
         Mods.hedgeRisk = data.hedgeRisk
         Mods.CRInternStatus = data.crInternStatus
         UI.setLayoutMode(data.layoutMode)
-        logger.log("[WARN] Found in save: ${data.layoutMode}")
+        UI.setMaxLogLines(data.maxLogLines)
         logger.log("[OK] Save data successfully loaded.")
     }
 

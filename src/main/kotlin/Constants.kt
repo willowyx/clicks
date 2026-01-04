@@ -415,7 +415,7 @@ object Constants {
     var maxPenaltyLv: Int = 1
     var maxPenaltySp: Int = 150
     var maxPenaltyIntv: Double = 0.05
-    var maxPenaltyMin: Double = 0.99
+    var maxPenaltyMin: Double = 0.09
     fun maxPenaltyPrice(): Long {
         return (maxPenaltySp * 2.0.pow((maxPenaltyLv - 1).toDouble())).toLong()
     }

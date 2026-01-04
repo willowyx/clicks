@@ -17,7 +17,11 @@ import State as state
 
 object UI : GameLogger {
     private val logBuffer = mutableListOf<String>()
-    private val maxLogLines = 500
+    private var maxLogLines = 500
+    fun setMaxLogLines(max: Int) {
+        if(max in 1..<100_000) { maxLogLines = max }
+    }
+    fun getMaxLogLines(): Int { return maxLogLines }
 
     private val autoScroll = ImBoolean(true)
     private val logFilter = ImString()
@@ -53,7 +57,7 @@ object UI : GameLogger {
     override fun log(message: String) {
         synchronized(logBuffer) {
             logBuffer.add(message)
-            if (logBuffer.size > maxLogLines) {
+            while (logBuffer.size > maxLogLines) {
                 logBuffer.removeFirst()
             }
         }
