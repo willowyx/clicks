@@ -44,7 +44,7 @@ object UI : GameLogger {
     private val loadGameMOpen = ImBoolean(false)
     
     private var layoutMode = 0
-    // 0 = modern (default), 1 = columns, 2 = columns (classic)
+    // 0,2 = modern (default), 1,3 = columns
     fun setLayoutMode(preset: Int) {
         resetLayout = true
         layoutMode = preset
@@ -748,18 +748,19 @@ object UI : GameLogger {
 
                 ImGui.text("Layout preset")
                 if(ImGui.button("Modern")) {
-                    layoutMode = 0
-                    resetLayout = true
+                    setLayoutMode(0)
                 }
                 ImGui.sameLine()
+                if(ImGui.button("Neo")) {
+                    setLayoutMode(2)
+                }
+
                 if(ImGui.button("Columns")) {
-                    layoutMode = 1
-                    resetLayout = true
+                    setLayoutMode(1)
                 }
                 ImGui.sameLine()
                 if(ImGui.button("Classic")) {
-                    layoutMode = 2
-                    resetLayout = true
+                    setLayoutMode(3)
                 }
 
                 ImGui.endChild()
@@ -834,12 +835,12 @@ object UI : GameLogger {
             resetLayout = false
         }
 
-        if (getLayoutMode() in listOf(1, 2)) {
+        if (getLayoutMode() in listOf(1, 3)) {
             val colWidth = displayWidth / 3f
             renderControlsWindow(0f, 0f, colWidth, displayHeight, cond)
             renderEventLogWindow(colWidth, 0f, colWidth, displayHeight, cond)
             renderInfoWindow(colWidth * 2, 0f, colWidth, displayHeight, cond)
-        } else {
+        } else if (getLayoutMode() in listOf(0, 2)) {
             val rightWidth = displayWidth * 0.4f
             val leftWidth = displayWidth - rightWidth
             val topHeight = displayHeight * 0.5f
