@@ -236,12 +236,12 @@ object CoffeeGen {
                 logger.log("[WARN] regular sugar is wrong")
             }
         } else if(validatedOrder.modB == "none") {
-            if(userOrderIn.iceAmount == "regular ice" || userOrderIn.iceAmount == "no ice") {
+            if(userOrderIn.iceAmount == "regular ice") {
                 tempscore += rmodBpts[0]
                 logger.log("[OK] implicit ice amount ok")
             }
         } else if(validatedOrder.modB != "no sugar" && userOrderIn.sugar == "regular sugar") {
-            tempscore += rmodBpts[0] // applied last so other conditions still checked
+            tempscore += rmodBpts[0]    // applied last so other conditions still checked
             logger.log("[OK] implicit sugar amount ok")
         } else {
             tempscore += rmodBpts[1]

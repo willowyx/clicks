@@ -650,7 +650,7 @@ object UI : GameLogger {
         ImGui.checkbox("debug mode", debugMode)
         if (ImGui.isItemHovered()) {
             ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
-            ImGui.setTooltip("QA: prevent orders from refreshing after submitting")
+            ImGui.setTooltip("QA: don't refresh order after submitting")
             ImGui.popStyleColor()
         }
         if (ImGui.isItemDeactivated() && !debugMode.get()) {
