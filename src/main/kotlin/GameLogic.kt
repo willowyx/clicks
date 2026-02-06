@@ -72,7 +72,8 @@ class GameLogic(private val logger: GameLogger) {
     suspend fun tryPackage() {
         val minSelect = constants.clicksPerPack - (constants.fuzzySelectRange - 1)
         val maxSelect = constants.clicksPerPack + (constants.fuzzySelectRange + 1)
-        val specificity = abs(constants.clicksPerPack - constants.currentClicks)
+        val cSignedDev = (constants.currentClicks - constants.clicksPerPack.toLong())
+        val specificity = abs(cSignedDev).coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
         val maxPenaltyInt = (constants.maxPenalty * constants.packRewardAmount).toInt()
         val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
 
@@ -87,48 +88,70 @@ class GameLogic(private val logger: GameLogger) {
             logger.log("[INFO] Packaging ${constants.currentClicks} clicks")
         }
 
+        val prestigeVal = calcPrestige()
+        var rewardGiven: Long
+        var penaltyApplied: Int
+
         when {
             constants.currentClicks == constants.clicksPerPack.toLong() -> {
-                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * calcPrestige()).toLong()
+                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * prestigeVal).toLong()
                 val pcalcbonusdef = calcPackBonus()                // define package bonus amount
-                constants.currentMoney += prewarddef + pcalcbonusdef
-                constants.totalMoney += prewarddef + pcalcbonusdef
+                rewardGiven = prewarddef + pcalcbonusdef
+                constants.currentMoney += rewardGiven
+                constants.totalMoney += rewardGiven
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusProgress ++
                 logger.log("[INFO] perfect package, applied full reward plus bonus")
+                penaltyApplied = 0
             }
             constants.currentClicks in minSelect..maxSelect -> {
-                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * calcPrestige()).toLong()
+                val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * prestigeVal).toLong()
                 val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
                 val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
-                constants.currentMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
-                constants.totalMoney += (prewarddef - penalty).coerceAtLeast(constants.minReward)
+                val awarded = (prewarddef - penalty).coerceAtLeast(constants.minReward)
+                rewardGiven = awarded
+                constants.currentMoney += awarded
+                constants.totalMoney += awarded
                 constants.currentPacks += 1
                 constants.currentClicks = 0
                 constants.packBonusProgress ++
                 logger.log("[INFO] over/undershot but within range; applied penalty of $penalty")
+                penaltyApplied = penalty
             }
             else -> {
-                constants.currentMoney += (constants.minReward * calcPrestige()).toLong()           // give minReward
-                constants.totalMoney += (constants.minReward * calcPrestige()).toLong()
+                val awarded = (constants.minReward * prestigeVal).toLong()
+                rewardGiven = awarded
+                constants.currentMoney += awarded           // give minReward adjusted by prestige
+                constants.totalMoney += awarded
                 constants.currentClicks = 0
                 logger.log("[INFO] overshot by more than max ${constants.fuzzySelectRange} clicks")
+                penaltyApplied = 0
             }
         }
 
-        if (constants.packBonusProgress % constants.bonusPayInterval == 0 && constants.packBonusProgress != 0) {
-            val packbonusrtn = calcPackBonus()
-            constants.packBonusProgress = 0
-            constants.currentMoney += packbonusrtn
-            constants.totalMoney += packbonusrtn
-//            logger.log("bonus $packbonusrtn applied & interval reset; total: ${constants.currentMoney}")
-        }
+        try {
+            if (constants.packBonusProgress % constants.bonusPayInterval == 0 && constants.packBonusProgress != 0) {
+                val packbonusrtn = calcPackBonus()
+                constants.packBonusProgress = 0
+                constants.currentMoney += packbonusrtn
+                constants.totalMoney += packbonusrtn
+                rewardGiven += packbonusrtn.toLong()
+            }
+        } catch (_: Exception) { }
+
+        val signedRwd = (rewardGiven - constants.packRewardAmount)
+        val deviation = signedRwd.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
+
+        try {
+            Graphing.recordPackage(rewardGiven, penaltyApplied, deviation, prestigeVal)
+        } catch (_: Exception) { }
     }
 
-    fun runTick(): Int {                // run tick, return clicks generated without updating stats
+    fun runTick(): Int {
         constants.refreshConstValues()
         val tickrtn = calcClicks()
+        Graphing.recordClicksPerTick(tickrtn)
         constants.totalTicks++                                              // increment total ticks
         constants.clicksPerPackNatAdd()                                     // 5% chance to increase clicks/pack by 1%
         return tickrtn
@@ -145,13 +168,8 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun calcPackageReward(): Long {      // calculate reward for a single package
-        var moneyrtn = constants.packRewardAmount
         val packRwdUncert = calcUncertainty("boostMin")
-//        logger.log("reward uncertainty: $packRwdUncert")
-        if(constants.currentPacks % constants.bonusPayInterval == 0.toLong()) {              // check if eligible for bonus
-            moneyrtn += (packRwdUncert * (moneyrtn * constants.bonusPayScale)).toInt()      // apply bonus
-        }
-//        logger.log("package reward: $moneyrtn")
+        val moneyrtn = (constants.packRewardAmount * packRwdUncert).toLong()
         return moneyrtn
     }
 
@@ -166,7 +184,7 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     fun calcPrestige(): Double {
-        if (constants.currentPrestige == 0) return 1.0 // return multiplier 1 (none) if not prestiged
+        if (constants.currentPrestige == 0) return 1.0 // return multiplier 1 if no prestige
 
 //        val base = constants.currentPacks + (constants.totalTicks / 100)
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)

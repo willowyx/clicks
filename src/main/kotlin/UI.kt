@@ -37,6 +37,7 @@ object UI : GameLogger {
     private val makeDecaf = ImBoolean(false)
     private val addEspresso = ImBoolean(false)
     private val debugMode = ImBoolean(false)
+    private val keepLayout = ImBoolean(false)
     private val rewardGroup = ImInt(1)
     private val aboutInfoMOpen = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
@@ -428,6 +429,9 @@ object UI : GameLogger {
                 gl.stop()
                 clearLogBuffer()
                 mods.prestigeResetAuto()
+                try {
+                    Graphing.reset()
+                } catch (_: Exception) { }
                 log("A wave of calm washes over you.")
                 log("Eminence " + Constants.currentPrestige.toRoman() + " achieved.")
             }
@@ -742,6 +746,16 @@ object UI : GameLogger {
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
+            if (ImGui.beginTabItem("Visual")) {
+                ImGui.text("Visual")
+                val childWidth = ImGui.getContentRegionAvailX()
+                val childHeight = ImGui.getContentRegionAvailY()
+                if (ImGui.beginChild("VisualGraphRegion", childWidth, childHeight, true)) {
+                    Graphing.renderInInfo()
+                    ImGui.endChild()
+                }
+                ImGui.endTabItem()
+            }
             if (ImGui.beginTabItem("Settings")) {
                 ImGui.text("Prefs")
                 ImGui.beginChild("PrefsList", 0f, 0f, true)
@@ -761,6 +775,14 @@ object UI : GameLogger {
                 ImGui.sameLine()
                 if(ImGui.button("Classic")) {
                     setLayoutMode(3)
+                }
+
+                ImGui.newLine()
+                ImGui.checkbox("Lock layout positions", keepLayout)
+                if (ImGui.isItemHovered()) {
+                    ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
+                    ImGui.setTooltip("Keep windows locked to the selected layout positions")
+                    ImGui.popStyleColor()
                 }
 
                 ImGui.endChild()
@@ -829,7 +851,7 @@ object UI : GameLogger {
         val displayWidth = io.displaySize.x
         val displayHeight = io.displaySize.y
 
-        var cond = ImGuiCond.Once
+        var cond = if (keepLayout.get()) ImGuiCond.Always else ImGuiCond.Once
         if (resetLayout) {
             cond = ImGuiCond.Always
             resetLayout = false
