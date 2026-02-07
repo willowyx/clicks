@@ -140,7 +140,7 @@ class GameLogic(private val logger: GameLogger) {
             }
         } catch (_: Exception) { }
 
-        val signedRwd = (rewardGiven - constants.packRewardAmount)
+        val signedRwd = (rewardGiven - (constants.packRewardAmount).coerceAtLeast(constants.minReward))
         val deviation = signedRwd.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
 
         try {

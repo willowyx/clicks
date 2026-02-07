@@ -38,8 +38,8 @@ object Graphing {
         }
     }
 
-    private val actualClicks = History("clicks per tick")
-    private val rewardPerPack = History("reward per pack")
+    private val actualClicks = History("click amount")
+    private val rewardPerPack = History("pack reward")
     private val penaltyPerPack = History("package penalty")
     private val deviationFromBase = History("reward deviation")
     private val prestigeBonus = History("prestige bonus")
