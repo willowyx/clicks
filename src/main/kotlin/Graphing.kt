@@ -4,7 +4,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 object Graphing {
-    private const val HISTORY_SIZE = 300 // todo: make same as log max size?
+    private const val HISTORY_SIZE = 200 // todo: make same as log max size?
 
     private class History(val name: String) {
         val buf = FloatArray(HISTORY_SIZE)
@@ -41,7 +41,7 @@ object Graphing {
     private val actualClicks = History("click amount")
     private val rewardPerPack = History("pack reward")
     private val penaltyPerPack = History("package penalty")
-    private val deviationFromBase = History("reward deviation")
+    private val deviationFromBase = History("base reward deviation")
     private val prestigeBonus = History("prestige bonus")
 
     private val histories: List<History> = listOf(actualClicks, rewardPerPack, penaltyPerPack, deviationFromBase, prestigeBonus)

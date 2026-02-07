@@ -472,7 +472,7 @@ object UI : GameLogger {
         ImGui.pushStyleColor(ImGuiCol.TitleBgCollapsed, 0.1f, 0.35f, 0.15f, 1.0f)
         ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
 
-        ImGui.begin("Coffee Run")
+        ImGui.begin("Coffee Run", ImGuiWindowFlags.HorizontalScrollbar)
 
         if (ImGui.button("Check notepad")) {
             ImGui.openPopup("check order")
@@ -757,7 +757,7 @@ object UI : GameLogger {
                 ImGui.endTabItem()
             }
             if (ImGui.beginTabItem("Settings")) {
-                ImGui.text("Prefs")
+                ImGui.text("Preferences")
                 ImGui.beginChild("PrefsList", 0f, 0f, true)
 
                 ImGui.text("Layout preset")
