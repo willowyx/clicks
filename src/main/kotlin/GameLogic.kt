@@ -186,7 +186,6 @@ class GameLogic(private val logger: GameLogger) {
     fun calcPrestige(): Double {
         if (constants.currentPrestige == 0) return 1.0 // return multiplier 1 if no prestige
 
-//        val base = constants.currentPacks + (constants.totalTicks / 100)
         val prestigeScale = 1 + (constants.currentPrestige * 0.3)
         val prestigeBonus = calcUncertainty("boostMin") * prestigeScale
 
@@ -258,9 +257,6 @@ class GameLogic(private val logger: GameLogger) {
     moneyTotal........${(constants.totalMoney).prettyFormat()}
     packaged..........${constants.currentPacks}
     ticksElapsed......${constants.totalTicks}
-    
-    === QA ===
-    layoutMode@UI.....${UI.getLayoutMode()}
     """.trimIndent()
     }
 

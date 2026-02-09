@@ -196,6 +196,10 @@ object UI : GameLogger {
         // START UPGRADES
         ImGui.textWrapped("Upgrades")
 
+        if (ImGui.button("-###clicksPerPackSub")) {
+            log(constants.clicksPerPackSub())
+        }
+        ImGui.sameLine()
         ImGui.text("clicks per pack")
         if (ImGui.isItemHovered()) {
             ImGui.pushStyleColor(ImGuiCol.PopupBg, 0f, 0.05f, 0.1f, 1.0f)
@@ -203,7 +207,7 @@ object UI : GameLogger {
             ImGui.popStyleColor()
         }
         ImGui.sameLine()
-        if (ImGui.button("+###clicksPerPack")) {
+        if (ImGui.button("+###clicksPerPackAdd")) {
             log(constants.clicksPerPackAdd())
         }
         ImGui.sameLine()

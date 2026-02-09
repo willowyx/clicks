@@ -211,6 +211,7 @@ object Constants {
     var clicksPerPackLv: Int = 1
     var clicksPerPackSp: Int = 425
     var clicksPerPackIntv: Int = 200
+    var clicksPerPackMin: Int = 200
     var clicksPerPackMax: Int = 10_000_000
     fun clicksPerPackPrice(): Long {
         return (clicksPerPackSp * 1.05.pow((clicksPerPackLv - 1).toDouble())).toLong()
@@ -224,6 +225,19 @@ object Constants {
             clicksPerPackLv ++                        // increase level
             clicksPerPack += clicksPerPackIntv        // increase attribute
             return "[OK] clicksPerPack increased to ${clicksPerPack.prettyFormat()}"
+        } else {
+            return "[WARN] insufficient funds"
+        }
+    }
+    fun clicksPerPackSub(): String {
+        if(clicksPerPack - clicksPerPackIntv < clicksPerPackMin) {
+            return "[WARN] cannot decrease attribute further"
+        }
+        if(currentMoney >= clicksPerPackPrice()) {
+            currentMoney -= clicksPerPackPrice()
+            clicksPerPackLv --                        // decrease level
+            clicksPerPack -= clicksPerPackIntv        // decrease attribute
+            return "[OK] clicksPerPack decreased to ${clicksPerPack.prettyFormat()}"
         } else {
             return "[WARN] insufficient funds"
         }
