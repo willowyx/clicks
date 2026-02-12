@@ -55,13 +55,17 @@ class GameLogic(private val logger: GameLogger) {
         }
         scope.launch {
             while (true) {
-                for( i in 1..constants.ticksPerSecond) {                                // run for each tick
+                var combinedClicks = 0
+                for( i in 1..constants.ticksPerSecond) {                              // run for each tick
 //                    logger.log("subtick $i/${constants.ticksPerSecond}")
                     val tickrtn: Int = runTick()
-                    constants.currentClicks += tickrtn                                        // update clicks
-                    constants.combinedClicks += tickrtn                                       // update total clicks
-                    tryPackage()                                                              // check if packageable
+                    combinedClicks += tickrtn
+                    constants.currentClicks += tickrtn                                      // update clicks
+                    constants.combinedClicks += tickrtn                                     // update total clicks
+                    tryPackage()                                                            // check if packageable
                 }
+                Graphing.recordClicksPerTick(combinedClicks)
+                constants.totalTicks++                                                      // increment total ticks
                 logger.log("${constants.currentClicks.prettyFormat()}/${constants.clicksPerPack.prettyFormat()} clicks")
                 constants.refreshConstValues()
                 delay(1000L)
@@ -151,8 +155,6 @@ class GameLogic(private val logger: GameLogger) {
     fun runTick(): Int {
         constants.refreshConstValues()
         val tickrtn = calcClicks()
-        Graphing.recordClicksPerTick(tickrtn)
-        constants.totalTicks++                                              // increment total ticks
         constants.clicksPerPackNatAdd()                                     // 5% chance to increase clicks/pack by 1%
         return tickrtn
     }
