@@ -76,10 +76,14 @@ class GameLogic(private val logger: GameLogger) {
     suspend fun tryPackage() {
         val minSelect = constants.clicksPerPack - (constants.fuzzySelectRange - 1)
         val maxSelect = constants.clicksPerPack + (constants.fuzzySelectRange + 1)
-        val cSignedDev = (constants.currentClicks - constants.clicksPerPack.toLong())
-        val specificity = abs(cSignedDev).coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
+        val cSignedDev = (constants.currentClicks - constants.clicksPerPack.toLong()) // todo: does this check even when it doesnt need to be??
+        val specificity = abs(cSignedDev).coerceIn(0L, Int.MAX_VALUE.toLong()).toInt() // specificity checks whether clicks in range to package
         val maxPenaltyInt = (constants.maxPenalty * constants.packRewardAmount).toInt()
         val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
+
+        val prestigeVal = calcPrestige()
+        var rewardGiven: Long
+        var penaltyApplied: Int
 
         if (constants.currentClicks < minSelect) {
 //            logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks") // prints per subtick
@@ -91,10 +95,6 @@ class GameLogic(private val logger: GameLogger) {
         } else {
             logger.log("[INFO] Packaging ${constants.currentClicks} clicks")
         }
-
-        val prestigeVal = calcPrestige()
-        var rewardGiven: Long
-        var penaltyApplied: Int
 
         when {
             constants.currentClicks == constants.clicksPerPack.toLong() -> {
@@ -111,8 +111,8 @@ class GameLogic(private val logger: GameLogger) {
             }
             constants.currentClicks in minSelect..maxSelect -> {
                 val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * prestigeVal).toLong()
-                val calcPenaltyInt = prewarddef * calculatedPenalty     // calculate reward after penalty
-                val penalty = calcPenaltyInt.coerceAtMost(maxPenaltyInt.toDouble()).toInt()
+                val penaltyIntervals = specificity / constants.fuzzySelectPenaltyUnit
+                val penalty = (penaltyIntervals * constants.penaltyPerInterval).coerceAtMost(maxPenaltyInt)
                 val awarded = (prewarddef - penalty).coerceAtLeast(constants.minReward)
                 rewardGiven = awarded
                 constants.currentMoney += awarded

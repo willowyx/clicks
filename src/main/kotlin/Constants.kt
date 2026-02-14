@@ -497,6 +497,7 @@ object Constants {
     // game state variable
     var realTickRange_max: Int = (clicksPerTick * ticksPerSecond * uncertaintyLimit).toInt()
     // game state variable
+    val penaltyPerInterval = 5
 
     fun tickPackBalance() {
         if(clicksPerTick * ticksPerSecond * 4 > clicksPerPack) {     // calculate balancing adjustment after increase
