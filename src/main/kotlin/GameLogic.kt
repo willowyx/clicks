@@ -56,8 +56,9 @@ class GameLogic(private val logger: GameLogger) {
         scope.launch {
             while (true) {
                 var combinedClicks = 0
-                for( i in 1..constants.ticksPerSecond) {                              // run for each tick
+//                for( i in 1..constants.ticksPerSecond) {                              // run for each tick
 //                    logger.log("subtick $i/${constants.ticksPerSecond}")
+                repeat(constants.ticksPerSecond) {                                  // run for each tick
                     val tickrtn: Int = runTick()
                     combinedClicks += tickrtn
                     constants.currentClicks += tickrtn                                      // update clicks
@@ -74,19 +75,19 @@ class GameLogic(private val logger: GameLogger) {
     }
 
     suspend fun tryPackage() {
-        val minSelect = constants.clicksPerPack - (constants.fuzzySelectRange - 1)
-        val maxSelect = constants.clicksPerPack + (constants.fuzzySelectRange + 1)
+        val minSelect = constants.clicksPerPack
+        val maxSelect = constants.clicksPerPack + constants.fuzzySelectRange
         val cSignedDev = (constants.currentClicks - constants.clicksPerPack.toLong()) // todo: does this check even when it doesnt need to be??
         val specificity = abs(cSignedDev).coerceIn(0L, Int.MAX_VALUE.toLong()).toInt() // specificity checks whether clicks in range to package
         val maxPenaltyInt = (constants.maxPenalty * constants.packRewardAmount).toInt()
-        val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
+//        val calculatedPenalty = ((specificity / constants.fuzzySelectPenaltyUnit) * 0.1)    // calc penalty %
 
         val prestigeVal = calcPrestige()
         var rewardGiven: Long
         var penaltyApplied: Int
 
         if (constants.currentClicks < minSelect) {
-//            logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks") // prints per subtick
+//            logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks")    // prints per subtick
             return
         }
 
@@ -169,7 +170,7 @@ class GameLogic(private val logger: GameLogger) {
         return clickrtn
     }
 
-    fun calcPackageReward(): Long {      // calculate reward for a single package
+    fun calcPackageReward(): Long {     // calculate reward for a single package
         val packRwdUncert = calcUncertainty("boostMin")
         val moneyrtn = (constants.packRewardAmount * packRwdUncert).toLong()
         return moneyrtn
