@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.20"
     application
-    id("com.gradleup.shadow") version "9.2.2"
+    id("com.gradleup.shadow") version "9.3.2"
 }
 
 kotlin {
@@ -9,15 +9,15 @@ kotlin {
 }
 
 group = "dev.willowyx"
-version = "0.23.7"
+version = "0.23.8"
 
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
 }
 
-val lwjglVersion = "3.3.6"
-val jacksonVersion = "2.17.2"
+val lwjglVersion = "3.4.1"
+val jacksonVersion = "2.21.1"
 val os = org.gradle.internal.os.OperatingSystem.current()
 
 fun lwjglNatives(os: org.gradle.internal.os.OperatingSystem): String = when {
