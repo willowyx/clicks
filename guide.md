@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.22.x
+###### for version 0.23.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -142,6 +142,10 @@ The Event Log window displays game events every tick and immediate feedback on y
 ## IV. Info window
 The Stats tab under the Info window displays game state information as well as the values of generation variables that may be upgraded. The Stats pane is refreshed each tick.
 * The individual parameters found in the Stats pane are described in detail under "Game parameters" (I.d)
+
+The Visual tab contains line graphs for visual insight into game generation.
+
+The Settings tab contains settings allowing you to adjust the layout of in-game windows.
 
 The About tab contains version information and credits.
 

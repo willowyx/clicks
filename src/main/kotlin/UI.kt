@@ -9,6 +9,9 @@ import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
 import imgui.type.ImString
+import java.awt.Desktop
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.Properties
 import CoffeeGen as cgenlogic
 import Constants as constants
@@ -73,6 +76,52 @@ object UI : GameLogger {
             return props.getProperty("version") ?: "[unknown]"
         }
         return "[unknown]"
+    }
+
+    private fun getExecutableDirectory(): Path {
+        System.getProperty("jpackage.app-path")?.let { appPath ->
+            val launcherPath = Path.of(appPath).toAbsolutePath().normalize()
+            return launcherPath.parent ?: launcherPath
+        }
+
+        val codeSourcePath = runCatching {
+            Path.of(Main::class.java.protectionDomain.codeSource.location.toURI()).toAbsolutePath().normalize()
+        }.getOrNull()
+
+        if (codeSourcePath != null) {
+            return if (Files.isDirectory(codeSourcePath)) {
+                codeSourcePath
+            } else {
+                codeSourcePath.parent ?: codeSourcePath
+            }
+        }
+
+        return Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize()
+    }
+
+    private fun openGuidePlDir() {
+        val guidePath = getExecutableDirectory().resolve("guide.md").normalize()
+        if (!Files.exists(guidePath)) {
+            log("[ERROR] guide not found: ${guidePath.toAbsolutePath()}")
+            return
+        }
+
+        if (!Desktop.isDesktopSupported()) {
+            log("[ERROR] desktop integration not supported on this system")
+            return
+        }
+
+        runCatching {
+            val desktop = Desktop.getDesktop()
+            if (!desktop.isSupported(Desktop.Action.OPEN)) {
+                log("[ERROR] opening files is not supported on this system")
+                return
+            }
+            desktop.open(guidePath.toFile())
+            log("[OK] opened guide: ${guidePath.toAbsolutePath()}")
+        }.onFailure { error ->
+            log("[ERROR] failed to open guide: ${error.message ?: error.javaClass.simpleName}")
+        }
     }
 
     private fun renderControlsWindow(x: Float, y: Float, width: Float, height: Float, cond: Int) {
@@ -172,7 +221,7 @@ object UI : GameLogger {
 
         ImGui.newLine()
         if (ImGui.button("How to play")) {
-            log("[INFO] would open game guide")
+            openGuidePlDir()
         }
 
         ImGui.separator()
