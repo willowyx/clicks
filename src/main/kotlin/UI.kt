@@ -9,7 +9,6 @@ import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
 import imgui.type.ImString
-import java.awt.Desktop
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Properties
@@ -106,18 +105,23 @@ object UI : GameLogger {
             return
         }
 
-        if (!Desktop.isDesktopSupported()) {
-            log("[ERROR] desktop integration not supported on this system")
+        val osName = System.getProperty("os.name").orEmpty().lowercase()
+        val openCommand = when {
+            osName.contains("mac") -> listOf("open", guidePath.toString())
+            osName.contains("win") -> listOf("cmd", "/c", "start", "", guidePath.toString())
+            osName.contains("nix") || osName.contains("nux") || osName.contains("aix") -> listOf("xdg-open", guidePath.toString())
+            else -> null
+        }
+
+        if (openCommand == null) {
+            log("[ERROR] Unsupported operating system: ${System.getProperty("os.name")}")
             return
         }
 
         runCatching {
-            val desktop = Desktop.getDesktop()
-            if (!desktop.isSupported(Desktop.Action.OPEN)) {
-                log("[ERROR] opening files is not supported on this system")
-                return
-            }
-            desktop.open(guidePath.toFile())
+            ProcessBuilder(openCommand)
+                .redirectErrorStream(true)
+                .start()
             log("[OK] opened guide: ${guidePath.toAbsolutePath()}")
         }.onFailure { error ->
             log("[ERROR] failed to open guide: ${error.message ?: error.javaClass.simpleName}")
