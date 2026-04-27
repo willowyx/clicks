@@ -48,6 +48,8 @@ object Mods {
             // 5000 minimum investment; otherwise invests 75% current money
             val profit: Long = (investment * Random.nextDouble(hedgeRisk, hedgeGain))
                 .toLong().coerceAtMost(constants.totalMoneyMax) - investment.toLong()
+            val gainPct = if (investment > 0.0) (profit / investment) else 0.0
+            Graphing.recordInvestmentGainPct(gainPct)
             constants.currentMoney += profit
             constants.totalMoney += profit
             if(profit >= 0) {

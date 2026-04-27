@@ -8,6 +8,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.math.abs
 import Constants.prettyFormat
+import kotlin.time.Duration.Companion.milliseconds
 import Constants as constants
 import CoffeeGen as cgenlogic
 import Mods as mods
@@ -65,11 +66,11 @@ class GameLogic(private val logger: GameLogger) {
                     constants.combinedClicks += tickrtn                                     // update total clicks
                     tryPackage()                                                            // check if packageable
                 }
-                Graphing.recordClicksPerTick(combinedClicks)
+                Graphing.recordClicksPerTick(combinedClicks, constants.clicksPerTick * constants.ticksPerSecond)
                 constants.totalTicks++                                                      // increment total ticks
                 logger.log("${constants.currentClicks.prettyFormat()}/${constants.clicksPerPack.prettyFormat()} clicks")
                 constants.refreshConstValues()
-                delay(1000L)
+                delay(1000L.milliseconds)
             }
         }
     }
@@ -85,6 +86,7 @@ class GameLogic(private val logger: GameLogger) {
         val prestigeVal = calcPrestige()
         var rewardGiven: Long
         var penaltyApplied: Int
+        var bonusGiven = 0
 
         if (constants.currentClicks < minSelect) {
 //            logger.log("${constants.currentClicks}/${constants.clicksPerPack} clicks")    // prints per subtick
@@ -102,6 +104,7 @@ class GameLogic(private val logger: GameLogger) {
                 val prewarddef = (calcPackageReward().coerceAtLeast(constants.minReward) * prestigeVal).toLong()
                 val pcalcbonusdef = calcPackBonus()                // define package bonus amount
                 rewardGiven = prewarddef + pcalcbonusdef
+                bonusGiven += pcalcbonusdef
                 constants.currentMoney += rewardGiven
                 constants.totalMoney += rewardGiven
                 constants.currentPacks += 1
@@ -142,6 +145,7 @@ class GameLogic(private val logger: GameLogger) {
                 constants.currentMoney += packbonusrtn
                 constants.totalMoney += packbonusrtn
                 rewardGiven += packbonusrtn.toLong()
+                bonusGiven += packbonusrtn
             }
         } catch (_: Exception) { }
 
@@ -149,7 +153,7 @@ class GameLogic(private val logger: GameLogger) {
         val deviation = signedRwd.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
 
         try {
-            Graphing.recordPackage(rewardGiven, penaltyApplied, deviation, prestigeVal)
+            Graphing.recordPackage(rewardGiven, penaltyApplied, deviation, bonusGiven, prestigeVal)
         } catch (_: Exception) { }
     }
 
@@ -198,21 +202,17 @@ class GameLogic(private val logger: GameLogger) {
 
     fun getValidatedCredits(): String {
         fun getStrFor(p: Array<Int>): String { var compstr = ""
-            for(i in 0..<p.size) { compstr += p[i].toChar().toString() }
+            for(i in p.indices) { compstr += p[i].toChar().toString() }
             return compstr }
         val aa = arrayOf(83, 112, 101, 99, 105, 97, 108, 32, 116, 104, 97, 110, 107, 115, 32, 116, 111)
         val ba = getStrFor(aa)
         val ab = arrayOf(103, 97, 98)
         val bb = getStrFor(ab)
-        val ac = arrayOf(97, 110, 100)
-        val bc = getStrFor(ac)
-        val ad = arrayOf(119, 101, 115, 116, 111)
-        val bd = getStrFor(ad)
         val ae = arrayOf(102, 111, 114, 32, 116, 101, 115, 116, 105, 110, 103, 32, 97, 110, 100, 32, 109, 111, 114, 97, 108, 32, 115, 117, 112, 112, 111, 114, 116)
         val be = getStrFor(ae)
         val af = arrayOf(33, 33, 32, 94, 45, 94)
         val bf = getStrFor(af)
-        return listOfNotNull(ba, bb.takeIf { UI.getLayoutMode() !in listOf(2) }, bc.takeIf { UI.getLayoutMode() !in listOf(2, 3) }, bd.takeIf { UI.getLayoutMode() !in listOf(3) }, be, bf).joinToString(" ")
+        return listOfNotNull(ba, bb, be, bf).joinToString(" ")
     }
 
     suspend fun awaitInput(message: String) {

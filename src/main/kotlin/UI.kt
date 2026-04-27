@@ -47,7 +47,7 @@ object UI : GameLogger {
     private val loadGameMOpen = ImBoolean(false)
     
     private var layoutMode = 0
-    // 0,2 = modern (default), 1,3 = columns
+    // 0 = modern (default), 1 = columns
     fun setLayoutMode(preset: Int) {
         resetLayout = true
         layoutMode = preset
@@ -821,26 +821,21 @@ object UI : GameLogger {
                 if(ImGui.button("Modern")) {
                     setLayoutMode(0)
                 }
-                ImGui.sameLine()
-                if(ImGui.button("Neo")) {
-                    setLayoutMode(2)
-                }
 
                 if(ImGui.button("Columns")) {
                     setLayoutMode(1)
-                }
-                ImGui.sameLine()
-                if(ImGui.button("Classic")) {
-                    setLayoutMode(3)
                 }
 
                 ImGui.newLine()
                 ImGui.checkbox("Lock layout positions", keepLayout)
                 if (ImGui.isItemHovered()) {
                     ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 1.0f, 1.0f, 1.0f)
-                    ImGui.setTooltip("Keep windows locked to the selected layout positions")
+                    ImGui.setTooltip("Keep windows locked to the selected layout preset")
                     ImGui.popStyleColor()
                 }
+
+                ImGui.separator()
+                Graphing.renderChartPreferences()
 
                 ImGui.endChild()
                 ImGui.endTabItem()
@@ -914,12 +909,12 @@ object UI : GameLogger {
             resetLayout = false
         }
 
-        if (getLayoutMode() in listOf(1, 3)) {
+        if (getLayoutMode() == 1) {
             val colWidth = displayWidth / 3f
             renderControlsWindow(0f, 0f, colWidth, displayHeight, cond)
             renderEventLogWindow(colWidth, 0f, colWidth, displayHeight, cond)
             renderInfoWindow(colWidth * 2, 0f, colWidth, displayHeight, cond)
-        } else if (getLayoutMode() in listOf(0, 2)) {
+        } else {
             val rightWidth = displayWidth * 0.4f
             val leftWidth = displayWidth - rightWidth
             val topHeight = displayHeight * 0.5f
