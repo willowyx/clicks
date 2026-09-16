@@ -26,6 +26,20 @@ data class CoffeeOrderFormData (    // form data somewhat translated into coffee
     val debug: Boolean
 )
 
+data class CoffeeScoreRow(
+    val label: String,
+    val expected: String,
+    val actual: String,
+    val isCorrect: Boolean,
+    val points: Int,
+    val logMessage: String
+)
+
+data class CoffeeScoreResult(
+    val score: Int,
+    val rows: List<CoffeeScoreRow>
+)
+
 object CoffeeGen {
     lateinit var logger: GameLogger
 
@@ -102,7 +116,11 @@ object CoffeeGen {
         if (type == "hot chocolate" && temp == "iced") copy(temp = "hot") else this
 
     private fun CoffeeOrder.validateLactoseFree() =
-        if (modA == "lactose free" && dairy in withLactose) copy(dairy = "almond milk") else this
+        when {
+            modA == "lactose free" && type == "breve" -> copy(modA = "none")
+            modA == "lactose free" && dairy in withLactose -> copy(dairy = "almond milk")
+            else -> this
+        }
 
     private fun CoffeeOrder.validateDecaf() =
         if (modA == "decaf" && modB == "extra espresso") copy(modB = "none") else this
@@ -116,13 +134,30 @@ object CoffeeGen {
     private fun CoffeeOrder.validateSteamedMilk() =
         if (modB == "steamed milk") copy(
             temp = if (temp == "iced") "hot" else temp,
-            dairy = if (dairy == "none") "2 percent milk" else dairy
+            dairy = when {
+                type == "breve" -> dairy
+                dairy == "none" || dairy == "no dairy" -> "2 percent milk"
+                else -> dairy
+            }
         ) else this
 
-    fun scoreCoffeeGen(userOrderIn: CoffeeOrderFormData): Int {
+    fun scoreCoffeeGenDetailed(userOrderIn: CoffeeOrderFormData): CoffeeScoreResult {
         var tempscore = 0
+        val rows = mutableListOf<CoffeeScoreRow>()
         setRewardType(userOrderIn.reward)
         setDebugEnabled(userOrderIn.debug)
+
+        fun displayValue(value: String): String {
+            return if (value.isBlank() || value == "none") "none" else value
+        }
+
+        fun addRow(label: String, expected: String, actual: String, isCorrect: Boolean, points: Int, logMessage: String) {
+            tempscore += points
+            rows.add(CoffeeScoreRow(label, displayValue(expected), displayValue(actual), isCorrect, points, logMessage))
+            if (crDebugEnabled) {
+                logger.log(logMessage)
+            }
+        }
 
         // points array (gain, lose)
         val rsizepts = arrayOf(2, 0)
@@ -134,159 +169,151 @@ object CoffeeGen {
         val rmodBpts = arrayOf(4, -2)
         val adlrulepts = arrayOf(0, -2)
 
-        // !! Validate relevant order details !!
-        // validate size
-        if (validatedOrder.size == userOrderIn.size) {
-            tempscore += rsizepts[0]
-            logger.log("[OK] size matches")
-        } else if(validatedOrder.size == "none" && userOrderIn.size == "large") {
-            tempscore += rsizepts[0]
-            logger.log("[OK] implicit size ok")
-        } else if (validatedOrder.size == "none" && validatedOrder.type == "espresso" && userOrderIn.size == "medium") {
-            tempscore += rsizepts[0]
-            logger.log("[OK] implicit espresso size ok")
-        } else {
-            tempscore += rsizepts[1]
-            logger.log("[WARN] size wrong")
+        val expectedSize = when {
+            validatedOrder.size != "none" -> validatedOrder.size
+            validatedOrder.type == "espresso" -> "medium"
+            else -> "large"
         }
-
-        // validate temp
-        if(validatedOrder.temp == userOrderIn.temp) {
-            tempscore += rtemppts[0]
-            logger.log("[OK] temp matches")
-        } else if (validatedOrder.temp == "none" && userOrderIn.temp == "hot") {
-            tempscore += rtemppts[0]
-            logger.log("[OK] implicit temp ok")
-        } else {
-            tempscore += rtemppts[1]
-            logger.log("[WARN] temp wrong")
-        }
-
-        // validate syrup
-        if (validatedOrder.syrup == userOrderIn.syrup) {
-            tempscore += rsyruppts[0]
-            logger.log("[OK] syrup matches")
-        } else {
-            tempscore += rsyruppts[1]
-            logger.log("[WARN] syrup wrong")
-        }
-
-        // validate drink type
-        if (validatedOrder.type == userOrderIn.type) {
-            tempscore += rtypepts[0]
-            logger.log("[OK] drink type matches")
-        } else {
-            tempscore += rtypepts[1]
-            logger.log("[WARN] drink type wrong")
-        }
-
-        // validate dairy
-        if (validatedOrder.dairy == userOrderIn.dairy) {
-            tempscore += rdairypts[0]
-            logger.log("[OK] dairy matches")
-        } else if(validatedOrder.type == "breve" && userOrderIn.dairy == "half-and-half") {         // special case
-            tempscore += rdairypts[0]
-            logger.log("[OK] special drink matches")
-        } else if(validatedOrder.dairy == "no dairy" && userOrderIn.dairy == "none") {
-            tempscore += rdairypts[0]
-            logger.log("[OK] no dairy matches")
-        } else {
-            tempscore += rdairypts[1]
-            logger.log("[WARN] dairy wrong")
-        }
-
-        // validate mod part A
-        // todo: double check logic
-        if(validatedOrder.modA == userOrderIn.iceAmount) {                                          // check ice amount
-            tempscore += rmodApts[0]
-            logger.log("[OK] ice amount matches")
-        } else if(validatedOrder.modA == "decaf" && userOrderIn.isDecaf) {                          // check decaf
-            tempscore += rmodApts[0]
-            logger.log("[OK] decaf matches")
-        } else if(validatedOrder.modA == "lactose free" && userOrderIn.dairy !in (withLactose)) {   // check dairy
-            tempscore += rmodApts[0]
-            logger.log("[OK] lactose free matches")
-        } else if(validatedOrder.modA == "none" && (userOrderIn.iceAmount == "regular ice" || (userOrderIn.temp == "hot" && userOrderIn.iceAmount == "no ice"))) {
-            tempscore += rmodApts[0]
-            logger.log("[OK] ice amount matches")
-        } else {
-            tempscore += rmodApts[1]
-            logger.log("[WARN] modA wrong")
-        }
-
-        // validate mod part B
-        if(validatedOrder.modB == userOrderIn.sugar) {
-            tempscore += rmodBpts[0]
-            logger.log("[OK] sugar matches")
-        } else if(validatedOrder.modB == "extra espresso" && userOrderIn.addEspresso) {
-            tempscore += rmodBpts[0]
-            logger.log("[OK] extra espresso matches")
-        } else if(validatedOrder.modB == "steamed milk" && userOrderIn.steamed) {
-            tempscore += rmodBpts[0]
-            logger.log("[OK] steamed matches")
-        } else if(validatedOrder.modB == "no sugar" && (userOrderIn.syrup == "none")) {
-            tempscore += rmodBpts[0]
-            logger.log("[OK] no sugar matches")
-        } else if(validatedOrder.modB !in listOf("add granulated sugar", "add sugar syrup", "no sugar") && userOrderIn.sugar == "regular sugar") {
-            if(validatedOrder.special == "black coffee") {
-                tempscore += rmodBpts[0]
-                logger.log("[OK] special rule for black coffee matches")
+        val sizeCorrect = userOrderIn.size == expectedSize
+        addRow(
+            "Size",
+            if (validatedOrder.size == "none") "$expectedSize (implicit)" else expectedSize,
+            userOrderIn.size,
+            sizeCorrect,
+            if (sizeCorrect) rsizepts[0] else rsizepts[1],
+            if (sizeCorrect) {
+                if (validatedOrder.size == "none") "[OK] implicit size ok" else "[OK] size matches"
             } else {
-                tempscore += rmodBpts[1]
-                logger.log("[WARN] regular sugar is wrong")
+                "[WARN] size wrong"
             }
-        } else if(validatedOrder.modB == "none") {
-            if(userOrderIn.iceAmount == "regular ice") {
-                tempscore += rmodBpts[0]
-                logger.log("[OK] implicit ice amount ok")
+        )
+
+        val expectedTemp = if (validatedOrder.temp == "none") "hot" else validatedOrder.temp
+        val tempCorrect = userOrderIn.temp == expectedTemp
+        addRow(
+            "Temperature",
+            if (validatedOrder.temp == "none") "$expectedTemp (implicit)" else expectedTemp,
+            userOrderIn.temp,
+            tempCorrect,
+            if (tempCorrect) rtemppts[0] else rtemppts[1],
+            if (tempCorrect) {
+                if (validatedOrder.temp == "none") "[OK] implicit temp ok" else "[OK] temp matches"
+            } else {
+                "[WARN] temp wrong"
             }
-        } else if(validatedOrder.modB != "no sugar" && userOrderIn.sugar == "regular sugar") {
-            tempscore += rmodBpts[0]    // applied last so other conditions still checked
-            logger.log("[OK] implicit sugar amount ok")
-        } else {
-            tempscore += rmodBpts[1]
-            logger.log("[WARN] modB wrong")
+        )
+
+        val syrupCorrect = validatedOrder.syrup == userOrderIn.syrup
+        addRow(
+            "Syrup",
+            validatedOrder.syrup,
+            userOrderIn.syrup,
+            syrupCorrect,
+            if (syrupCorrect) rsyruppts[0] else rsyruppts[1],
+            if (syrupCorrect) "[OK] syrup matches" else "[WARN] syrup wrong"
+        )
+
+        val typeCorrect = validatedOrder.type == userOrderIn.type
+        addRow(
+            "Drink",
+            validatedOrder.type,
+            userOrderIn.type,
+            typeCorrect,
+            if (typeCorrect) rtypepts[0] else rtypepts[1],
+            if (typeCorrect) "[OK] drink type matches" else "[WARN] drink type wrong"
+        )
+
+        val expectedDairy = when {
+            validatedOrder.type == "breve" -> "half-and-half"
+            validatedOrder.dairy == "no dairy" -> "none"
+            else -> validatedOrder.dairy
+        }
+        val dairyCorrect = userOrderIn.dairy == expectedDairy
+        addRow(
+            "Dairy",
+            expectedDairy,
+            userOrderIn.dairy,
+            dairyCorrect,
+            if (dairyCorrect) rdairypts[0] else rdairypts[1],
+            if (dairyCorrect) {
+                when {
+                    validatedOrder.type == "breve" -> "[OK] special drink matches"
+                    validatedOrder.dairy == "no dairy" -> "[OK] no dairy matches"
+                    else -> "[OK] dairy matches"
+                }
+            } else {
+                "[WARN] dairy wrong"
+            }
+        )
+
+        when (validatedOrder.modA) {
+            "decaf" -> {
+                val correct = userOrderIn.isDecaf
+                addRow("Modifier A", "decaf", if (userOrderIn.isDecaf) "decaf" else "not decaf", correct, if (correct) rmodApts[0] else rmodApts[1], if (correct) "[OK] decaf matches" else "[WARN] modA wrong")
+            }
+            "lactose free" -> {
+                val correct = userOrderIn.dairy !in withLactose
+                addRow("Modifier A", "lactose free dairy", userOrderIn.dairy, correct, if (correct) rmodApts[0] else rmodApts[1], if (correct) "[OK] lactose free matches" else "[WARN] modA wrong")
+            }
+            "none" -> {
+                val correct = userOrderIn.iceAmount == "regular ice" || (userOrderIn.temp == "hot" && userOrderIn.iceAmount == "no ice")
+                addRow("Modifier A", "regular ice or no ice for hot drinks", userOrderIn.iceAmount, correct, if (correct) rmodApts[0] else rmodApts[1], if (correct) "[OK] ice amount matches" else "[WARN] modA wrong")
+            }
+            else -> {
+                val correct = validatedOrder.modA == userOrderIn.iceAmount
+                addRow("Modifier A", validatedOrder.modA, userOrderIn.iceAmount, correct, if (correct) rmodApts[0] else rmodApts[1], if (correct) "[OK] ice amount matches" else "[WARN] modA wrong")
+            }
         }
 
-        // !! validate other order details !!
-        // validate form checkboxes
-        if(userOrderIn.isDecaf) {       // if selected decaf unnecessarily
-            if (validatedOrder.modA != "decaf") {
-                tempscore += rmodApts[1]
-                logger.log("[WARN] decaf is wrong")
+        when {
+            validatedOrder.modB == "no sugar" -> {
+                val correct = userOrderIn.sugar == "no sugar" && userOrderIn.syrup == "none"
+                val actual = "${userOrderIn.sugar}, syrup: ${userOrderIn.syrup}"
+                addRow("Modifier B", "no sugar, no syrup", actual, correct, if (correct) rmodBpts[0] else rmodBpts[1], if (correct) "[OK] no sugar matches" else "[WARN] modB wrong")
             }
-        }
-        if(userOrderIn.steamed) {       // if selected steamed milk unnecessarily
-            if(validatedOrder.modB != "steamed milk") {
-                tempscore += rmodBpts[1]
-                logger.log("[WARN] steamed milk is wrong")
+            validatedOrder.modB == userOrderIn.sugar -> {
+                addRow("Modifier B", validatedOrder.modB, userOrderIn.sugar, true, rmodBpts[0], "[OK] sugar matches")
             }
-        } else if(userOrderIn.addEspresso) {  // if added espresso unnecessarily
-            if (validatedOrder.modB != "extra espresso") {
-                tempscore += rmodBpts[1]
-                logger.log("[WARN] add espresso is wrong")
+            validatedOrder.modB == "extra espresso" && userOrderIn.addEspresso -> {
+                addRow("Modifier B", "extra espresso", "extra espresso", true, rmodBpts[0], "[OK] extra espresso matches")
+            }
+            validatedOrder.modB == "steamed milk" && userOrderIn.steamed -> {
+                addRow("Modifier B", "steamed milk", "steamed milk", true, rmodBpts[0], "[OK] steamed matches")
+            }
+            validatedOrder.modB == "none" && userOrderIn.sugar == "regular sugar" -> {
+                addRow("Modifier B", "regular sugar", userOrderIn.sugar, true, rmodBpts[0], "[OK] implicit sugar amount ok")
+            }
+            validatedOrder.special == "black coffee" && userOrderIn.sugar == "regular sugar" -> {
+                addRow("Modifier B", "regular sugar", userOrderIn.sugar, true, rmodBpts[0], "[OK] special rule for black coffee matches")
+            }
+            else -> {
+                addRow("Modifier B", validatedOrder.modB, userOrderIn.sugar, false, rmodBpts[1], "[WARN] modB wrong")
             }
         }
 
-        // validate extra rules
+        if (userOrderIn.isDecaf && validatedOrder.modA != "decaf") {
+            addRow("Extra decaf", "off", "on", false, rmodApts[1], "[WARN] decaf is wrong")
+        }
+        if (userOrderIn.steamed && validatedOrder.modB != "steamed milk") {
+            addRow("Extra steamed", "off", "on", false, rmodBpts[1], "[WARN] steamed milk is wrong")
+        }
+        if (userOrderIn.addEspresso && validatedOrder.modB != "extra espresso") {
+            addRow("Extra espresso", "off", "on", false, rmodBpts[1], "[WARN] add espresso is wrong")
+        }
+
         if(validatedOrder.type == "breve" && userOrderIn.dairy != "half-and-half") {
-            tempscore += adlrulepts[1]
-            logger.log("[WARN] breve needs half-and-half")
+            addRow("Breve rule", "half-and-half", userOrderIn.dairy, false, adlrulepts[1], "[WARN] breve needs half-and-half")
         }
         if(validatedOrder.special == "black coffee" && !(userOrderIn.syrup == "none" && userOrderIn.dairy == "none")) {
-            tempscore += adlrulepts[1]
-            logger.log("[WARN] black coffee cannot have dairy or syrup")
+            addRow("Black coffee rule", "no syrup or dairy", "${userOrderIn.syrup}, ${userOrderIn.dairy}", false, adlrulepts[1], "[WARN] black coffee cannot have dairy or syrup")
         }
-        if(validatedOrder.size == "none" && userOrderIn.size != "large") {
-            if((userOrderIn.type == "espresso" && userOrderIn.size != "medium")) {
-                tempscore += adlrulepts[1]
-                logger.log("[WARN] implicit espresso size must be medium")
-            } else {
-                tempscore += adlrulepts[1]
-                logger.log("[WARN] implicit drink size must be large")
-            }
+        if(validatedOrder.size == "none" && userOrderIn.size != expectedSize) {
+            val label = if (validatedOrder.type == "espresso") "Implicit espresso size rule" else "Implicit size rule"
+            val message = if (validatedOrder.type == "espresso") "[WARN] implicit espresso size must be medium" else "[WARN] implicit drink size must be large"
+            addRow(label, expectedSize, userOrderIn.size, false, adlrulepts[1], message)
         }
-        return tempscore
+
+        return CoffeeScoreResult(tempscore, rows)
     }
 
     fun formatOrderData(order: CoffeeOrder): String {

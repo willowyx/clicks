@@ -43,8 +43,14 @@ object UI : GameLogger {
     private val rewardGroup = ImInt(1)
     private val aboutInfoMOpen = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
+    private val orderGradeMOpen = ImBoolean(false)
     private val saveGameMOpen = ImBoolean(false)
     private val loadGameMOpen = ImBoolean(false)
+    private var lastOrderScore = 0
+    private var lastOrderGrade = "F"
+    private var lastOrderFeedback = ""
+    private var lastOrderAdjustment = ""
+    private var lastOrderChartRows = emptyList<CoffeeScoreRow>()
     
     private var layoutMode = 0
     // 0 = modern (default), 1 = columns
@@ -460,6 +466,60 @@ object UI : GameLogger {
         }
     }
 
+    private fun coffeeOrderGrade(score: Int): String {
+        return when {
+            score >= 20 -> "S+"
+            score >= 18 -> "S"
+            score >= 14 -> "A"
+            score >= 10 -> "B"
+            score >= 8 -> "C"
+            score >= 6 -> "D"
+            else -> "F"
+        }
+    }
+
+    private fun coffeeOrderFeedback(score: Int): String {
+        return when {
+            score >= 20 -> "you're the best. uhh what's your name again?"
+            score >= 18 -> "good soup!"
+            score >= 14 -> "decent"
+            score >= 10 -> "...it's coffee I guess?"
+            score >= 8 -> "i get it i get it i'll do it myself next time"
+            score >= 6 -> "genuinely did you listen to a word of my order"
+            else -> "Please see me in my office."
+        }
+    }
+
+    private fun coffeeOrderAdjustment(score: Int): String {
+        val adjustment = ((score * 5 * 2) / 100.0).coerceIn(-2.00, 2.00)
+        val sign = if (adjustment >= 0) "+" else ""
+        return "Percent adjustment: $sign${"%.0f".format(adjustment * 100)}"
+    }
+
+    private fun renderCoffeeOrderChart() {
+        ImGui.text("Order check")
+        val childWidth = ImGui.getContentRegionAvailX()
+        val childHeight = 210f
+        if (ImGui.beginChild("orderGradeChart", childWidth, childHeight, true)) {
+            lastOrderChartRows.forEach { row ->
+                val pointText = if (row.points >= 0) "+${row.points}" else row.points.toString()
+                if (row.isCorrect) {
+                    ImGui.pushStyleColor(ImGuiCol.Text, 0.55f, 1.0f, 0.65f, 1.0f)
+                    ImGui.text("OK")
+                } else {
+                    ImGui.pushStyleColor(ImGuiCol.Text, 1.0f, 0.45f, 0.45f, 1.0f)
+                    ImGui.text("BAD")
+                }
+                ImGui.popStyleColor()
+                ImGui.sameLine()
+                ImGui.text("[$pointText]")
+                ImGui.sameLine()
+                ImGui.textWrapped("${row.label}: expected ${row.expected}; got ${row.actual}")
+            }
+            ImGui.endChild()
+        }
+    }
+
     private fun renderPrestigeWindow(x: Float, y: Float, width: Float, height: Float) {
         ImGui.setNextWindowPos(x, y, ImGuiCond.Once)
         ImGui.setNextWindowSize(width, height, ImGuiCond.Once)
@@ -693,7 +753,15 @@ object UI : GameLogger {
                 debug = debugMode.get()
             )
             gl.setUserOrder(userOrder)
-            val cgenScoreVal = cgenlogic.scoreCoffeeGen(gl.getUserOrder())
+            val cgenScoreResult = cgenlogic.scoreCoffeeGenDetailed(gl.getUserOrder())
+            val cgenScoreVal = cgenScoreResult.score
+            lastOrderScore = cgenScoreVal
+            lastOrderGrade = coffeeOrderGrade(cgenScoreVal)
+            lastOrderFeedback = coffeeOrderFeedback(cgenScoreVal)
+            lastOrderAdjustment = coffeeOrderAdjustment(cgenScoreVal)
+            lastOrderChartRows = cgenScoreResult.rows
+            orderGradeMOpen.set(true)
+            ImGui.openPopup("memo: coffee")
             if (cgenlogic.getDebugEnabled()) {
                 log("[INFO] User placed order: $userOrder")
                 log("[INFO] Target order: ${cgenlogic.getValidatedOrder()}")
@@ -716,6 +784,29 @@ object UI : GameLogger {
         }
         if (ImGui.isItemDeactivated() && !debugMode.get()) {
             log("[INFO] debug mode deactivated") // could refresh order
+        }
+
+        ImGui.setNextWindowSize(650f, 420f, ImGuiCond.Appearing)
+        if (ImGui.beginPopupModal(
+                "memo: coffee",
+                orderGradeMOpen,
+                ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse
+            )
+        ) {
+            ImGui.text("GRADE: $lastOrderGrade")
+            ImGui.text("Score: $lastOrderScore")
+            ImGui.separator()
+            ImGui.text(lastOrderAdjustment)
+            ImGui.newLine()
+            ImGui.textWrapped(lastOrderFeedback)
+            ImGui.newLine()
+            renderCoffeeOrderChart()
+            ImGui.newLine()
+            if (ImGui.button("Continue")) {
+                orderGradeMOpen.set(false)
+                ImGui.closeCurrentPopup()
+            }
+            ImGui.endPopup()
         }
 
         ImGui.end()
