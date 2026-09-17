@@ -63,6 +63,18 @@ object UI : GameLogger {
     }
     private var resetLayout = false
 
+    private fun pushMonoDef(): Boolean {
+        val font = Main.getMonoDef() ?: return false
+        ImGui.pushFont(font)
+        return true
+    }
+
+    private fun popMonoDef(pushed: Boolean) {
+        if (pushed) {
+            ImGui.popFont()
+        }
+    }
+
     override fun log(message: String) {
         synchronized(logBuffer) {
             logBuffer.add(message)
@@ -193,6 +205,7 @@ object UI : GameLogger {
             val childWidth = 300f
             val childHeight = 100f
             if (ImGui.beginChild("saveGameModal", childWidth, childHeight, true)) {
+                val monoFontPushed = pushMonoDef()
                 if(ImGui.button("Save game...")) {
                     State.initializeStateSave()
                     if(State.saveStateDialog()) {
@@ -200,6 +213,7 @@ object UI : GameLogger {
                         ImGui.closeCurrentPopup()
                     }
                 }
+                popMonoDef(monoFontPushed)
                 ImGui.endChild()
             }
             ImGui.newLine()
@@ -214,12 +228,14 @@ object UI : GameLogger {
             val childWidth = 300f
             val childHeight = 100f
             if (ImGui.beginChild("loadGameModal", childWidth, childHeight, true)) {
+                val monoFontPushed = pushMonoDef()
                 if(ImGui.button("Choose file...")) {
                     if(State.loadStateDialog()) {
                         gl.genStart()
                         ImGui.closeCurrentPopup()
                     }
                 }
+                popMonoDef(monoFontPushed)
                 ImGui.endChild()
             }
             ImGui.newLine()
@@ -501,6 +517,7 @@ object UI : GameLogger {
         val childWidth = ImGui.getContentRegionAvailX()
         val childHeight = 210f
         if (ImGui.beginChild("orderGradeChart", childWidth, childHeight, true)) {
+            val monoFontPushed = pushMonoDef()
             lastOrderChartRows.forEach { row ->
                 val pointText = if (row.points >= 0) "+${row.points}" else row.points.toString()
                 if (row.isCorrect) {
@@ -516,6 +533,7 @@ object UI : GameLogger {
                 ImGui.sameLine()
                 ImGui.textWrapped("${row.label}: expected ${row.expected}; got ${row.actual}")
             }
+            popMonoDef(monoFontPushed)
             ImGui.endChild()
         }
     }
@@ -608,8 +626,10 @@ object UI : GameLogger {
             val childWidth = ImGui.getContentRegionAvailX()
             val childHeight = 200f
             if (ImGui.beginChild("orderOutput", childWidth, childHeight, true)) {
+                val monoFontPushed = pushMonoDef()
                 val orderText = gl.getTargetOrder().let { cgenlogic.formatOrderData(it) }
                 ImGui.textWrapped(orderText)
+                popMonoDef(monoFontPushed)
                 ImGui.endChild()
             }
             ImGui.newLine()
@@ -843,6 +863,7 @@ object UI : GameLogger {
         ImGui.separator()
 
         ImGui.beginChild("LogRegion", 0f, 0f, true)
+        val logMonoFontPushed = pushMonoDef()
         synchronized(logBuffer) {
             for (line in logBuffer) {
                 if (logFilter.get().isBlank() || line.contains(logFilter.get(), ignoreCase = true)) {
@@ -862,6 +883,7 @@ object UI : GameLogger {
                 ImGui.setScrollHereY(1.0f)
             }
         }
+        popMonoDef(logMonoFontPushed)
         ImGui.endChild()
         ImGui.end()
         ImGui.popStyleColor(9)
@@ -890,7 +912,9 @@ object UI : GameLogger {
             if (ImGui.beginTabItem("Stats")) {
                 ImGui.text("Game statistics")
                 ImGui.beginChild("StatsRegion", 0f, 0f, true)
+                val monoFontPushed = pushMonoDef()
                 ImGui.text(gl.statDump())
+                popMonoDef(monoFontPushed)
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
@@ -899,7 +923,9 @@ object UI : GameLogger {
                 val childWidth = ImGui.getContentRegionAvailX()
                 val childHeight = ImGui.getContentRegionAvailY()
                 if (ImGui.beginChild("VisualGraphRegion", childWidth, childHeight, true)) {
+                    val monoFontPushed = pushMonoDef()
                     Graphing.renderInInfo()
+                    popMonoDef(monoFontPushed)
                     ImGui.endChild()
                 }
                 ImGui.endTabItem()
@@ -907,12 +933,13 @@ object UI : GameLogger {
             if (ImGui.beginTabItem("Settings")) {
                 ImGui.text("Preferences")
                 ImGui.beginChild("PrefsList", 0f, 0f, true)
+                val monoFontPushed = pushMonoDef()
 
                 ImGui.text("Layout preset")
                 if(ImGui.button("Modern")) {
                     setLayoutMode(0)
                 }
-
+                ImGui.sameLine()
                 if(ImGui.button("Columns")) {
                     setLayoutMode(1)
                 }
@@ -925,9 +952,19 @@ object UI : GameLogger {
                     ImGui.popStyleColor()
                 }
 
+                ImGui.newLine()
                 ImGui.separator()
+
                 Graphing.renderChartPreferences()
 
+                ImGui.newLine()
+                ImGui.separator()
+
+                ImGui.text("Font config")
+                ImGui.text("Default ${Main.getCurrentFontName()}")
+                ImGui.text("Mono    ${Main.getMonoDefName()}")
+
+                popMonoDef(monoFontPushed)
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
@@ -943,6 +980,7 @@ object UI : GameLogger {
                 if (ImGui.beginPopupModal("Credits & thanks", aboutInfoMOpen, ImGuiWindowFlags.NoMove + ImGuiWindowFlags.NoResize + ImGuiWindowFlags.NoCollapse)) {
                     ImGui.newLine()
                     if(ImGui.beginChild("AboutCredits", 500f, 300f, true)) {
+                        val monoFontPushed = pushMonoDef()
                         ImGui.textWrapped(
                             """
                             This project was made possible by the following open-source libraries and software:
@@ -967,6 +1005,7 @@ object UI : GameLogger {
                         ImGui.newLine()
 
                         ImGui.textWrapped("Finally: thank you for taking the time to try out my thing!")
+                        popMonoDef(monoFontPushed)
                     }
                     ImGui.endChild()
 

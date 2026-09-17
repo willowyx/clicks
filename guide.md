@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.23.x
+###### for version 0.25.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -140,13 +140,31 @@ The Event Log window displays game events every tick and immediate feedback on y
 * By default, the Event Log scrolls to the newest additions as they are added. To unlock scrolling and view previous events, uncheck the `Auto-scroll` checkbox.
 
 ## IV. Info window
+
+### a. Stats
 The Stats tab under the Info window displays game state information as well as the values of generation variables that may be upgraded. The Stats pane is refreshed each tick.
 * The individual parameters found in the Stats pane are described in detail under "Game parameters" (I.d)
 
-The Visual tab contains line graphs for visual insight into game generation.
+### b. Visuals
+The Visual tab contains line graphs for visual insight into game variable generation. Average calculations for each chart are based on visible data.
 
-The Settings tab contains settings allowing you to adjust the layout of in-game windows.
+* `click amount` tracks the total clicks generated each tick.
+* `base clicks deviation` tracks the deviation of clicks generated each tick from the base amount of clicks.
+* `pack reward` tracks rewards for each successful package.
+* `base reward deviation` tracks the deviation of package rewards from the base reward amount.
+* `bonus per package` tracks bonuses added to package rewards.
+* `investment gain` tracks earnings from the Hedge Fund mod, as a percentage of each investment.
+* `prestige bonus` tracks the bonus reward applied to each package based on prestige and a further bonus from reward Uncertainty.
 
+### c. Settings
+The Settings tab contains settings allowing adjustments to the game interface:
+* `Layout preset` allows you to choose between preset window layouts
+  * This affects only the in-game window layout
+* When checked, `Lock layout positions` will prevent the movement and resizing of in-game windows
+  * Windows can stil be collapsed using the arrow in the upper-left corner of each window
+* `Visualizations` allows you to customize the charts displayed in the `Visuals` tab
+
+### d. About
 The About tab contains version information and credits.
 
 ## V. Popout windows
@@ -163,7 +181,7 @@ The Coffee Run mod is found later in the game and appears in its own window. It 
 
 #### Overview
 * As an intern at a large firm, you are tasked with running around the office delivering things, sorting papers, and...going on coffee runs?
-* You get one order at a time, and you're expected to place it without messing it up.
+* You get one order at a time, and you're expected to place it without completely messing it up.
 * Successfully completing coffee runs will give you bonuses to your Upgrades so you can Prestige with moderately less tedium!
 
 #### Order Rules

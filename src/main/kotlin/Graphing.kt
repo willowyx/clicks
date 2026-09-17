@@ -140,6 +140,7 @@ object Graphing {
 
     fun renderChartPreferences() {
         ImGui.text("Visualizations")
+        ImGui.newLine()
         for ((index, h) in histories.withIndex()) {
             ImGui.checkbox("${h.name}###chart_toggle_$index", chartVisibility.getValue(h))
         }
