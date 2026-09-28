@@ -28,7 +28,7 @@ As I think of other things I will add them to this "roadmap" but the current lis
 # building clicks
 
 ## Java version
-clicks requires JDK 21, whether you are building or running the game, although I've tested with JDK 25 as well which works fine.
+clicks requires JDK 21, whether you are building or running the game, although I've tested with JDK 25 and 27 which work fine as well.
 
 ## on mac
 on Mac, clicks may require these JVM options to run correctly:
