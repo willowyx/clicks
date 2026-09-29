@@ -17,7 +17,7 @@ repositories {
 }
 
 val lwjglVersion = "3.4.1"
-val jacksonVersion = "2.22.1"
+val jacksonVersion = "2.22.3"
 val os = org.gradle.internal.os.OperatingSystem.current()
 
 fun lwjglNatives(os: org.gradle.internal.os.OperatingSystem): String = when {
