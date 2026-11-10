@@ -31,10 +31,11 @@ As I think of other things I will add them to this "roadmap" but the current lis
 clicks requires JDK 21, whether you are building or running the game, although I've tested with JDK 25 as well which works fine.
 
 ## on mac
-on Mac, clicks may require these JVM options to run correctly:
+running clicks using Java may require these JVM options to run correctly:
 * `-XstartOnFirstThread`
 * `--enable-native-access=ALL-UNNAMED`
 
+alternatively, you can use the `packageMac` gradle task to build and package clicks as a native standalone app bundle.
 
 # contact
 email me: [haii@willowyx.dev](mailto:haii@willowyx.dev)

@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL11.*
 import org.lwjgl.system.MemoryUtil.NULL
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.system.exitProcess
 
 object Main {
@@ -24,6 +25,7 @@ object Main {
     private var monoFont: ImFont? = null
     private var monoFontName: String = "clicks UI mono"
     private const val UI_FONT_SIZE = 16.0f
+    private val actionQueue = ConcurrentLinkedQueue<() -> Unit>()
 
     fun getCurrentFontName(): String {
         return currentFontName
@@ -37,9 +39,18 @@ object Main {
         return monoFontName
     }
 
+    fun enqueueAction(action: () -> Unit) {
+        actionQueue.add(action)
+    }
+
+    fun requestQuit() {
+        wShouldQuit = true
+    }
+
     @JvmStatic
     fun main(args: Array<String>) {
         GLFWErrorCallback.createPrint(System.err).set()
+        DMenubar.configureBeforeGlfwInit()
         if (!glfwInit()) error("Unable to initialize GLFW")
 
         fun decideGlGlslVersions() {
@@ -66,6 +77,7 @@ object Main {
         if (window == NULL) error("Failed to create window")
         glfwMakeContextCurrent(window)
         glfwSwapInterval(1) // vsync
+        DMenubar.install(window)
         glfwShowWindow(window)
 
         GL.createCapabilities()
@@ -83,6 +95,13 @@ object Main {
 
         while (!glfwWindowShouldClose(window) && !wShouldQuit) {
             glfwPollEvents()
+            while (true) {
+                val action = actionQueue.poll() ?: break
+                runCatching(action).onFailure { error ->
+                    UI.log("[ERROR] menu action failed: ${error.message ?: error.javaClass.simpleName}")
+                }
+            }
+            DMenubar.refreshMenuState()
 
             val fbWidth = IntArray(1)
             val fbHeight = IntArray(1)
@@ -121,6 +140,7 @@ object Main {
         glfwFreeCallbacks(window)
         glfwDestroyWindow(window)
         glfwTerminate()
+        DMenubar.shutdown()
         glfwSetErrorCallback(null)?.free()
         exitProcess(0)
     }
@@ -212,6 +232,8 @@ object Main {
             "C:\\Windows\\Fonts\\CascadiaCode.ttf",
             "C:\\Windows\\Fonts\\consola.ttf",
             "C:\\Windows\\Fonts\\cour.ttf",
+            "/System/Library/Fonts/SFNSMono.ttf",
+            "/System/Library/Fonts/Supplemental/Andale Mono.ttf",
             "$userHome/Library/Fonts/JetBrainsMono-Regular.ttf",
             "$userHome/.local/share/fonts/JetBrainsMono-Regular.ttf",
             "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Regular.ttf",

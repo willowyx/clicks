@@ -5,6 +5,7 @@ import imgui.ImGui
 import imgui.flag.ImGuiCol
 import imgui.flag.ImGuiCond
 import imgui.flag.ImGuiStyleVar
+import imgui.flag.ImGuiTabItemFlags
 import imgui.flag.ImGuiWindowFlags
 import imgui.type.ImBoolean
 import imgui.type.ImInt
@@ -40,6 +41,9 @@ object UI : GameLogger {
     private val addEspresso = ImBoolean(false)
     private val debugMode = ImBoolean(false)
     private val keepLayout = ImBoolean(false)
+    private var savePopupRequested = false
+    private var loadPopupRequested = false
+    private var requestedInfoTab: String? = null
     private val rewardGroup = ImInt(1)
     private val aboutInfoMOpen = ImBoolean(false)
     private val reviewReqMOpen = ImBoolean(false)
@@ -61,6 +65,49 @@ object UI : GameLogger {
     fun getLayoutMode(): Int {
         return layoutMode
     }
+    fun isLayoutLocked(): Boolean = keepLayout.get()
+    fun toggleLayoutLock() = keepLayout.set(!keepLayout.get())
+    fun canStartNewGame(): Boolean = !gl.getIsGameStarted() && !gl.getJobRunStateInd()
+    fun canSaveGame(): Boolean = gl.getIsGameStarted() && !gl.getJobRunStateInd() && !gl.isAwaitingInput()
+    fun canLoadGame(): Boolean = !gl.getJobRunStateInd() && !gl.isAwaitingInput()
+    fun canPauseOrResume(): Boolean = gl.getIsGameStarted() && !gl.isAwaitingInput()
+    fun canPackage(): Boolean = gl.isAwaitingInput()
+    fun isGameRunning(): Boolean = gl.getJobRunStateInd()
+
+    fun requestNewGame() {
+        if (canStartNewGame()) {
+            gl.genStart()
+        } else {
+            log("[INFO] A game is already in progress")
+        }
+    }
+
+    fun requestSaveGame() {
+        if (canSaveGame()) savePopupRequested = true
+    }
+
+    fun requestLoadGame() {
+        if (canLoadGame()) loadPopupRequested = true
+    }
+
+    fun requestPauseOrResume() {
+        if (!canPauseOrResume()) return
+        if (gl.getJobRunStateInd()) gl.stop() else gl.genStart()
+    }
+
+    fun requestPackage() {
+        if (canPackage()) gl.confirmInput()
+    }
+
+    fun requestPreferences() {
+        requestedInfoTab = "Settings"
+    }
+
+    fun requestAbout() {
+        requestedInfoTab = "About"
+    }
+
+    fun requestHowToPlay() = openGuidePlDir()
     private var resetLayout = false
 
     private fun pushMonoDef(): Boolean {
@@ -162,6 +209,16 @@ object UI : GameLogger {
         ImGui.setNextWindowPos(x, y, cond)
         ImGui.setNextWindowSize(width, height, cond)
         ImGui.begin("Controls", ImGuiWindowFlags.HorizontalScrollbar)
+        if (savePopupRequested) {
+            saveGameMOpen.set(true)
+            ImGui.openPopup("Save game")
+            savePopupRequested = false
+        }
+        if (loadPopupRequested) {
+            loadGameMOpen.set(true)
+            ImGui.openPopup("Load save")
+            loadPopupRequested = false
+        }
         ImGui.text("clicks")
 
         ImGui.newLine()
@@ -909,7 +966,8 @@ object UI : GameLogger {
         ImGui.setNextWindowSize(width, height, cond)
         ImGui.begin("Info", ImGuiWindowFlags.HorizontalScrollbar)
         if (ImGui.beginTabBar("InfoTabs")) {
-            if (ImGui.beginTabItem("Stats")) {
+            val selectedTab = requestedInfoTab
+            if (ImGui.beginTabItem("Stats", if (selectedTab == "Stats") ImGuiTabItemFlags.SetSelected else 0)) {
                 ImGui.text("Game statistics")
                 ImGui.beginChild("StatsRegion", 0f, 0f, true)
                 val monoFontPushed = pushMonoDef()
@@ -918,7 +976,7 @@ object UI : GameLogger {
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
-            if (ImGui.beginTabItem("Visual")) {
+            if (ImGui.beginTabItem("Visual", if (selectedTab == "Visual") ImGuiTabItemFlags.SetSelected else 0)) {
                 ImGui.text("Visual")
                 val childWidth = ImGui.getContentRegionAvailX()
                 val childHeight = ImGui.getContentRegionAvailY()
@@ -930,7 +988,7 @@ object UI : GameLogger {
                 }
                 ImGui.endTabItem()
             }
-            if (ImGui.beginTabItem("Settings")) {
+            if (ImGui.beginTabItem("Settings", if (selectedTab == "Settings") ImGuiTabItemFlags.SetSelected else 0)) {
                 ImGui.text("Preferences")
                 ImGui.beginChild("PrefsList", 0f, 0f, true)
                 val monoFontPushed = pushMonoDef()
@@ -968,7 +1026,7 @@ object UI : GameLogger {
                 ImGui.endChild()
                 ImGui.endTabItem()
             }
-            if (ImGui.beginTabItem("About")) {
+            if (ImGui.beginTabItem("About", if (selectedTab == "About") ImGuiTabItemFlags.SetSelected else 0)) {
                 ImGui.text("clicks v${getAppVersion()} by willow")
                 ImGui.text("willowyx.dev/projects/clicks")
                 ImGui.newLine()
@@ -1017,6 +1075,7 @@ object UI : GameLogger {
                 }
                 ImGui.endTabItem()
             }
+            requestedInfoTab = null
             ImGui.endTabBar()
         }
         ImGui.end()

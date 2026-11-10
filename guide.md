@@ -1,5 +1,5 @@
 # clicks: playing guide
-###### for version 0.25.x
+###### for version 0.26.x
 
 #### Note: for clarity, game variables and terminology will be formatted `like this` whenever possible.
 
@@ -19,7 +19,7 @@
   * Prestige level can be increased up to 100 ("Eminence C")
   * This mechanic is still being testing and may change somewhat before release.
 
-###### These mechanics will be described in more detail or elaborated on as necessary throughout the rest of guide.
+###### These mechanics will be described in more detail or elaborated upon as necessary throughout the rest of guide.
 
 ### b. Overview
 Clicks is a game in which the currency `clicks` are passively generated.
@@ -103,7 +103,6 @@ The first subsection of the Controls window contains controls for basic game act
 * `Load Game` allows you to load a previously saved game from a save file
 * `Save Game` allows you to save your current game to a save file
 * `How to play` opens this guide
-  * this feature is not yet implemented
 
 ### b. Game Actions
 The Game Actions subsection (labeled `Game Actions`) contains controls for the game's various mechanics.
@@ -151,6 +150,7 @@ The Visual tab contains line graphs for visual insight into game variable genera
 * `click amount` tracks the total clicks generated each tick.
 * `base clicks deviation` tracks the deviation of clicks generated each tick from the base amount of clicks.
 * `pack reward` tracks rewards for each successful package.
+* `package penalty` tracks package accuracy penalties
 * `base reward deviation` tracks the deviation of package rewards from the base reward amount.
 * `bonus per package` tracks bonuses added to package rewards.
 * `investment gain` tracks earnings from the Hedge Fund mod, as a percentage of each investment.
